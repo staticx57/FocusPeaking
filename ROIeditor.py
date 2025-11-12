@@ -531,6 +531,69 @@ class BosonFocusGUI(QtWidgets.QWidget):
 
         layout.addWidget(palette_group)
 
+        # Zoom controls (New Feature)
+        zoom_group = QtWidgets.QGroupBox("Zoom / ROI Inspector")
+        zoom_layout = QtWidgets.QVBoxLayout(zoom_group)
+
+        # Zoom mode selector
+        zoom_layout.addWidget(QtWidgets.QLabel("Zoom Mode:"))
+        self.zoom_mode_combo = QtWidgets.QComboBox()
+        self.zoom_mode_combo.addItems([mode.value for mode in ZoomMode])
+        self.zoom_mode_combo.setCurrentText(ZoomMode.OFF.value)
+        self.zoom_mode_combo.setToolTip(
+            "Off: Normal view\n"
+            "Manual: Draw zoom rectangle\n"
+            "Auto-ROI: Zoom to selected ROI\n"
+            "Auto-All-ROIs: Zoom to all ROIs"
+        )
+        self.zoom_mode_combo.currentTextChanged.connect(self._on_zoom_mode_changed)
+        zoom_layout.addWidget(self.zoom_mode_combo)
+
+        # ROI selector (for Auto-ROI mode)
+        roi_selector_layout = QtWidgets.QHBoxLayout()
+        roi_selector_layout.addWidget(QtWidgets.QLabel("Target ROI:"))
+        self.zoom_roi_combo = QtWidgets.QComboBox()
+        self.zoom_roi_combo.addItem("None", None)
+        self.zoom_roi_combo.setToolTip("Select ROI to zoom to (Auto-ROI mode)")
+        self.zoom_roi_combo.currentIndexChanged.connect(self._on_zoom_roi_changed)
+        roi_selector_layout.addWidget(self.zoom_roi_combo)
+        zoom_layout.addLayout(roi_selector_layout)
+
+        # Zoom level slider (for Manual mode)
+        zoom_layout.addWidget(QtWidgets.QLabel("Zoom Level:"))
+        self.zoom_level_slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
+        self.zoom_level_slider.setRange(10, 40)  # 1.0x to 4.0x
+        self.zoom_level_slider.setValue(10)  # 1.0x default
+        self.zoom_level_slider.valueChanged.connect(self._on_zoom_level_changed)
+        zoom_layout.addWidget(self.zoom_level_slider)
+
+        self.zoom_level_label = QtWidgets.QLabel("Level: 1.0x")
+        self.zoom_level_label.setStyleSheet("font-size: 8pt;")
+        zoom_layout.addWidget(self.zoom_level_label)
+
+        # Control buttons
+        zoom_buttons_layout = QtWidgets.QHBoxLayout()
+
+        self.zoom_reset_btn = QtWidgets.QPushButton("Reset Pan")
+        self.zoom_reset_btn.setToolTip("Reset pan to center")
+        self.zoom_reset_btn.clicked.connect(self._zoom_reset_pan)
+        zoom_buttons_layout.addWidget(self.zoom_reset_btn)
+
+        self.zoom_draw_btn = QtWidgets.QPushButton("Draw Zoom Area")
+        self.zoom_draw_btn.setCheckable(True)
+        self.zoom_draw_btn.setToolTip("Click and drag to define zoom area (Manual mode)")
+        self.zoom_draw_btn.clicked.connect(self._toggle_zoom_drawing)
+        zoom_buttons_layout.addWidget(self.zoom_draw_btn)
+
+        zoom_layout.addLayout(zoom_buttons_layout)
+
+        # Status label
+        self.zoom_status_label = QtWidgets.QLabel("Zoom: Off")
+        self.zoom_status_label.setStyleSheet("font-size: 8pt; color: #888;")
+        zoom_layout.addWidget(self.zoom_status_label)
+
+        layout.addWidget(zoom_group)
+
     def _create_roi_table(self, layout):
         """Create ROI table."""
         layout.addWidget(QtWidgets.QLabel("<b>Regions of Interest</b>"))
@@ -782,6 +845,25 @@ class BosonFocusGUI(QtWidgets.QWidget):
             btn.clicked.connect(lambda _, rid=r["id"]: self._select_from_table(rid))
             self.table.setCellWidget(row, 3, btn)
 
+        # Also update zoom ROI combo
+        self._refresh_zoom_roi_combo()
+
+    def _refresh_zoom_roi_combo(self):
+        """Refresh zoom ROI selector combo box."""
+        current_id = self.zoom_roi_combo.currentData()
+        self.zoom_roi_combo.clear()
+        self.zoom_roi_combo.addItem("None", None)
+
+        for r in self.regions:
+            self.zoom_roi_combo.addItem(f"ROI #{r['id']}", r['id'])
+
+        # Try to restore previous selection
+        if current_id is not None:
+            for i in range(self.zoom_roi_combo.count()):
+                if self.zoom_roi_combo.itemData(i) == current_id:
+                    self.zoom_roi_combo.setCurrentIndex(i)
+                    break
+
     def _select_from_table(self, rid):
         """Select ROI from table click."""
         self.selected_id = rid
@@ -888,6 +970,46 @@ class BosonFocusGUI(QtWidgets.QWidget):
         status = "paused" if self.paused else "running"
         self.status_label.setText(f"Video {status}")
         self.logger.info(f"Video {status}")
+
+    def _on_zoom_mode_changed(self, mode_text):
+        """Handle zoom mode change."""
+        mode = ZoomMode(mode_text)
+        self.zoom_manager.set_mode(mode)
+        self.zoom_status_label.setText(f"Zoom: {mode.value}")
+        self.logger.info(f"Zoom mode changed to: {mode.value}")
+
+        # Update UI state based on mode
+        self.zoom_draw_btn.setEnabled(mode == ZoomMode.MANUAL)
+        self.zoom_roi_combo.setEnabled(mode == ZoomMode.AUTO_ROI)
+        self.zoom_level_slider.setEnabled(mode == ZoomMode.MANUAL)
+
+    def _on_zoom_level_changed(self, value):
+        """Handle zoom level slider change."""
+        level = value / 10.0  # Convert 10-40 to 1.0-4.0
+        self.zoom_manager.set_zoom_level(level)
+        self.zoom_level_label.setText(f"Level: {level:.1f}x")
+
+    def _on_zoom_roi_changed(self, index):
+        """Handle zoom ROI selection change."""
+        roi_id = self.zoom_roi_combo.itemData(index)
+        self.zoom_manager.set_target_roi(roi_id)
+        if roi_id:
+            self.logger.debug(f"Zoom target set to ROI {roi_id}")
+
+    def _zoom_reset_pan(self):
+        """Reset zoom pan to center."""
+        self.zoom_manager.reset_pan()
+        self.logger.debug("Zoom pan reset")
+
+    def _toggle_zoom_drawing(self, checked):
+        """Toggle zoom rectangle drawing mode."""
+        if checked:
+            self.zoom_draw_btn.setText("Cancel Drawing")
+            self.logger.info("Zoom drawing mode activated")
+            # TODO: Implement drawing in VideoLabel
+        else:
+            self.zoom_draw_btn.setText("Draw Zoom Area")
+            self.logger.info("Zoom drawing mode deactivated")
 
     def _toggle_auto_scale(self, state):
         """Toggle graph auto-scaling."""
@@ -1162,6 +1284,9 @@ class BosonFocusGUI(QtWidgets.QWidget):
             (255, 255, 255),
             2,
         )
+
+        # Apply zoom before display
+        displayed = self.zoom_manager.apply_zoom(displayed, self.regions)
 
         # Update display
         rgb = cv2.cvtColor(displayed, cv2.COLOR_BGR2RGB)
