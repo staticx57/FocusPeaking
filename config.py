@@ -43,10 +43,13 @@ MAX_CAMERA_RETRY_ATTEMPTS = 10   # Give up after 10 attempts
 # Focus Peaking Settings
 # ============================================================================
 
-# Default edge detection threshold (1-300)
-DEFAULT_EDGE_THRESHOLD = 100
+# Edge detection threshold range (1-100)
+# Lower values = more sensitive (shows more edges, including fine details)
+# Higher values = less sensitive (shows only strong edges)
+# Optimal range for most use cases: 30-80
+DEFAULT_EDGE_THRESHOLD = 50
 MIN_EDGE_THRESHOLD = 1
-MAX_EDGE_THRESHOLD = 300
+MAX_EDGE_THRESHOLD = 100  # Adjusted from 300 for better slider usability
 
 # Default focus peaking color (BGR format)
 DEFAULT_PEAKING_COLOR: Tuple[int, int, int] = (0, 0, 255)  # Red

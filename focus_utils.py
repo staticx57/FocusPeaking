@@ -479,7 +479,7 @@ def compute_roi_scores(
 
 def create_focus_peaking_overlay(
     frame: np.ndarray,
-    edge_threshold: int = 100,
+    edge_threshold: int = 50,
     peaking_color: Tuple[int, int, int] = (0, 0, 255),
     blend_alpha: float = 0.5
 ) -> np.ndarray:
@@ -488,7 +488,8 @@ def create_focus_peaking_overlay(
 
     Args:
         frame: Input BGR frame
-        edge_threshold: Threshold for edge detection (1-300)
+        edge_threshold: Threshold for edge detection (1-100)
+                       Lower = more sensitive, Higher = only strong edges
         peaking_color: BGR color for edge highlights
         blend_alpha: Overlay transparency (0.0-1.0)
 
