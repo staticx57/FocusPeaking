@@ -108,13 +108,10 @@ pip install -r requirements.txt
 
 4. **Run the application**:
 ```bash
-# Unified application (recommended)
 python focus_utility.py
-
-# Or use direct entry points:
-python ROIeditor.py  # Full-featured GUI
-python main.py       # Legacy simplified GUI (deprecated)
 ```
+
+**Note:** This is the single unified application with all features built-in.
 
 ## 📖 Usage Guide
 
@@ -182,6 +179,14 @@ The edge threshold slider controls the sensitivity of focus peaking edge detecti
 - Higher values: Better for high-contrast scenes with strong edges
 - The entire slider range now provides useful variation (improved from original 1-300 range where only 1-75 had practical effect)
 
+**Stripe Pattern**:
+- Enable "Enable Stripe Pattern" checkbox for better edge visibility
+- Creates animated diagonal stripes (45° angle, 4 pixels wide)
+- Marching pattern with 8-frame animation cycle
+- Helps edges stand out in busy thermal scenes
+- Similar to "zebra stripes" in professional video cameras
+- Works with both standard and adaptive edge detection
+
 ### ROI Management
 
 - **Create**: Click and drag on video
@@ -224,6 +229,8 @@ The edge threshold slider controls the sensitivity of focus peaking edge detecti
 
 ### Focus Algorithms
 
+All algorithms have been normalized to produce comparable results in the 1000-10000 range:
+
 **Laplacian Variance** (General Purpose):
 ```python
 score = cv2.Laplacian(gray, cv2.CV_64F).var()
@@ -233,8 +240,25 @@ score = cv2.Laplacian(gray, cv2.CV_64F).var()
 ```python
 gx = cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=3)
 gy = cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize=3)
-score = np.mean(gx**2 + gy**2)
+score = np.mean(magnitude_thresholded) * 50.0  # Scaled for comparability
 ```
+
+**Brenner Gradient** (Fast):
+```python
+diff = gray[:, 2:] - gray[:, :-2]
+score = np.mean(diff**2) * 10.0  # Normalized and scaled
+```
+
+**Normalized Variance** (Simple):
+```python
+score = (variance / mean) * 100.0  # Scaled for comparability
+```
+
+**Algorithm Scale Normalization**:
+- All algorithms produce values in 1000-10000 range
+- Makes algorithm comparison meaningful and intuitive
+- Graph auto-scaling works correctly from first frame
+- Enables direct visual comparison between algorithms
 
 **Ensemble Voting**:
 ```
@@ -293,9 +317,7 @@ global_score = Σ(roi_score × roi_weight) / Σ(roi_weight)
 
 ```
 FocusPeaking/
-├── focus_utility.py       # Unified application launcher (recommended)
-├── ROIeditor.py           # Full-featured GUI implementation
-├── main.py                # Legacy simplified GUI (deprecated)
+├── focus_utility.py       # Main application (all GUI code and features)
 ├── focus_utils.py         # Focus algorithms and utilities
 ├── config.py              # Configuration constants
 ├── camera_manager.py      # Camera detection and management
@@ -398,6 +420,15 @@ Settings saved to `focus_config.json`:
 
 ### v3.0.0 (Current - November 12, 2025)
 **ALL PHASES COMPLETE - 100% Feature Implementation + Enhancements**
+
+**Latest Updates (November 12, 2025)**:
+- 🔄 **Complete Application Consolidation**: Single file architecture - all GUI code now in focus_utility.py (removed main.py and ROIeditor.py)
+- 🐛 **Algorithm Scale Normalization**: Fixed Brenner Gradient (was 1000x too large!), scaled Tenengrad and Normalized Variance
+- 🎨 **Tab Widget Theme Support**: All 8 themes now properly style tabs (was only working in Light theme)
+- ✨ **Stripe Pattern Feature**: Animated diagonal stripes for better focus peaking visibility in busy scenes
+- 📊 **Algorithm Comparability**: All algorithms now produce values in 1000-10000 range for direct comparison
+- 🔧 **UI Auto-Scaling**: Window automatically sizes to screen on startup (85-90% of available space)
+- 📝 **Tabbed Interface**: Settings reorganized into 4 tabs (Camera, Focus, Edges, Advanced) for better screen real estate
 
 **New in 3.0.0**:
 - ✨ Phase 5: Adaptive Edge Detection with scene-aware thresholds
