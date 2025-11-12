@@ -39,6 +39,7 @@ from theme_manager import ThemeManager
 from data_export import FocusDataExporter, generate_default_export_filename
 from boson_control import BosonController, GainMode, AGCMode, FFCMode, apply_palette_software, SmartPaletteSwitcher
 from boson_ui import BosonControlPanel
+from zoom_manager import ZoomManager, ZoomMode
 
 # Setup logging
 logger = setup_logging()
@@ -306,6 +307,9 @@ class BosonFocusGUI(QtWidgets.QWidget):
         # Smart palette switcher (Phase 6)
         self.palette_switcher = SmartPaletteSwitcher(self.boson_controller)
         self.auto_palette_switch_enabled = False  # Default off
+
+        # Zoom manager (New Feature)
+        self.zoom_manager = ZoomManager()
 
         # Setup UI
         self._create_ui()
