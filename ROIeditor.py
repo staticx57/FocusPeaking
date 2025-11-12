@@ -32,6 +32,7 @@ from focus_utils import (
     thermal_preprocess,
     FocusStatistics,
     FocusQualityIndicator,
+    FocusEnsemble,
     validate_roi,
 )
 from theme_manager import ThemeManager
@@ -293,6 +294,15 @@ class BosonFocusGUI(QtWidgets.QWidget):
         # Focus quality indicator
         self.focus_quality = FocusQualityIndicator()
 
+        # Multi-algorithm ensemble (Phase 3)
+        self.ensemble_voting_enabled = ENABLE_ENSEMBLE_VOTING
+        self.show_all_algorithms = SHOW_ALL_ALGORITHM_SCORES
+        self.focus_ensemble = FocusEnsemble(
+            algorithms=FOCUS_ALGORITHMS,
+            weights=ENSEMBLE_ALGORITHM_WEIGHTS,
+            history_size=ENSEMBLE_HISTORY_SIZE
+        )
+
         # Setup UI
         self._create_ui()
         self._setup_timer()
@@ -442,6 +452,48 @@ class BosonFocusGUI(QtWidgets.QWidget):
             quality_layout.addWidget(self.quality_score_label)
 
             layout.addWidget(quality_group)
+
+        # Multi-algorithm ensemble (Phase 3)
+        ensemble_group = QtWidgets.QGroupBox("Algorithm Ensemble (Phase 3)")
+        ensemble_layout = QtWidgets.QVBoxLayout(ensemble_group)
+
+        # Enable ensemble voting checkbox
+        self.ensemble_voting_checkbox = QtWidgets.QCheckBox("Enable Multi-Algorithm Voting")
+        self.ensemble_voting_checkbox.setChecked(self.ensemble_voting_enabled)
+        self.ensemble_voting_checkbox.setToolTip("Combine all algorithms for robust focus detection")
+        self.ensemble_voting_checkbox.stateChanged.connect(self._toggle_ensemble_voting)
+        ensemble_layout.addWidget(self.ensemble_voting_checkbox)
+
+        # Confidence indicator
+        if SHOW_CONFIDENCE_INDICATOR:
+            self.ensemble_confidence_label = QtWidgets.QLabel("Confidence: --")
+            self.ensemble_confidence_label.setStyleSheet("font-size: 9pt; font-weight: bold;")
+            ensemble_layout.addWidget(self.ensemble_confidence_label)
+
+        # Show all algorithms checkbox
+        self.show_algorithms_checkbox = QtWidgets.QCheckBox("Show All Algorithm Scores")
+        self.show_algorithms_checkbox.setChecked(self.show_all_algorithms)
+        self.show_algorithms_checkbox.setToolTip("Display individual scores from each algorithm")
+        self.show_algorithms_checkbox.stateChanged.connect(self._toggle_show_algorithms)
+        ensemble_layout.addWidget(self.show_algorithms_checkbox)
+
+        # Algorithm scores display (collapsible)
+        self.algorithm_scores_widget = QtWidgets.QWidget()
+        self.algorithm_scores_layout = QtWidgets.QVBoxLayout(self.algorithm_scores_widget)
+        self.algorithm_scores_layout.setContentsMargins(10, 5, 10, 5)
+
+        # Create labels for each algorithm
+        self.algorithm_score_labels = {}
+        for algo_name in FOCUS_ALGORITHMS:
+            label = QtWidgets.QLabel(f"{algo_name}: --")
+            label.setStyleSheet("font-size: 8pt; font-family: monospace;")
+            self.algorithm_scores_layout.addWidget(label)
+            self.algorithm_score_labels[algo_name] = label
+
+        self.algorithm_scores_widget.setVisible(self.show_all_algorithms)
+        ensemble_layout.addWidget(self.algorithm_scores_widget)
+
+        layout.addWidget(ensemble_group)
 
     def _create_roi_table(self, layout):
         """Create ROI table."""
@@ -752,6 +804,22 @@ class BosonFocusGUI(QtWidgets.QWidget):
         self.thermal_preprocessing_enabled = (state == QtCore.Qt.Checked)
         self.logger.info(f"Thermal preprocessing: {'enabled' if self.thermal_preprocessing_enabled else 'disabled'}")
 
+    def _toggle_ensemble_voting(self, state):
+        """Toggle ensemble voting system."""
+        self.ensemble_voting_enabled = (state == QtCore.Qt.Checked)
+        self.logger.info(f"Ensemble voting: {'enabled' if self.ensemble_voting_enabled else 'disabled'}")
+
+        # Reset ensemble history when toggling
+        if self.ensemble_voting_enabled:
+            self.focus_ensemble.reset_history()
+
+    def _toggle_show_algorithms(self, state):
+        """Toggle display of all algorithm scores."""
+        self.show_all_algorithms = (state == QtCore.Qt.Checked)
+        if hasattr(self, 'algorithm_scores_widget'):
+            self.algorithm_scores_widget.setVisible(self.show_all_algorithms)
+        self.logger.debug(f"Show all algorithms: {self.show_all_algorithms}")
+
     def _toggle_pause(self):
         """Toggle video pause."""
         self.paused = not self.paused
@@ -785,6 +853,8 @@ class BosonFocusGUI(QtWidgets.QWidget):
                 "boson": self.boson_panel.get_settings(),
                 "focus_algorithm": self.current_algorithm,
                 "thermal_preprocessing": self.thermal_preprocessing_enabled,
+                "ensemble_voting_enabled": self.ensemble_voting_enabled,
+                "show_all_algorithms": self.show_all_algorithms,
             }
 
             with open(get_config_path(), "w") as f:
@@ -822,6 +892,16 @@ class BosonFocusGUI(QtWidgets.QWidget):
             if "thermal_preprocessing" in config:
                 self.thermal_preprocessing_enabled = config["thermal_preprocessing"]
                 self.thermal_preprocessing_checkbox.setChecked(self.thermal_preprocessing_enabled)
+
+            # Load ensemble voting settings
+            if "ensemble_voting_enabled" in config:
+                self.ensemble_voting_enabled = config["ensemble_voting_enabled"]
+                self.ensemble_voting_checkbox.setChecked(self.ensemble_voting_enabled)
+            if "show_all_algorithms" in config:
+                self.show_all_algorithms = config["show_all_algorithms"]
+                self.show_algorithms_checkbox.setChecked(self.show_all_algorithms)
+                if hasattr(self, 'algorithm_scores_widget'):
+                    self.algorithm_scores_widget.setVisible(self.show_all_algorithms)
 
             self.regions = [
                 {
@@ -920,21 +1000,64 @@ class BosonFocusGUI(QtWidgets.QWidget):
             frame, self.edge_threshold, self.focus_color, PEAKING_ALPHA
         )
 
-        # Get selected focus metric function
-        if self.current_algorithm in self.algorithm_map:
-            metric_func = self.algorithm_map[self.current_algorithm]
-        else:
-            metric_func = laplacian_focus_metric
+        # Choose focus computation method: ensemble or single algorithm
+        if self.ensemble_voting_enabled:
+            # Use ensemble voting system
+            global_score, details = self.focus_ensemble.compute_ensemble_focus(gray, return_details=True)
 
-        # Compute ROI scores
-        if self.regions:
-            scores = compute_roi_scores(gray, self.regions, metric_func)
-            for roi, score in zip(self.regions, scores):
-                roi["score"] = score
+            # Update ensemble UI
+            if hasattr(self, 'ensemble_confidence_label') and SHOW_CONFIDENCE_INDICATOR:
+                confidence = details['confidence']
+                quality = details['consensus_quality']
+                self.ensemble_confidence_label.setText(
+                    f"Confidence: {confidence*100:.0f}% ({quality.title()})"
+                )
 
-            global_score = compute_weighted_focus(gray, self.regions, metric_func)
+                # Color code by quality
+                quality_color = QUALITY_COLORS.get(quality, "#868e96")
+                self.ensemble_confidence_label.setStyleSheet(
+                    f"font-size: 9pt; font-weight: bold; color: {quality_color};"
+                )
+
+            # Update individual algorithm scores display
+            if self.show_all_algorithms and hasattr(self, 'algorithm_score_labels'):
+                all_scores = details['all_scores']
+                best_algo = details['best_algorithm']
+
+                for algo_name, score in all_scores.items():
+                    if algo_name in self.algorithm_score_labels:
+                        marker = " ⭐" if algo_name == best_algo else ""
+                        self.algorithm_score_labels[algo_name].setText(
+                            f"{algo_name}: {score:.1f}{marker}"
+                        )
+
+            # For ROI scores, still use the currently selected algorithm
+            if self.regions:
+                if self.current_algorithm in self.algorithm_map:
+                    metric_func = self.algorithm_map[self.current_algorithm]
+                else:
+                    metric_func = laplacian_focus_metric
+
+                scores = compute_roi_scores(gray, self.regions, metric_func)
+                for roi, score in zip(self.regions, scores):
+                    roi["score"] = score
+
         else:
-            global_score = metric_func(gray)
+            # Use single selected algorithm
+            if self.current_algorithm in self.algorithm_map:
+                metric_func = self.algorithm_map[self.current_algorithm]
+            else:
+                metric_func = laplacian_focus_metric
+
+            # Compute ROI scores
+            if self.regions:
+                scores = compute_roi_scores(gray, self.regions, metric_func)
+                for roi, score in zip(self.regions, scores):
+                    roi["score"] = score
+
+                global_score = compute_weighted_focus(gray, self.regions, metric_func)
+            else:
+                global_score = metric_func(gray)
 
         self.focus_history.append(global_score)
         self.stats_tracker.add_score(global_score)
