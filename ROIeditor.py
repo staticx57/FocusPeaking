@@ -309,7 +309,7 @@ class BosonFocusGUI(QtWidgets.QWidget):
         self.logger.info("Initializing Boson Focus GUI v2.0")
 
         self.setWindowTitle(f"{APP_NAME} v{APP_VERSION}")
-        self.resize(WINDOW_WIDTH, WINDOW_HEIGHT)
+        # Window size will be set after UI creation for auto-scaling
 
         # Initialize managers
         self.camera_manager = CameraManager()
@@ -375,6 +375,10 @@ class BosonFocusGUI(QtWidgets.QWidget):
 
         # Setup UI
         self._create_ui()
+
+        # Auto-scale window to fit content
+        self._auto_scale_window()
+
         self._setup_timer()
         self._setup_shortcuts()
         self._load_config_if_exists()
@@ -855,6 +859,36 @@ class BosonFocusGUI(QtWidgets.QWidget):
         self.auto_scale_checkbox.setToolTip("Automatically adjust graph Y-axis to data range")
         self.auto_scale_checkbox.stateChanged.connect(self._toggle_auto_scale)
         layout.addWidget(self.auto_scale_checkbox)
+
+    def _auto_scale_window(self):
+        """Auto-scale window to fit content on startup."""
+        # Get screen geometry
+        screen = QtWidgets.QApplication.desktop().screenGeometry()
+        screen_width = screen.width()
+        screen_height = screen.height()
+
+        # Calculate optimal size with some padding
+        # Use 80% of screen width and 85% of screen height as maximum
+        max_width = int(screen_width * 0.8)
+        max_height = int(screen_height * 0.85)
+
+        # Get size hint from the layout
+        size_hint = self.sizeHint()
+
+        # Use the larger of size hint or minimum comfortable size
+        optimal_width = max(min(size_hint.width(), max_width), 1400)
+        optimal_height = max(min(size_hint.height(), max_height), 800)
+
+        # Set the window size
+        self.resize(optimal_width, optimal_height)
+
+        # Center the window on screen
+        self.move(
+            (screen_width - optimal_width) // 2,
+            (screen_height - optimal_height) // 2
+        )
+
+        self.logger.info(f"Window auto-scaled to {optimal_width}x{optimal_height}")
 
     def _setup_timer(self):
         """Setup update timer."""
