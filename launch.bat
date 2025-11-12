@@ -1,10 +1,10 @@
 @echo off
 REM FLIR Boson Focus Utility Launcher
-REM Version 2.0.0
+REM Version 3.0.0
 
 echo ===============================================
 echo   FLIR Boson Focus Utility
-echo   Version 2.0.0
+echo   Version 3.0.0 - Unified Application
 echo ===============================================
 echo.
 
@@ -19,35 +19,18 @@ if errorlevel 1 (
 
 echo Python found!
 echo.
-
-REM Display menu
-echo Choose interface:
-echo   1. Simple Interface (main.py)
-echo   2. Advanced Interface with ROI Editor (ROIeditor.py)
-echo   3. Exit
+echo Launching FLIR Boson Focus Utility...
 echo.
-set /p choice="Enter choice (1-3): "
+echo All features available:
+echo   - 5 Focus Algorithms + Ensemble Voting
+echo   - Adaptive Edge Detection
+echo   - Thermal Preprocessing
+echo   - Smart Palette Switching
+echo   - ROI Management
+echo   - And more!
+echo.
 
-if "%choice%"=="1" (
-    echo.
-    echo Launching Simple Interface...
-    echo.
-    python main.py
-) else if "%choice%"=="2" (
-    echo.
-    echo Launching Advanced Interface...
-    echo.
-    python ROIeditor.py
-) else if "%choice%"=="3" (
-    echo.
-    echo Exiting...
-    exit /b 0
-) else (
-    echo.
-    echo Invalid choice. Launching Simple Interface by default...
-    echo.
-    python main.py
-)
+python focus_utility.py
 
 echo.
 echo Application closed.

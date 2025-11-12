@@ -1,4 +1,5 @@
 @echo off
-REM Quick Launch - Simple Interface
-echo Starting FLIR Boson Focus Utility (Simple)...
-python main.py
+REM Quick Launch - Unified Application
+REM NOTE: Simple/Advanced distinction removed - all features now in one application
+echo Starting FLIR Boson Focus Utility v3.0.0...
+python focus_utility.py
