@@ -108,18 +108,19 @@ pip install -r requirements.txt
 
 4. **Run the application**:
 ```bash
-# Advanced ROI Editor with all features (recommended)
-python ROIeditor.py
+# Unified application (recommended)
+python focus_utility.py
 
-# Simple version
-python main.py
+# Or use direct entry points:
+python ROIeditor.py  # Full-featured GUI
+python main.py       # Legacy simplified GUI (deprecated)
 ```
 
 ## 📖 Usage Guide
 
 ### Quick Start
 
-1. **Launch**: `python ROIeditor.py`
+1. **Launch**: `python focus_utility.py`
 2. **Select Camera**: Choose FLIR Boson from device dropdown
 3. **Choose Algorithm**: Select focus algorithm or enable ensemble voting
 4. **Enable Features**: Try adaptive edge detection, thermal preprocessing
@@ -292,8 +293,9 @@ global_score = Σ(roi_score × roi_weight) / Σ(roi_weight)
 
 ```
 FocusPeaking/
-├── ROIeditor.py           # Main application (all features)
-├── main.py                # Simple focus peaking tool
+├── focus_utility.py       # Unified application launcher (recommended)
+├── ROIeditor.py           # Full-featured GUI implementation
+├── main.py                # Legacy simplified GUI (deprecated)
 ├── focus_utils.py         # Focus algorithms and utilities
 ├── config.py              # Configuration constants
 ├── camera_manager.py      # Camera detection and management
