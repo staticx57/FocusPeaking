@@ -108,14 +108,10 @@ pip install -r requirements.txt
 
 4. **Run the application**:
 ```bash
-# Unified application launcher (recommended)
 python focus_utility.py
-
-# Alternative (direct launch):
-python ROIeditor.py
 ```
 
-**Note:** Both commands launch the same full-featured application. Use `focus_utility.py` as the recommended entry point.
+**Note:** This is the single unified application with all features built-in.
 
 ## 📖 Usage Guide
 
@@ -321,8 +317,7 @@ global_score = Σ(roi_score × roi_weight) / Σ(roi_weight)
 
 ```
 FocusPeaking/
-├── focus_utility.py       # Unified application launcher (recommended entry point)
-├── ROIeditor.py           # Full-featured GUI implementation (main application code)
+├── focus_utility.py       # Main application (all GUI code and features)
 ├── focus_utils.py         # Focus algorithms and utilities
 ├── config.py              # Configuration constants
 ├── camera_manager.py      # Camera detection and management
@@ -427,7 +422,7 @@ Settings saved to `focus_config.json`:
 **ALL PHASES COMPLETE - 100% Feature Implementation + Enhancements**
 
 **Latest Updates (November 12, 2025)**:
-- 🔄 **Application Unification**: Simplified to single codebase - removed deprecated main.py, use focus_utility.py
+- 🔄 **Complete Application Consolidation**: Single file architecture - all GUI code now in focus_utility.py (removed main.py and ROIeditor.py)
 - 🐛 **Algorithm Scale Normalization**: Fixed Brenner Gradient (was 1000x too large!), scaled Tenengrad and Normalized Variance
 - 🎨 **Tab Widget Theme Support**: All 8 themes now properly style tabs (was only working in Light theme)
 - ✨ **Stripe Pattern Feature**: Animated diagonal stripes for better focus peaking visibility in busy scenes
