@@ -1,0 +1,612 @@
+2025-11-09 18:28:17,820 - root - INFO - ============================================================
+2025-11-09 18:28:17,820 - root - INFO - FLIR Boson Focus Peaking - Logging initialized
+2025-11-09 18:28:17,820 - root - INFO - Log level: INFO
+2025-11-09 18:28:17,820 - root - INFO - Log file: C:\Users\stati\Desktop\Projects\FlirFocusPeaking\flir_focus.log
+2025-11-09 18:28:17,820 - root - INFO - ============================================================
+2025-11-09 18:28:17,820 - theme_manager - INFO - Applied theme: Dark
+2025-11-09 18:28:17,820 - BosonFocusGUI - INFO - Initializing Boson Focus GUI v2.0
+2025-11-09 18:28:18,089 - BosonFocusGUI - INFO - Refreshing camera list...
+2025-11-09 18:28:18,089 - camera_manager - INFO - Detecting available cameras...
+2025-11-09 18:28:19,678 - camera_manager - INFO - Found: Camera 0 (DSHOW) (Device 0)
+2025-11-09 18:28:20,289 - camera_manager - INFO - Found: Camera 1 (DSHOW) (Device 1)
+2025-11-09 18:28:22,154 - camera_manager - INFO - Found: Camera 2 (DSHOW) (Device 2)
+2025-11-09 18:28:22,329 - camera_manager - INFO - Detected 3 camera(s)
+2025-11-09 18:28:22,329 - BosonFocusGUI - INFO - Connecting to camera 0...
+2025-11-09 18:28:22,329 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-09 18:28:25,021 - camera_manager - INFO - Successfully connected to camera 0 (640x480)
+2025-11-09 18:28:25,022 - BosonFocusGUI - INFO - Successfully connected to camera 0
+2025-11-09 18:28:25,022 - BosonFocusGUI - INFO - Connecting to camera 0...
+2025-11-09 18:28:25,022 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-09 18:28:25,355 - camera_manager - INFO - Disconnected from camera 0
+2025-11-09 18:28:28,101 - camera_manager - INFO - Successfully connected to camera 0 (640x480)
+2025-11-09 18:28:28,101 - BosonFocusGUI - INFO - Successfully connected to camera 0
+2025-11-09 18:28:28,102 - BosonFocusGUI - INFO - GUI initialization complete
+2025-11-09 18:28:28,371 - __main__ - INFO - FLIR Boson Focus Utility v2.0.0 started
+2025-11-09 18:28:33,038 - BosonFocusGUI - INFO - Connecting to camera 1...
+2025-11-09 18:28:33,038 - camera_manager - INFO - Attempting to connect to camera 1...
+2025-11-09 18:28:33,365 - camera_manager - INFO - Disconnected from camera 0
+2025-11-09 18:28:34,122 - camera_manager - INFO - Successfully connected to camera 1 (640x512)
+2025-11-09 18:28:34,122 - BosonFocusGUI - INFO - Successfully connected to camera 1
+2025-11-09 18:28:44,539 - BosonFocusGUI - INFO - Peaking color changed to (255, 170, 255)
+2025-11-09 18:29:08,359 - BosonFocusGUI - INFO - Refreshing camera list...
+2025-11-09 18:29:08,359 - camera_manager - INFO - Detecting available cameras...
+2025-11-09 18:29:09,693 - camera_manager - INFO - Found: Camera 0 (DSHOW) (Device 0)
+2025-11-09 18:29:10,025 - camera_manager - INFO - Found: Camera 1 (DSHOW) (Device 1)
+2025-11-09 18:29:11,701 - camera_manager - INFO - Found: Camera 2 (DSHOW) (Device 2)
+2025-11-09 18:29:11,745 - camera_manager - INFO - Detected 3 camera(s)
+2025-11-09 18:29:11,745 - BosonFocusGUI - INFO - Connecting to camera 0...
+2025-11-09 18:29:11,745 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-09 18:29:11,745 - camera_manager - INFO - Disconnected from camera 1
+2025-11-09 18:29:14,394 - camera_manager - INFO - Successfully connected to camera 0 (640x480)
+2025-11-09 18:29:14,394 - BosonFocusGUI - INFO - Successfully connected to camera 0
+2025-11-09 18:29:14,395 - BosonFocusGUI - INFO - Connecting to camera 0...
+2025-11-09 18:29:14,395 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-09 18:29:14,726 - camera_manager - INFO - Disconnected from camera 0
+2025-11-09 18:29:17,379 - camera_manager - INFO - Successfully connected to camera 0 (640x480)
+2025-11-09 18:29:17,380 - BosonFocusGUI - INFO - Successfully connected to camera 0
+2025-11-09 18:29:37,369 - BosonFocusGUI - INFO - Connecting to camera 1...
+2025-11-09 18:29:37,370 - camera_manager - INFO - Attempting to connect to camera 1...
+2025-11-09 18:29:37,717 - camera_manager - INFO - Disconnected from camera 0
+2025-11-09 18:29:38,455 - camera_manager - INFO - Successfully connected to camera 1 (640x512)
+2025-11-09 18:29:38,455 - BosonFocusGUI - INFO - Successfully connected to camera 1
+2025-11-09 18:29:55,746 - BosonFocusGUI - INFO - Application closing...
+2025-11-09 18:29:56,010 - camera_manager - INFO - Disconnected from camera 1
+2025-11-09 18:33:18,255 - root - INFO - ============================================================
+2025-11-09 18:33:18,255 - root - INFO - FLIR Boson Focus Peaking - Logging initialized
+2025-11-09 18:33:18,255 - root - INFO - Log level: INFO
+2025-11-09 18:33:18,255 - root - INFO - Log file: C:\Users\stati\Desktop\Projects\FlirFocusPeaking\flir_focus.log
+2025-11-09 18:33:18,255 - root - INFO - ============================================================
+2025-11-09 18:33:18,267 - theme_manager - INFO - Applied theme: Dark
+2025-11-09 18:33:18,273 - camera_manager - INFO - Detecting available cameras...
+2025-11-09 18:33:19,893 - camera_manager - INFO - Found: Camera 0 (DSHOW) (Device 0)
+2025-11-09 18:33:20,552 - camera_manager - INFO - Found: Camera 1 (DSHOW) (Device 1)
+2025-11-09 18:33:22,469 - camera_manager - INFO - Found: Camera 2 (DSHOW) (Device 2)
+2025-11-09 18:33:22,568 - camera_manager - INFO - Detected 3 camera(s)
+2025-11-09 18:33:22,568 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-09 18:33:25,471 - camera_manager - INFO - Successfully connected to camera 0 (640x480)
+2025-11-09 18:34:01,677 - camera_manager - INFO - Disconnected from camera 0
+2025-11-09 18:35:03,170 - root - INFO - ============================================================
+2025-11-09 18:35:03,171 - root - INFO - FLIR Boson Focus Peaking - Logging initialized
+2025-11-09 18:35:03,171 - root - INFO - Log level: INFO
+2025-11-09 18:35:03,171 - root - INFO - Log file: C:\Users\stati\Desktop\Projects\FlirFocusPeaking\flir_focus.log
+2025-11-09 18:35:03,171 - root - INFO - ============================================================
+2025-11-09 18:35:03,182 - theme_manager - INFO - Applied theme: Dark
+2025-11-09 18:35:03,187 - camera_manager - INFO - Detecting available cameras...
+2025-11-09 18:35:04,649 - camera_manager - INFO - Found: Camera 0 (DSHOW) (Device 0)
+2025-11-09 18:35:05,269 - camera_manager - INFO - Found: Camera 1 (DSHOW) (Device 1)
+2025-11-09 18:35:07,052 - camera_manager - INFO - Found: Camera 2 (DSHOW) (Device 2)
+2025-11-09 18:35:07,129 - camera_manager - INFO - Detected 3 camera(s)
+2025-11-09 18:35:07,129 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-09 18:35:09,807 - camera_manager - INFO - Successfully connected to camera 0 (640x480)
+2025-11-09 18:35:09,807 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-09 18:35:10,139 - camera_manager - INFO - Disconnected from camera 0
+2025-11-09 18:35:12,881 - camera_manager - INFO - Successfully connected to camera 0 (640x480)
+2025-11-09 18:35:23,850 - camera_manager - INFO - Attempting to connect to camera 1...
+2025-11-09 18:35:24,183 - camera_manager - INFO - Disconnected from camera 0
+2025-11-09 18:35:24,935 - camera_manager - INFO - Successfully connected to camera 1 (640x512)
+2025-11-09 18:36:08,344 - camera_manager - INFO - Disconnected from camera 1
+2025-11-09 18:37:56,224 - root - INFO - ============================================================
+2025-11-09 18:37:56,224 - root - INFO - FLIR Boson Focus Peaking - Logging initialized
+2025-11-09 18:37:56,224 - root - INFO - Log level: INFO
+2025-11-09 18:37:56,224 - root - INFO - Log file: C:\Users\stati\Desktop\Projects\FlirFocusPeaking\flir_focus.log
+2025-11-09 18:37:56,224 - root - INFO - ============================================================
+2025-11-09 18:37:56,237 - theme_manager - INFO - Applied theme: Dark
+2025-11-09 18:37:56,245 - camera_manager - INFO - Detecting available cameras...
+2025-11-09 18:37:57,705 - camera_manager - INFO - Found: Camera 0 (DSHOW) (Device 0)
+2025-11-09 18:37:58,283 - camera_manager - INFO - Found: Camera 1 (DSHOW) (Device 1)
+2025-11-09 18:38:00,046 - camera_manager - INFO - Found: Camera 2 (DSHOW) (Device 2)
+2025-11-09 18:38:00,122 - camera_manager - INFO - Detected 3 camera(s)
+2025-11-09 18:38:00,122 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-09 18:38:02,841 - camera_manager - INFO - Successfully connected to camera 0 (640x480)
+2025-11-09 18:38:02,841 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-09 18:38:03,175 - camera_manager - INFO - Disconnected from camera 0
+2025-11-09 18:38:05,901 - camera_manager - INFO - Successfully connected to camera 0 (640x480)
+2025-11-09 18:38:10,913 - theme_manager - INFO - Applied theme: Breeze Dark
+2025-11-09 18:38:12,717 - theme_manager - INFO - Applied theme: Nord
+2025-11-09 18:38:16,734 - theme_manager - INFO - Applied theme: Monokai
+2025-11-09 18:38:18,922 - camera_manager - INFO - Detecting available cameras...
+2025-11-09 18:38:18,940 - camera_manager - INFO - Found: Camera 0 (DSHOW) (Device 0)
+2025-11-09 18:38:19,550 - camera_manager - INFO - Found: Camera 1 (DSHOW) (Device 1)
+2025-11-09 18:38:21,314 - camera_manager - INFO - Found: Camera 2 (DSHOW) (Device 2)
+2025-11-09 18:38:21,368 - camera_manager - INFO - Detected 3 camera(s)
+2025-11-09 18:38:21,368 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-09 18:38:21,368 - camera_manager - INFO - Disconnected from camera 0
+2025-11-09 18:38:24,063 - camera_manager - INFO - Successfully connected to camera 0 (640x480)
+2025-11-09 18:38:24,063 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-09 18:38:24,403 - camera_manager - INFO - Disconnected from camera 0
+2025-11-09 18:38:27,124 - camera_manager - INFO - Successfully connected to camera 0 (640x480)
+2025-11-09 18:38:28,522 - camera_manager - INFO - Attempting to connect to camera 1...
+2025-11-09 18:38:28,857 - camera_manager - INFO - Disconnected from camera 0
+2025-11-09 18:38:29,650 - camera_manager - INFO - Successfully connected to camera 1 (640x512)
+2025-11-09 18:39:20,538 - camera_manager - INFO - Disconnected from camera 1
+2025-11-09 18:50:21,310 - root - INFO - ============================================================
+2025-11-09 18:50:21,310 - root - INFO - FLIR Boson Focus Peaking - Logging initialized
+2025-11-09 18:50:21,310 - root - INFO - Log level: INFO
+2025-11-09 18:50:21,310 - root - INFO - Log file: C:\Users\stati\Desktop\Projects\FlirFocusPeaking\flir_focus.log
+2025-11-09 18:50:21,310 - root - INFO - ============================================================
+2025-11-09 18:50:21,324 - theme_manager - INFO - Applied theme: Dark
+2025-11-09 18:50:21,331 - camera_manager - INFO - Detecting available cameras...
+2025-11-09 18:50:22,789 - camera_manager - INFO - Found: Camera 0 (DSHOW) (Device 0)
+2025-11-09 18:50:23,376 - camera_manager - INFO - Found: Camera 1 (DSHOW) (Device 1)
+2025-11-09 18:50:25,208 - camera_manager - INFO - Found: Camera 2 (DSHOW) (Device 2)
+2025-11-09 18:50:25,303 - camera_manager - INFO - Detected 3 camera(s)
+2025-11-09 18:50:25,303 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-09 18:50:27,975 - camera_manager - INFO - Successfully connected to camera 0 (640x480)
+2025-11-09 18:50:27,975 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-09 18:50:28,306 - camera_manager - INFO - Disconnected from camera 0
+2025-11-09 18:50:31,022 - camera_manager - INFO - Successfully connected to camera 0 (640x480)
+2025-11-09 18:51:26,718 - camera_manager - INFO - Attempting to connect to camera 1...
+2025-11-09 18:51:27,069 - camera_manager - INFO - Disconnected from camera 0
+2025-11-09 18:51:27,825 - camera_manager - INFO - Successfully connected to camera 1 (640x512)
+2025-11-09 18:51:40,066 - camera_manager - INFO - Disconnected from camera 1
+2025-11-10 07:57:10,483 - root - INFO - ============================================================
+2025-11-10 07:57:10,483 - root - INFO - FLIR Boson Focus Peaking - Logging initialized
+2025-11-10 07:57:10,483 - root - INFO - Log level: INFO
+2025-11-10 07:57:10,483 - root - INFO - Log file: C:\Users\stati\Desktop\Projects\FlirFocusPeaking\flir_focus.log
+2025-11-10 07:57:10,484 - root - INFO - ============================================================
+2025-11-10 07:57:10,500 - theme_manager - INFO - Applied theme: Dark
+2025-11-10 07:57:10,500 - boson_control - WARNING - Boson SDK not available. Install SDK from: https://www.flir.com/support/products/boson/
+2025-11-10 07:57:10,511 - BosonControlPanel - WARNING - Boson controller not available or SDK missing
+2025-11-10 07:57:11,140 - camera_manager - INFO - Detecting available cameras...
+2025-11-10 07:57:12,606 - camera_manager - INFO - Found: Camera 0 (DSHOW) (Device 0)
+2025-11-10 07:57:13,153 - camera_manager - INFO - Detected 1 camera(s)
+2025-11-10 07:57:13,155 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-10 07:57:14,870 - camera_manager - INFO - Successfully connected to camera 0 (640x480)
+2025-11-10 07:57:14,871 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-10 07:57:15,265 - camera_manager - INFO - Disconnected from camera 0
+2025-11-10 07:57:16,985 - camera_manager - INFO - Successfully connected to camera 0 (640x480)
+2025-11-10 08:04:48,702 - root - INFO - ============================================================
+2025-11-10 08:04:48,702 - root - INFO - FLIR Boson Focus Peaking - Logging initialized
+2025-11-10 08:04:48,702 - root - INFO - Log level: INFO
+2025-11-10 08:04:48,702 - root - INFO - Log file: C:\Users\stati\Desktop\Projects\FlirFocusPeaking\flir_focus.log
+2025-11-10 08:04:48,702 - root - INFO - ============================================================
+2025-11-10 08:04:48,716 - theme_manager - INFO - Applied theme: Dark
+2025-11-10 08:04:48,717 - boson_control - WARNING - Boson SDK not available. Install SDK from: https://www.flir.com/support/products/boson/
+2025-11-10 08:04:48,725 - BosonControlPanel - WARNING - Boson controller not available or SDK missing
+2025-11-10 08:04:49,084 - camera_manager - INFO - Detecting available cameras...
+2025-11-10 08:04:50,346 - camera_manager - INFO - Found: Camera 0 (DSHOW) (Device 0)
+2025-11-10 08:04:50,758 - camera_manager - INFO - Detected 1 camera(s)
+2025-11-10 08:04:50,758 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-10 08:04:52,275 - camera_manager - INFO - Successfully connected to camera 0 (640x480)
+2025-11-10 08:04:52,275 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-10 08:04:52,653 - camera_manager - INFO - Disconnected from camera 0
+2025-11-10 08:04:54,241 - camera_manager - INFO - Successfully connected to camera 0 (640x480)
+2025-11-10 08:05:43,113 - camera_manager - INFO - Disconnected from camera 0
+2025-11-10 08:07:20,682 - root - INFO - ============================================================
+2025-11-10 08:07:20,683 - root - INFO - FLIR Boson Focus Peaking - Logging initialized
+2025-11-10 08:07:20,683 - root - INFO - Log level: INFO
+2025-11-10 08:07:20,683 - root - INFO - Log file: C:\Users\stati\Desktop\Projects\FlirFocusPeaking\flir_focus.log
+2025-11-10 08:07:20,683 - root - INFO - ============================================================
+2025-11-10 08:07:20,698 - theme_manager - INFO - Applied theme: Dark
+2025-11-10 08:07:20,699 - boson_control - WARNING - Boson SDK not available. Install SDK from: https://www.flir.com/support/products/boson/
+2025-11-10 08:07:20,710 - BosonControlPanel - WARNING - Boson controller not available or SDK missing
+2025-11-10 08:07:21,156 - camera_manager - INFO - Detecting available cameras...
+2025-11-10 08:07:21,486 - camera_manager - INFO - Found: Camera 0 (DSHOW) (Device 0)
+2025-11-10 08:07:22,376 - camera_manager - INFO - Found: Camera 1 (DSHOW) (Device 1)
+2025-11-10 08:07:22,771 - camera_manager - INFO - Detected 2 camera(s)
+2025-11-10 08:07:22,772 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-10 08:07:23,419 - camera_manager - INFO - Successfully connected to camera 0 (640x512)
+2025-11-10 08:07:23,419 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-10 08:07:23,694 - camera_manager - INFO - Disconnected from camera 0
+2025-11-10 08:07:24,369 - camera_manager - INFO - Successfully connected to camera 0 (640x512)
+2025-11-10 08:08:36,238 - camera_manager - INFO - Attempting to connect to camera 1...
+2025-11-10 08:08:36,509 - camera_manager - INFO - Disconnected from camera 0
+2025-11-10 08:08:38,165 - camera_manager - INFO - Successfully connected to camera 1 (640x480)
+2025-11-10 08:08:39,609 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-10 08:08:40,039 - camera_manager - INFO - Disconnected from camera 1
+2025-11-10 08:08:40,585 - camera_manager - INFO - Successfully connected to camera 0 (640x512)
+2025-11-10 08:08:50,177 - __main__ - INFO - Thermal preprocessing: enabled
+2025-11-10 08:09:03,609 - camera_manager - INFO - Disconnected from camera 0
+2025-11-10 08:13:37,941 - root - INFO - ============================================================
+2025-11-10 08:13:37,941 - root - INFO - FLIR Boson Focus Peaking - Logging initialized
+2025-11-10 08:13:37,941 - root - INFO - Log level: INFO
+2025-11-10 08:13:37,941 - root - INFO - Log file: C:\Users\stati\Desktop\Projects\FlirFocusPeaking\flir_focus.log
+2025-11-10 08:13:37,941 - root - INFO - ============================================================
+2025-11-10 08:13:37,957 - theme_manager - INFO - Applied theme: Dark
+2025-11-10 08:13:37,957 - boson_control - WARNING - Boson SDK not available. Install SDK from: https://www.flir.com/support/products/boson/
+2025-11-10 08:13:37,970 - BosonControlPanel - WARNING - Boson controller not available or SDK missing
+2025-11-10 08:13:38,533 - camera_manager - INFO - Detecting available cameras...
+2025-11-10 08:13:38,915 - camera_manager - INFO - Found: Camera 0 (DSHOW) (Device 0)
+2025-11-10 08:13:40,146 - camera_manager - INFO - Found: Camera 1 (DSHOW) (Device 1)
+2025-11-10 08:13:40,584 - camera_manager - INFO - Detected 2 camera(s)
+2025-11-10 08:13:40,585 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-10 08:13:41,298 - camera_manager - INFO - Successfully connected to camera 0 (640x512)
+2025-11-10 08:13:41,298 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-10 08:13:41,572 - camera_manager - INFO - Disconnected from camera 0
+2025-11-10 08:13:42,248 - camera_manager - INFO - Successfully connected to camera 0 (640x512)
+2025-11-10 08:15:00,745 - camera_manager - INFO - Detecting available cameras...
+2025-11-10 08:15:00,755 - camera_manager - INFO - Found: Camera 0 (DSHOW) (Device 0)
+2025-11-10 08:15:01,892 - camera_manager - INFO - Found: Camera 1 (DSHOW) (Device 1)
+2025-11-10 08:15:02,273 - camera_manager - INFO - Detected 2 camera(s)
+2025-11-10 08:15:02,273 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-10 08:15:02,273 - camera_manager - INFO - Disconnected from camera 0
+2025-11-10 08:15:02,881 - camera_manager - INFO - Successfully connected to camera 0 (640x512)
+2025-11-10 08:15:02,881 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-10 08:15:03,156 - camera_manager - INFO - Disconnected from camera 0
+2025-11-10 08:15:03,747 - camera_manager - INFO - Successfully connected to camera 0 (640x512)
+2025-11-10 08:15:03,783 - __main__ - INFO - Thermal preprocessing: enabled
+2025-11-10 08:15:05,505 - __main__ - INFO - Focus algorithm changed to: Tenengrad
+2025-11-10 08:15:16,364 - __main__ - INFO - Focus algorithm changed to: Brenner Gradient
+2025-11-10 08:15:18,908 - __main__ - INFO - Focus algorithm changed to: Normalized Variance
+2025-11-10 08:15:21,049 - __main__ - INFO - Focus algorithm changed to: Variance of Laplacian
+2025-11-10 08:15:23,157 - __main__ - INFO - Focus algorithm changed to: Laplacian Variance
+2025-11-10 08:15:48,121 - camera_manager - INFO - Disconnected from camera 0
+2025-11-10 08:16:37,385 - root - INFO - ============================================================
+2025-11-10 08:16:37,385 - root - INFO - FLIR Boson Focus Peaking - Logging initialized
+2025-11-10 08:16:37,385 - root - INFO - Log level: INFO
+2025-11-10 08:16:37,385 - root - INFO - Log file: C:\Users\stati\Desktop\Projects\FlirFocusPeaking\flir_focus.log
+2025-11-10 08:16:37,385 - root - INFO - ============================================================
+2025-11-10 08:16:37,397 - theme_manager - INFO - Applied theme: Dark
+2025-11-10 08:16:37,412 - boson_control - INFO - Found FLIR device: COM6 - FLIR Control (COM6)
+2025-11-10 08:16:37,412 - boson_control - INFO - Auto-detected FLIR Boson on COM6
+2025-11-10 08:16:37,412 - boson_control - INFO - Attempting to connect to Boson on COM6...
+2025-11-10 08:16:38,020 - boson_control - ERROR - Failed to communicate with Boson: cannot unpack non-iterable int object
+2025-11-10 08:16:38,036 - BosonControlPanel - INFO - Boson controller connected
+2025-11-10 08:16:38,355 - camera_manager - INFO - Detecting available cameras...
+2025-11-10 08:16:38,664 - camera_manager - INFO - Found: Camera 0 (DSHOW) (Device 0)
+2025-11-10 08:16:39,809 - camera_manager - INFO - Found: Camera 1 (DSHOW) (Device 1)
+2025-11-10 08:16:40,224 - camera_manager - INFO - Detected 2 camera(s)
+2025-11-10 08:16:40,225 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-10 08:16:40,897 - camera_manager - INFO - Successfully connected to camera 0 (640x512)
+2025-11-10 08:16:40,897 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-10 08:16:41,168 - camera_manager - INFO - Disconnected from camera 0
+2025-11-10 08:16:41,830 - camera_manager - INFO - Successfully connected to camera 0 (640x512)
+2025-11-10 08:17:16,926 - __main__ - INFO - Focus algorithm changed to: Tenengrad
+2025-11-10 08:17:19,278 - __main__ - INFO - Focus algorithm changed to: Laplacian Variance
+2025-11-10 08:17:21,046 - __main__ - INFO - Focus algorithm changed to: Tenengrad
+2025-11-10 08:17:30,318 - root - INFO - ============================================================
+2025-11-10 08:17:30,318 - root - INFO - FLIR Boson Focus Peaking - Logging initialized
+2025-11-10 08:17:30,318 - root - INFO - Log level: INFO
+2025-11-10 08:17:30,318 - root - INFO - Log file: C:\Users\stati\Desktop\Projects\FlirFocusPeaking\flir_focus.log
+2025-11-10 08:17:30,318 - root - INFO - ============================================================
+2025-11-10 08:17:30,335 - theme_manager - INFO - Applied theme: Dark
+2025-11-10 08:17:30,352 - boson_control - INFO - Found FLIR device: COM6 - FLIR Control (COM6)
+2025-11-10 08:17:30,352 - boson_control - INFO - Auto-detected FLIR Boson on COM6
+2025-11-10 08:17:30,352 - boson_control - INFO - Attempting to connect to Boson on COM6...
+2025-11-10 08:17:30,359 - boson_control - INFO - Connected to Boson camera. Serial: 30149
+2025-11-10 08:17:30,369 - BosonControlPanel - INFO - Boson controller connected
+2025-11-10 08:17:30,370 - boson_control - ERROR - Failed to get gain mode: type object 'FLR_BOSON_GAINMODE_E' has no attribute 'FLR_BOSON_AUTO'
+2025-11-10 08:17:30,370 - boson_control - ERROR - Failed to get AGC mode: 'pyClient' object has no attribute 'bosonGetAgcEnable'
+2025-11-10 08:17:30,370 - BosonControlPanel - INFO - Loaded current settings from Boson camera
+2025-11-10 08:17:30,855 - camera_manager - INFO - Detecting available cameras...
+2025-11-10 08:17:31,146 - camera_manager - INFO - Found: Camera 0 (DSHOW) (Device 0)
+2025-11-10 08:17:32,039 - camera_manager - INFO - Found: Camera 1 (DSHOW) (Device 1)
+2025-11-10 08:17:32,452 - camera_manager - INFO - Detected 2 camera(s)
+2025-11-10 08:17:32,453 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-10 08:17:33,196 - camera_manager - INFO - Successfully connected to camera 0 (640x512)
+2025-11-10 08:17:33,197 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-10 08:17:33,466 - camera_manager - INFO - Disconnected from camera 0
+2025-11-10 08:17:34,146 - camera_manager - INFO - Successfully connected to camera 0 (640x512)
+2025-11-10 08:17:45,924 - boson_control - ERROR - Failed to set palette: type object 'FLR_COLORLUT_ID_E' has no attribute 'FLR_COLORLUT_RAINBOWHC'
+2025-11-10 08:17:45,924 - BosonControlPanel - ERROR - Failed to set palette to Rainbow
+2025-11-10 08:17:53,920 - boson_control - ERROR - Failed to set AGC mode: 'pyClient' object has no attribute 'bosonSetAgcEnable'
+2025-11-10 08:17:53,920 - BosonControlPanel - ERROR - Failed to set AGC mode to Auto
+2025-11-10 08:17:55,800 - boson_control - ERROR - Failed to set gain mode: type object 'FLR_BOSON_GAINMODE_E' has no attribute 'FLR_BOSON_AUTO'
+2025-11-10 08:17:55,800 - BosonControlPanel - ERROR - Failed to set gain mode to Auto
+2025-11-10 08:17:58,456 - camera_manager - INFO - Detecting available cameras...
+2025-11-10 08:17:58,457 - camera_manager - INFO - Found: Camera 0 (DSHOW) (Device 0)
+2025-11-10 08:17:59,344 - camera_manager - INFO - Found: Camera 1 (DSHOW) (Device 1)
+2025-11-10 08:17:59,740 - camera_manager - INFO - Detected 2 camera(s)
+2025-11-10 08:17:59,740 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-10 08:17:59,740 - camera_manager - INFO - Disconnected from camera 0
+2025-11-10 08:18:00,413 - camera_manager - INFO - Successfully connected to camera 0 (640x512)
+2025-11-10 08:18:00,413 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-10 08:18:00,683 - camera_manager - INFO - Disconnected from camera 0
+2025-11-10 08:18:01,313 - camera_manager - INFO - Successfully connected to camera 0 (640x512)
+2025-11-10 08:18:17,771 - boson_control - ERROR - Failed to set palette: type object 'FLR_COLORLUT_ID_E' has no attribute 'FLR_COLORLUT_RAINBOWHC'
+2025-11-10 08:18:17,771 - BosonControlPanel - ERROR - Failed to set palette to Globow
+2025-11-10 08:18:20,264 - boson_control - ERROR - Failed to set palette: type object 'FLR_COLORLUT_ID_E' has no attribute 'FLR_COLORLUT_RAINBOWHC'
+2025-11-10 08:18:20,264 - BosonControlPanel - ERROR - Failed to set palette to Gradedfire
+2025-11-10 08:18:49,916 - camera_manager - INFO - Disconnected from camera 0
+2025-11-10 08:18:49,984 - boson_control - INFO - Disconnected from Boson camera
+2025-11-10 08:19:07,270 - root - INFO - ============================================================
+2025-11-10 08:19:07,270 - root - INFO - FLIR Boson Focus Peaking - Logging initialized
+2025-11-10 08:19:07,270 - root - INFO - Log level: INFO
+2025-11-10 08:19:07,270 - root - INFO - Log file: C:\Users\stati\Desktop\Projects\FlirFocusPeaking\flir_focus.log
+2025-11-10 08:19:07,270 - root - INFO - ============================================================
+2025-11-10 08:19:07,292 - theme_manager - INFO - Applied theme: Dark
+2025-11-10 08:19:07,320 - boson_control - INFO - Found FLIR device: COM6 - FLIR Control (COM6)
+2025-11-10 08:19:07,320 - boson_control - INFO - Auto-detected FLIR Boson on COM6
+2025-11-10 08:19:07,320 - boson_control - INFO - Attempting to connect to Boson on COM6...
+2025-11-10 08:19:07,330 - boson_control - INFO - Connected to Boson camera. Serial: 30149
+2025-11-10 08:19:07,342 - BosonControlPanel - INFO - Boson controller connected
+2025-11-10 08:19:07,344 - boson_control - ERROR - Failed to get AGC mode: 353
+2025-11-10 08:19:07,344 - BosonControlPanel - INFO - Loaded current settings from Boson camera
+2025-11-10 08:19:07,769 - camera_manager - INFO - Detecting available cameras...
+2025-11-10 08:19:08,128 - camera_manager - INFO - Found: Camera 0 (DSHOW) (Device 0)
+2025-11-10 08:19:09,058 - camera_manager - INFO - Found: Camera 1 (DSHOW) (Device 1)
+2025-11-10 08:19:09,457 - camera_manager - INFO - Detected 2 camera(s)
+2025-11-10 08:19:09,457 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-10 08:19:10,113 - camera_manager - INFO - Successfully connected to camera 0 (640x512)
+2025-11-10 08:19:10,113 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-10 08:19:10,386 - camera_manager - INFO - Disconnected from camera 0
+2025-11-10 08:19:11,044 - camera_manager - INFO - Successfully connected to camera 0 (640x512)
+2025-11-10 08:19:14,116 - boson_control - ERROR - Failed to set palette: type object 'FLR_COLORLUT_ID_E' has no attribute 'FLR_COLORLUT_RAINBOWHC'
+2025-11-10 08:19:14,116 - BosonControlPanel - ERROR - Failed to set palette to Rainbow
+2025-11-10 08:19:16,411 - boson_control - ERROR - Failed to set AGC mode: 353
+2025-11-10 08:19:16,412 - BosonControlPanel - ERROR - Failed to set AGC mode to Auto
+2025-11-10 08:19:17,613 - boson_control - INFO - Gain mode set to AUTO
+2025-11-10 08:19:17,613 - BosonControlPanel - INFO - Gain mode set to Auto
+2025-11-10 08:19:19,852 - boson_control - INFO - FFC mode set to AUTO
+2025-11-10 08:19:19,852 - BosonControlPanel - INFO - FFC mode set to Auto
+2025-11-10 08:19:24,943 - boson_control - ERROR - Failed to set TLinear: 'pyClient' object has no attribute 'bosonSetTLinearEnableState'
+2025-11-10 08:19:24,943 - BosonControlPanel - ERROR - Failed to set TLinear mode
+2025-11-10 08:19:25,725 - boson_control - ERROR - Failed to set TLinear: 'pyClient' object has no attribute 'bosonSetTLinearEnableState'
+2025-11-10 08:19:25,725 - BosonControlPanel - ERROR - Failed to set TLinear mode
+2025-11-10 08:19:26,863 - boson_control - ERROR - Failed to set DDE: 'int' object has no attribute 'value'
+2025-11-10 08:19:26,863 - BosonControlPanel - ERROR - Failed to set DDE to 10
+2025-11-10 08:19:27,358 - boson_control - ERROR - Failed to set DDE: 'int' object has no attribute 'value'
+2025-11-10 08:19:27,358 - BosonControlPanel - ERROR - Failed to set DDE to 15
+2025-11-10 08:19:27,436 - boson_control - ERROR - Failed to set DDE: 'int' object has no attribute 'value'
+2025-11-10 08:19:27,436 - BosonControlPanel - ERROR - Failed to set DDE to 25
+2025-11-10 08:19:27,631 - boson_control - ERROR - Failed to set DDE: 'int' object has no attribute 'value'
+2025-11-10 08:19:27,631 - BosonControlPanel - ERROR - Failed to set DDE to 35
+2025-11-10 08:19:27,803 - boson_control - ERROR - Failed to set DDE: 'int' object has no attribute 'value'
+2025-11-10 08:19:27,803 - BosonControlPanel - ERROR - Failed to set DDE to 45
+2025-11-10 08:19:27,964 - boson_control - ERROR - Failed to set DDE: 'int' object has no attribute 'value'
+2025-11-10 08:19:27,964 - BosonControlPanel - ERROR - Failed to set DDE to 55
+2025-11-10 08:19:28,110 - boson_control - ERROR - Failed to set DDE: 'int' object has no attribute 'value'
+2025-11-10 08:19:28,110 - BosonControlPanel - ERROR - Failed to set DDE to 65
+2025-11-10 08:20:05,101 - root - INFO - ============================================================
+2025-11-10 08:20:05,101 - root - INFO - FLIR Boson Focus Peaking - Logging initialized
+2025-11-10 08:20:05,102 - root - INFO - Log level: INFO
+2025-11-10 08:20:05,102 - root - INFO - Log file: C:\Users\stati\Desktop\Projects\FlirFocusPeaking\flir_focus.log
+2025-11-10 08:20:05,102 - root - INFO - ============================================================
+2025-11-10 08:20:05,121 - theme_manager - INFO - Applied theme: Dark
+2025-11-10 08:20:05,136 - boson_control - INFO - Found FLIR device: COM6 - FLIR Control (COM6)
+2025-11-10 08:20:05,136 - boson_control - INFO - Auto-detected FLIR Boson on COM6
+2025-11-10 08:20:05,136 - boson_control - INFO - Attempting to connect to Boson on COM6...
+2025-11-10 08:20:05,142 - boson_control - INFO - Connected to Boson camera. Serial: 30149
+2025-11-10 08:20:05,150 - BosonControlPanel - INFO - Boson controller connected
+2025-11-10 08:20:05,151 - boson_control - INFO - Gain mode set to AUTO
+2025-11-10 08:20:05,151 - BosonControlPanel - INFO - Gain mode set to Auto
+2025-11-10 08:20:05,152 - boson_control - ERROR - Failed to get AGC mode: 353
+2025-11-10 08:20:05,152 - BosonControlPanel - INFO - Loaded current settings from Boson camera
+2025-11-10 08:20:05,474 - camera_manager - INFO - Detecting available cameras...
+2025-11-10 08:20:05,761 - camera_manager - INFO - Found: Camera 0 (DSHOW) (Device 0)
+2025-11-10 08:20:06,676 - camera_manager - INFO - Found: Camera 1 (DSHOW) (Device 1)
+2025-11-10 08:20:07,092 - camera_manager - INFO - Detected 2 camera(s)
+2025-11-10 08:20:07,093 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-10 08:20:07,745 - camera_manager - INFO - Successfully connected to camera 0 (640x512)
+2025-11-10 08:20:07,745 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-10 08:20:08,016 - camera_manager - INFO - Disconnected from camera 0
+2025-11-10 08:20:08,695 - camera_manager - INFO - Successfully connected to camera 0 (640x512)
+2025-11-10 08:20:11,585 - boson_control - ERROR - Failed to set palette: 'pyClient' object has no attribute 'colorlutSetControl'
+2025-11-10 08:20:11,585 - BosonControlPanel - ERROR - Failed to set palette to BlackHot
+2025-11-10 08:20:13,320 - boson_control - ERROR - Failed to set palette: 'pyClient' object has no attribute 'colorlutSetControl'
+2025-11-10 08:20:13,320 - BosonControlPanel - ERROR - Failed to set palette to Arctic
+2025-11-10 08:20:15,448 - boson_control - ERROR - Failed to set palette: 'pyClient' object has no attribute 'colorlutSetControl'
+2025-11-10 08:20:15,448 - BosonControlPanel - ERROR - Failed to set palette to Ironbow
+2025-11-10 08:20:35,264 - root - INFO - ============================================================
+2025-11-10 08:20:35,265 - root - INFO - FLIR Boson Focus Peaking - Logging initialized
+2025-11-10 08:20:35,265 - root - INFO - Log level: INFO
+2025-11-10 08:20:35,265 - root - INFO - Log file: C:\Users\stati\Desktop\Projects\FlirFocusPeaking\flir_focus.log
+2025-11-10 08:20:35,265 - root - INFO - ============================================================
+2025-11-10 08:20:35,277 - theme_manager - INFO - Applied theme: Dark
+2025-11-10 08:20:35,293 - boson_control - INFO - Found FLIR device: COM6 - FLIR Control (COM6)
+2025-11-10 08:20:35,293 - boson_control - INFO - Auto-detected FLIR Boson on COM6
+2025-11-10 08:20:35,293 - boson_control - INFO - Attempting to connect to Boson on COM6...
+2025-11-10 08:20:35,298 - boson_control - INFO - Connected to Boson camera. Serial: 30149
+2025-11-10 08:20:35,306 - BosonControlPanel - INFO - Boson controller connected
+2025-11-10 08:20:35,307 - boson_control - INFO - Gain mode set to AUTO
+2025-11-10 08:20:35,307 - BosonControlPanel - INFO - Gain mode set to Auto
+2025-11-10 08:20:35,308 - boson_control - ERROR - Failed to set AGC mode: 353
+2025-11-10 08:20:35,308 - BosonControlPanel - ERROR - Failed to set AGC mode to Auto
+2025-11-10 08:20:35,308 - BosonControlPanel - INFO - Loaded current settings from Boson camera
+2025-11-10 08:20:35,740 - camera_manager - INFO - Detecting available cameras...
+2025-11-10 08:20:36,027 - camera_manager - INFO - Found: Camera 0 (DSHOW) (Device 0)
+2025-11-10 08:20:36,866 - camera_manager - INFO - Found: Camera 1 (DSHOW) (Device 1)
+2025-11-10 08:20:37,286 - camera_manager - INFO - Detected 2 camera(s)
+2025-11-10 08:20:37,286 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-10 08:20:37,927 - camera_manager - INFO - Successfully connected to camera 0 (640x512)
+2025-11-10 08:20:37,927 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-10 08:20:38,200 - camera_manager - INFO - Disconnected from camera 0
+2025-11-10 08:20:38,828 - camera_manager - INFO - Successfully connected to camera 0 (640x512)
+2025-11-10 08:20:41,931 - boson_control - ERROR - Failed to set palette: 'pyClient' object has no attribute 'colorlutSetControl'
+2025-11-10 08:20:41,931 - BosonControlPanel - ERROR - Failed to set palette to RainbowHC
+2025-11-10 08:20:44,294 - boson_control - ERROR - Failed to set palette: 'pyClient' object has no attribute 'colorlutSetControl'
+2025-11-10 08:20:44,294 - BosonControlPanel - ERROR - Failed to set palette to Rainbow
+2025-11-10 08:21:20,499 - camera_manager - INFO - Disconnected from camera 0
+2025-11-10 08:21:20,548 - boson_control - INFO - Disconnected from Boson camera
+2025-11-10 08:22:11,677 - root - INFO - ============================================================
+2025-11-10 08:22:11,677 - root - INFO - FLIR Boson Focus Peaking - Logging initialized
+2025-11-10 08:22:11,677 - root - INFO - Log level: INFO
+2025-11-10 08:22:11,677 - root - INFO - Log file: C:\Users\stati\Desktop\Projects\FlirFocusPeaking\flir_focus.log
+2025-11-10 08:22:11,677 - root - INFO - ============================================================
+2025-11-10 08:22:11,691 - theme_manager - INFO - Applied theme: Dark
+2025-11-10 08:22:11,705 - boson_control - INFO - Found FLIR device: COM6 - FLIR Control (COM6)
+2025-11-10 08:22:11,705 - boson_control - INFO - Auto-detected FLIR Boson on COM6
+2025-11-10 08:22:11,706 - boson_control - INFO - Attempting to connect to Boson on COM6...
+2025-11-10 08:22:11,713 - boson_control - INFO - Connected to Boson camera. Serial: 30149
+2025-11-10 08:22:11,721 - BosonControlPanel - INFO - Boson controller connected
+2025-11-10 08:22:11,723 - boson_control - INFO - Gain mode set to AUTO
+2025-11-10 08:22:11,723 - BosonControlPanel - INFO - Gain mode set to Auto
+2025-11-10 08:22:11,724 - boson_control - ERROR - Failed to set AGC mode: 353
+2025-11-10 08:22:11,724 - BosonControlPanel - ERROR - Failed to set AGC mode to Auto
+2025-11-10 08:22:11,724 - BosonControlPanel - INFO - Loaded current settings from Boson camera
+2025-11-10 08:22:12,015 - camera_manager - INFO - Detecting available cameras...
+2025-11-10 08:22:12,294 - camera_manager - INFO - Found: Camera 0 (DSHOW) (Device 0)
+2025-11-10 08:22:13,447 - camera_manager - INFO - Found: Camera 1 (DSHOW) (Device 1)
+2025-11-10 08:22:13,876 - camera_manager - INFO - Detected 2 camera(s)
+2025-11-10 08:22:13,876 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-10 08:22:14,477 - camera_manager - INFO - Successfully connected to camera 0 (640x512)
+2025-11-10 08:22:14,477 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-10 08:22:14,750 - camera_manager - INFO - Disconnected from camera 0
+2025-11-10 08:22:15,376 - camera_manager - INFO - Successfully connected to camera 0 (640x512)
+2025-11-10 08:22:18,024 - boson_control - ERROR - Failed to set palette: 515
+2025-11-10 08:22:18,025 - BosonControlPanel - ERROR - Failed to set palette to RainbowHC
+2025-11-10 08:22:24,616 - boson_control - ERROR - Failed to set palette: 515
+2025-11-10 08:22:24,616 - BosonControlPanel - ERROR - Failed to set palette to Lava
+2025-11-10 08:22:26,822 - boson_control - ERROR - Failed to set TLinear: 'pyClient' object has no attribute 'bosonSetTLinearEnableState'
+2025-11-10 08:22:26,822 - BosonControlPanel - ERROR - Failed to set TLinear mode
+2025-11-10 08:22:27,628 - boson_control - ERROR - Failed to set TLinear: 'pyClient' object has no attribute 'bosonSetTLinearEnableState'
+2025-11-10 08:22:27,628 - BosonControlPanel - ERROR - Failed to set TLinear mode
+2025-11-10 08:22:34,889 - theme_manager - INFO - Applied theme: Dracula
+2025-11-10 08:23:42,447 - boson_control - ERROR - Failed to set palette: 515
+2025-11-10 08:23:42,447 - BosonControlPanel - ERROR - Failed to set palette to RainbowHC
+2025-11-10 08:23:43,578 - camera_manager - INFO - Disconnected from camera 0
+2025-11-10 08:23:43,626 - boson_control - INFO - Disconnected from Boson camera
+2025-11-10 08:24:48,455 - root - INFO - ============================================================
+2025-11-10 08:24:48,455 - root - INFO - FLIR Boson Focus Peaking - Logging initialized
+2025-11-10 08:24:48,455 - root - INFO - Log level: INFO
+2025-11-10 08:24:48,455 - root - INFO - Log file: C:\Users\stati\Desktop\Projects\FlirFocusPeaking\flir_focus.log
+2025-11-10 08:24:48,455 - root - INFO - ============================================================
+2025-11-10 08:24:48,467 - theme_manager - INFO - Applied theme: Dark
+2025-11-10 08:24:48,481 - boson_control - INFO - Found FLIR device: COM6 - FLIR Control (COM6)
+2025-11-10 08:24:48,481 - boson_control - INFO - Auto-detected FLIR Boson on COM6
+2025-11-10 08:24:48,481 - boson_control - INFO - Attempting to connect to Boson on COM6...
+2025-11-10 08:24:48,487 - boson_control - INFO - Connected to Boson camera. Serial: 30149
+2025-11-10 08:24:48,496 - BosonControlPanel - INFO - Boson controller connected
+2025-11-10 08:24:48,497 - boson_control - INFO - Gain mode set to AUTO
+2025-11-10 08:24:48,497 - BosonControlPanel - INFO - Gain mode set to Auto
+2025-11-10 08:24:48,499 - boson_control - ERROR - Failed to set AGC mode: 353
+2025-11-10 08:24:48,499 - BosonControlPanel - ERROR - Failed to set AGC mode to Auto
+2025-11-10 08:24:48,499 - BosonControlPanel - INFO - Loaded current settings from Boson camera
+2025-11-10 08:24:48,796 - camera_manager - INFO - Detecting available cameras...
+2025-11-10 08:24:49,125 - camera_manager - INFO - Found: Camera 0 (DSHOW) (Device 0)
+2025-11-10 08:24:50,258 - camera_manager - INFO - Found: Camera 1 (DSHOW) (Device 1)
+2025-11-10 08:24:50,765 - camera_manager - INFO - Detected 2 camera(s)
+2025-11-10 08:24:50,766 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-10 08:24:51,375 - camera_manager - INFO - Successfully connected to camera 0 (640x512)
+2025-11-10 08:24:51,375 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-10 08:24:51,646 - camera_manager - INFO - Disconnected from camera 0
+2025-11-10 08:24:52,326 - camera_manager - INFO - Successfully connected to camera 0 (640x512)
+2025-11-10 08:24:58,023 - boson_control - ERROR - Failed to set palette: 515
+2025-11-10 08:24:58,023 - BosonControlPanel - ERROR - Failed to set palette to Ironbow
+2025-11-10 08:25:03,650 - boson_control - ERROR - Failed to set palette: 515
+2025-11-10 08:25:03,650 - BosonControlPanel - ERROR - Failed to set palette to Arctic
+2025-11-10 08:25:12,790 - boson_control - ERROR - Failed to set palette: 515
+2025-11-10 08:25:12,790 - BosonControlPanel - ERROR - Failed to set palette to RainbowHC
+2025-11-10 08:25:43,663 - camera_manager - INFO - Disconnected from camera 0
+2025-11-10 08:25:43,715 - boson_control - INFO - Disconnected from Boson camera
+2025-11-10 08:26:38,395 - root - INFO - ============================================================
+2025-11-10 08:26:38,395 - root - INFO - FLIR Boson Focus Peaking - Logging initialized
+2025-11-10 08:26:38,395 - root - INFO - Log level: INFO
+2025-11-10 08:26:38,395 - root - INFO - Log file: C:\Users\stati\Desktop\Projects\FlirFocusPeaking\flir_focus.log
+2025-11-10 08:26:38,395 - root - INFO - ============================================================
+2025-11-10 08:26:38,408 - theme_manager - INFO - Applied theme: Dark
+2025-11-10 08:26:38,425 - boson_control - INFO - Found FLIR device: COM6 - FLIR Control (COM6)
+2025-11-10 08:26:38,425 - boson_control - INFO - Auto-detected FLIR Boson on COM6
+2025-11-10 08:26:38,425 - boson_control - INFO - Attempting to connect to Boson on COM6...
+2025-11-10 08:26:38,433 - boson_control - INFO - Connected to Boson camera. Serial: 30149
+2025-11-10 08:26:38,442 - BosonControlPanel - INFO - Boson controller connected
+2025-11-10 08:26:38,444 - boson_control - INFO - Gain mode set to AUTO
+2025-11-10 08:26:38,444 - BosonControlPanel - INFO - Gain mode set to Auto
+2025-11-10 08:26:38,445 - boson_control - ERROR - Failed to set AGC mode: 353
+2025-11-10 08:26:38,445 - BosonControlPanel - ERROR - Failed to set AGC mode to Auto
+2025-11-10 08:26:38,445 - BosonControlPanel - INFO - Loaded current settings from Boson camera
+2025-11-10 08:26:38,749 - camera_manager - INFO - Detecting available cameras...
+2025-11-10 08:26:39,158 - camera_manager - INFO - Found: Camera 0 (DSHOW) (Device 0)
+2025-11-10 08:26:40,439 - camera_manager - INFO - Found: Camera 1 (DSHOW) (Device 1)
+2025-11-10 08:26:40,887 - camera_manager - INFO - Detected 2 camera(s)
+2025-11-10 08:26:40,888 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-10 08:26:41,593 - camera_manager - INFO - Successfully connected to camera 0 (640x512)
+2025-11-10 08:26:41,593 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-10 08:26:41,868 - camera_manager - INFO - Disconnected from camera 0
+2025-11-10 08:26:42,557 - camera_manager - INFO - Successfully connected to camera 0 (640x512)
+2025-11-10 08:26:59,513 - boson_control - INFO - Palette set to RainbowHC (software)
+2025-11-10 08:26:59,514 - BosonControlPanel - INFO - Palette set to RainbowHC
+2025-11-10 08:27:01,732 - boson_control - INFO - Palette set to Rainbow (software)
+2025-11-10 08:27:01,733 - BosonControlPanel - INFO - Palette set to Rainbow
+2025-11-10 08:27:03,626 - boson_control - INFO - Palette set to Globow (software)
+2025-11-10 08:27:03,627 - BosonControlPanel - INFO - Palette set to Globow
+2025-11-10 08:27:05,704 - boson_control - INFO - Palette set to Gradedfire (software)
+2025-11-10 08:27:05,705 - BosonControlPanel - INFO - Palette set to Gradedfire
+2025-11-10 08:27:07,946 - boson_control - INFO - Palette set to Globow (software)
+2025-11-10 08:27:07,948 - BosonControlPanel - INFO - Palette set to Globow
+2025-11-10 08:27:09,647 - boson_control - INFO - Palette set to Arctic (software)
+2025-11-10 08:27:09,648 - BosonControlPanel - INFO - Palette set to Arctic
+2025-11-10 08:27:13,416 - boson_control - INFO - FFC mode set to AUTO
+2025-11-10 08:27:13,416 - BosonControlPanel - INFO - FFC mode set to Auto
+2025-11-10 08:27:15,804 - boson_control - INFO - Palette set to Lava (software)
+2025-11-10 08:27:15,804 - BosonControlPanel - INFO - Palette set to Lava
+2025-11-10 08:27:25,964 - root - INFO - ============================================================
+2025-11-10 08:27:25,964 - root - INFO - FLIR Boson Focus Peaking - Logging initialized
+2025-11-10 08:27:25,964 - root - INFO - Log level: INFO
+2025-11-10 08:27:25,964 - root - INFO - Log file: C:\Users\stati\Desktop\Projects\FlirFocusPeaking\flir_focus.log
+2025-11-10 08:27:25,965 - root - INFO - ============================================================
+2025-11-10 08:27:25,984 - theme_manager - INFO - Applied theme: Dark
+2025-11-10 08:27:26,006 - boson_control - INFO - Found FLIR device: COM6 - FLIR Control (COM6)
+2025-11-10 08:27:26,006 - boson_control - INFO - Auto-detected FLIR Boson on COM6
+2025-11-10 08:27:26,006 - boson_control - INFO - Attempting to connect to Boson on COM6...
+2025-11-10 08:27:26,013 - boson_control - INFO - Connected to Boson camera. Serial: 30149
+2025-11-10 08:27:26,027 - BosonControlPanel - INFO - Boson controller connected
+2025-11-10 08:27:26,029 - boson_control - INFO - Gain mode set to AUTO
+2025-11-10 08:27:26,029 - BosonControlPanel - INFO - Gain mode set to Auto
+2025-11-10 08:27:26,032 - boson_control - ERROR - Failed to set AGC mode: 353
+2025-11-10 08:27:26,032 - BosonControlPanel - ERROR - Failed to set AGC mode to Auto
+2025-11-10 08:27:26,032 - BosonControlPanel - INFO - Loaded current settings from Boson camera
+2025-11-10 08:27:26,543 - camera_manager - INFO - Detecting available cameras...
+2025-11-10 08:27:26,924 - camera_manager - INFO - Found: Camera 0 (DSHOW) (Device 0)
+2025-11-10 08:27:27,796 - camera_manager - INFO - Found: Camera 1 (DSHOW) (Device 1)
+2025-11-10 08:27:28,220 - camera_manager - INFO - Detected 2 camera(s)
+2025-11-10 08:27:28,220 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-10 08:27:28,907 - camera_manager - INFO - Successfully connected to camera 0 (640x512)
+2025-11-10 08:27:28,907 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-10 08:27:29,180 - camera_manager - INFO - Disconnected from camera 0
+2025-11-10 08:27:29,841 - camera_manager - INFO - Successfully connected to camera 0 (640x512)
+2025-11-10 08:27:43,890 - boson_control - INFO - FFC mode set to AUTO
+2025-11-10 08:27:43,890 - BosonControlPanel - INFO - FFC mode set to Auto
+2025-11-10 08:27:45,160 - boson_control - INFO - Palette set to BlackHot (software)
+2025-11-10 08:27:45,161 - BosonControlPanel - INFO - Palette set to BlackHot
+2025-11-10 08:27:47,659 - boson_control - INFO - Palette set to Rainbow (software)
+2025-11-10 08:27:47,660 - BosonControlPanel - INFO - Palette set to Rainbow
+2025-11-10 08:27:54,884 - boson_control - INFO - Palette set to BlackHot (software)
+2025-11-10 08:27:54,884 - BosonControlPanel - INFO - Palette set to BlackHot
+2025-11-10 08:28:30,698 - boson_control - INFO - FFC triggered
+2025-11-10 08:28:30,698 - BosonControlPanel - INFO - FFC triggered successfully
+2025-11-10 08:28:37,291 - theme_manager - INFO - Applied theme: Solarized Light
+2025-11-10 08:28:39,476 - theme_manager - INFO - Applied theme: Solarized Dark
+2025-11-10 08:29:12,746 - boson_control - INFO - Palette set to WhiteHot (software)
+2025-11-10 08:29:12,746 - BosonControlPanel - INFO - Palette set to WhiteHot
+2025-11-10 08:29:15,763 - boson_control - INFO - Palette set to Lava (software)
+2025-11-10 08:29:15,764 - BosonControlPanel - INFO - Palette set to Lava
+2025-11-10 08:29:38,091 - boson_control - INFO - Palette set to Arctic (software)
+2025-11-10 08:29:38,092 - BosonControlPanel - INFO - Palette set to Arctic
+2025-11-10 08:29:40,990 - boson_control - INFO - Palette set to Gradedfire (software)
+2025-11-10 08:29:40,991 - BosonControlPanel - INFO - Palette set to Gradedfire
+2025-11-10 08:29:43,150 - boson_control - INFO - Palette set to Hottest (software)
+2025-11-10 08:29:43,151 - BosonControlPanel - INFO - Palette set to Hottest
+2025-11-10 08:30:18,193 - camera_manager - INFO - Disconnected from camera 0
+2025-11-10 08:30:18,255 - boson_control - INFO - Disconnected from Boson camera
+2025-11-10 08:34:47,459 - root - INFO - ============================================================
+2025-11-10 08:34:47,459 - root - INFO - FLIR Boson Focus Peaking - Logging initialized
+2025-11-10 08:34:47,459 - root - INFO - Log level: INFO
+2025-11-10 08:34:47,459 - root - INFO - Log file: C:\Users\stati\Desktop\Projects\FlirFocusPeaking\flir_focus.log
+2025-11-10 08:34:47,459 - root - INFO - ============================================================
+2025-11-10 08:34:47,480 - theme_manager - INFO - Applied theme: Dark
+2025-11-10 08:34:47,480 - BosonFocusGUI - INFO - Initializing Boson Focus GUI v2.0
+2025-11-10 08:34:47,493 - boson_control - ERROR - Cannot connect: No COM port specified
+2025-11-10 08:34:47,504 - BosonControlPanel - INFO - Boson controller connected
+2025-11-10 08:34:47,917 - BosonFocusGUI - INFO - Refreshing camera list...
+2025-11-10 08:34:47,918 - camera_manager - INFO - Detecting available cameras...
+2025-11-10 08:34:49,187 - camera_manager - INFO - Found: Camera 0 (DSHOW) (Device 0)
+2025-11-10 08:34:49,703 - camera_manager - INFO - Detected 1 camera(s)
+2025-11-10 08:34:49,703 - BosonFocusGUI - INFO - Connecting to camera 0...
+2025-11-10 08:34:49,703 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-10 08:34:51,467 - camera_manager - INFO - Successfully connected to camera 0 (640x480)
+2025-11-10 08:34:51,469 - BosonFocusGUI - INFO - Successfully connected to camera 0
+2025-11-10 08:34:51,470 - BosonFocusGUI - INFO - Connecting to camera 0...
+2025-11-10 08:34:51,470 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-10 08:34:51,833 - camera_manager - INFO - Disconnected from camera 0
+2025-11-10 08:34:53,547 - camera_manager - INFO - Successfully connected to camera 0 (640x480)
+2025-11-10 08:34:53,548 - BosonFocusGUI - INFO - Successfully connected to camera 0
+2025-11-10 08:34:53,548 - BosonFocusGUI - INFO - GUI initialization complete
+2025-11-10 08:34:54,152 - __main__ - INFO - FLIR Boson Focus Utility v2.0.0 started
+2025-11-10 08:35:16,639 - BosonFocusGUI - INFO - Focus algorithm changed to: Brenner Gradient
+2025-11-10 08:35:17,632 - BosonFocusGUI - INFO - Thermal preprocessing: enabled
+2025-11-10 08:35:18,566 - BosonFocusGUI - INFO - Thermal preprocessing: disabled
+2025-11-10 08:35:19,226 - BosonFocusGUI - INFO - Thermal preprocessing: enabled
+2025-11-10 08:35:19,911 - BosonFocusGUI - INFO - Thermal preprocessing: disabled
+2025-11-10 08:35:21,785 - BosonFocusGUI - INFO - Thermal preprocessing: enabled
+2025-11-10 08:35:22,353 - BosonFocusGUI - INFO - Thermal preprocessing: disabled
+2025-11-10 08:35:23,812 - BosonFocusGUI - INFO - Thermal preprocessing: enabled
+2025-11-10 08:35:26,350 - BosonFocusGUI - INFO - Thermal preprocessing: disabled
+2025-11-10 08:35:35,321 - BosonFocusGUI - INFO - Created ROI 1: (165, 169, 289, 250)
+2025-11-10 08:35:48,696 - BosonFocusGUI - INFO - Created ROI 2: (108, 131, 414, 300)
+2025-11-10 08:35:58,137 - BosonFocusGUI - INFO - Deleted ROI 2
+2025-11-10 08:36:00,151 - BosonFocusGUI - INFO - Deleted ROI 1
+2025-11-10 08:36:03,101 - theme_manager - INFO - Applied theme: Solarized Light
+2025-11-10 08:36:05,537 - theme_manager - INFO - Applied theme: Solarized Dark
+2025-11-10 08:36:17,584 - BosonFocusGUI - INFO - Application closing...
+2025-11-10 08:36:17,921 - camera_manager - INFO - Disconnected from camera 0
