@@ -523,30 +523,31 @@ class BosonFocusUtility(QtWidgets.QWidget):
 
     def _auto_scale_window(self):
         """Auto-scale window to fit content on startup."""
-        # Get screen geometry
-        screen = QtWidgets.QApplication.desktop().screenGeometry()
-        screen_width = screen.width()
-        screen_height = screen.height()
+        # Process events to let layout calculate sizes
+        QtWidgets.QApplication.processEvents()
 
-        # Calculate optimal size with some padding
-        # Use 75% of screen width and 80% of screen height as maximum
-        max_width = int(screen_width * 0.75)
-        max_height = int(screen_height * 0.80)
+        # Get screen geometry using QScreen (more reliable)
+        screen = QtWidgets.QApplication.primaryScreen()
+        screen_rect = screen.availableGeometry()
+        screen_width = screen_rect.width()
+        screen_height = screen_rect.height()
 
-        # Get size hint from the layout
-        size_hint = self.sizeHint()
+        # Calculate optimal size based on screen size
+        # Use 80% of screen width and 85% of screen height for simpler GUI
+        optimal_width = int(screen_width * 0.80)
+        optimal_height = int(screen_height * 0.85)
 
-        # Use the larger of size hint or minimum comfortable size
-        optimal_width = max(min(size_hint.width(), max_width), 1200)
-        optimal_height = max(min(size_hint.height(), max_height), 750)
+        # Apply minimum sizes but don't exceed screen
+        optimal_width = max(min(optimal_width, screen_width - 100), 1100)
+        optimal_height = max(min(optimal_height, screen_height - 100), 700)
 
         # Set the window size
         self.resize(optimal_width, optimal_height)
 
         # Center the window on screen
         self.move(
-            (screen_width - optimal_width) // 2,
-            (screen_height - optimal_height) // 2
+            screen_rect.x() + (screen_width - optimal_width) // 2,
+            screen_rect.y() + (screen_height - optimal_height) // 2
         )
 
     def _connect_camera(self):
