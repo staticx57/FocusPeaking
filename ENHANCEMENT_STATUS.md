@@ -671,8 +671,8 @@ pyserial>=3.5  (for Boson control)
 ## Files Modified/Created
 
 ### **Core Application:**
-- `main.py` - Simple version with all enhancements
-- `ROIeditor.py` - Advanced version with full features
+- `focus_utility.py` - Unified application launcher (recommended entry point)
+- `ROIeditor.py` - Full-featured GUI with all enhancements
 - `config.py` - Updated with new settings
 - `focus_utils.py` - Added algorithms, preprocessing, quality indicator
 

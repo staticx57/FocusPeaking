@@ -111,12 +111,11 @@ pip install -r requirements.txt
 # Unified application launcher (recommended)
 python focus_utility.py
 
-# Alternative entry points (same application):
-python ROIeditor.py  # Direct launch of full-featured GUI
-python main.py       # Compatibility redirect (deprecated - shows warning)
+# Alternative (direct launch):
+python ROIeditor.py
 ```
 
-**Note:** All entry points launch the same full-featured application. Use `focus_utility.py` as the recommended launcher.
+**Note:** Both commands launch the same full-featured application. Use `focus_utility.py` as the recommended entry point.
 
 ## 📖 Usage Guide
 
@@ -324,7 +323,6 @@ global_score = Σ(roi_score × roi_weight) / Σ(roi_weight)
 FocusPeaking/
 ├── focus_utility.py       # Unified application launcher (recommended entry point)
 ├── ROIeditor.py           # Full-featured GUI implementation (main application code)
-├── main.py                # Compatibility redirect (deprecated - redirects to focus_utility.py)
 ├── focus_utils.py         # Focus algorithms and utilities
 ├── config.py              # Configuration constants
 ├── camera_manager.py      # Camera detection and management
@@ -429,7 +427,7 @@ Settings saved to `focus_config.json`:
 **ALL PHASES COMPLETE - 100% Feature Implementation + Enhancements**
 
 **Latest Updates (November 12, 2025)**:
-- 🔄 **Application Unification**: Simplified to single codebase - main.py now redirects to unified application
+- 🔄 **Application Unification**: Simplified to single codebase - removed deprecated main.py, use focus_utility.py
 - 🐛 **Algorithm Scale Normalization**: Fixed Brenner Gradient (was 1000x too large!), scaled Tenengrad and Normalized Variance
 - 🎨 **Tab Widget Theme Support**: All 8 themes now properly style tabs (was only working in Light theme)
 - ✨ **Stripe Pattern Feature**: Animated diagonal stripes for better focus peaking visibility in busy scenes
