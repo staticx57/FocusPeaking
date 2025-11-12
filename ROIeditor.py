@@ -383,15 +383,15 @@ class BosonFocusGUI(QtWidgets.QWidget):
         self.logger.info("GUI initialization complete")
 
     def _create_ui(self):
-        """Create the user interface."""
+        """Create the user interface with tabbed settings."""
         main_layout = QtWidgets.QHBoxLayout(self)
 
-        # Left panel - Video
+        # Left panel - Video (increased from 3 to 5 for more screen real estate)
         left_layout = QtWidgets.QVBoxLayout()
-        main_layout.addLayout(left_layout, 3)
+        main_layout.addLayout(left_layout, 5)
 
         self.video_label = VideoLabel()
-        self.video_label.setMinimumSize(400, 300)
+        self.video_label.setMinimumSize(640, 480)
         self.video_label.setStyleSheet("border: 2px solid #3f3f3f;")
         self.video_label.setScaledContents(False)
         self.video_label.setSizePolicy(
@@ -404,14 +404,54 @@ class BosonFocusGUI(QtWidgets.QWidget):
         self.status_label = QtWidgets.QLabel("Initializing...")
         left_layout.addWidget(self.status_label)
 
-        # Right panel - Controls
+        # Right panel - Tabbed Controls
         right_layout = QtWidgets.QVBoxLayout()
-        main_layout.addLayout(right_layout, 1)
+        main_layout.addLayout(right_layout, 2)
 
-        self._create_camera_controls(right_layout)
-        self._create_boson_controls(right_layout)
+        # Create tabbed interface for settings
+        self.settings_tabs = QtWidgets.QTabWidget()
+        self.settings_tabs.setMaximumHeight(400)  # Limit tab height to preserve space
+
+        # Tab 1: Camera
+        camera_tab = QtWidgets.QWidget()
+        camera_layout = QtWidgets.QVBoxLayout(camera_tab)
+        self._create_camera_controls(camera_layout)
+        self._create_boson_controls(camera_layout)
+        camera_layout.addStretch()
+        self.settings_tabs.addTab(camera_tab, "📷 Camera")
+
+        # Tab 2: Focus
+        focus_tab = QtWidgets.QWidget()
+        focus_layout = QtWidgets.QVBoxLayout(focus_tab)
+        self._create_focus_algorithm_controls(focus_layout)
+        self._create_focus_quality_controls(focus_layout)
+        self._create_ensemble_controls(focus_layout)
+        focus_layout.addStretch()
+        self.settings_tabs.addTab(focus_tab, "🎯 Focus")
+
+        # Tab 3: Edge Detection
+        edge_tab = QtWidgets.QWidget()
+        edge_layout = QtWidgets.QVBoxLayout(edge_tab)
+        self._create_edge_threshold_controls(edge_layout)
+        self._create_adaptive_edge_controls(edge_layout)
+        edge_layout.addStretch()
+        self.settings_tabs.addTab(edge_tab, "🔍 Edges")
+
+        # Tab 4: Advanced
+        advanced_tab = QtWidgets.QWidget()
+        advanced_layout = QtWidgets.QVBoxLayout(advanced_tab)
+        self._create_palette_controls(advanced_layout)
+        self._create_zoom_controls(advanced_layout)
+        self._create_theme_controls(advanced_layout)
+        advanced_layout.addStretch()
+        self.settings_tabs.addTab(advanced_tab, "⚙️ Advanced")
+
+        right_layout.addWidget(self.settings_tabs)
+
+        # Always visible: ROI controls
         self._create_roi_controls(right_layout)
-        self._create_peaking_controls(right_layout)
+
+        # Always visible: ROI table, stats, graph, buttons
         self._create_roi_table(right_layout)
         self._create_statistics_panel(right_layout)
         self._create_graph(right_layout)
@@ -470,29 +510,13 @@ class BosonFocusGUI(QtWidgets.QWidget):
 
         layout.addWidget(group)
 
-    def _create_peaking_controls(self, layout):
-        """Create focus peaking control section."""
-        group = QtWidgets.QGroupBox("Focus Peaking")
+    def _create_focus_algorithm_controls(self, layout):
+        """Create focus algorithm control section (Focus tab)."""
+        group = QtWidgets.QGroupBox("Focus Algorithm")
         group_layout = QtWidgets.QVBoxLayout(group)
 
-        # Edge threshold
-        group_layout.addWidget(QtWidgets.QLabel("Edge Threshold:"))
-        self.th_slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
-        self.th_slider.setRange(MIN_EDGE_THRESHOLD, MAX_EDGE_THRESHOLD)
-        self.th_slider.setValue(self.edge_threshold)
-        self.th_slider.valueChanged.connect(self._edge_changed)
-        group_layout.addWidget(self.th_slider)
-
-        self.th_label = QtWidgets.QLabel(f"Threshold: {self.edge_threshold}")
-        group_layout.addWidget(self.th_label)
-
-        # Color picker
-        self.color_btn = QtWidgets.QPushButton("Peaking Color")
-        self.color_btn.clicked.connect(self._pick_color)
-        group_layout.addWidget(self.color_btn)
-
         # Focus algorithm selector
-        group_layout.addWidget(QtWidgets.QLabel("Focus Algorithm:"))
+        group_layout.addWidget(QtWidgets.QLabel("Algorithm:"))
         self.algorithm_combo = QtWidgets.QComboBox()
         self.algorithm_combo.addItems(FOCUS_ALGORITHMS)
         self.algorithm_combo.setCurrentText(self.current_algorithm)
@@ -509,46 +533,8 @@ class BosonFocusGUI(QtWidgets.QWidget):
 
         layout.addWidget(group)
 
-        # Adaptive Edge Detection (Phase 5)
-        adaptive_group = QtWidgets.QGroupBox("Adaptive Edge Detection (Phase 5)")
-        adaptive_layout = QtWidgets.QVBoxLayout(adaptive_group)
-
-        # Enable adaptive edge detection checkbox
-        self.adaptive_edge_checkbox = QtWidgets.QCheckBox("Enable Adaptive Edge Detection")
-        self.adaptive_edge_checkbox.setChecked(self.adaptive_edge_enabled)
-        self.adaptive_edge_checkbox.setToolTip("Scene-aware edge detection with multi-scale support")
-        self.adaptive_edge_checkbox.stateChanged.connect(self._toggle_adaptive_edge)
-        adaptive_layout.addWidget(self.adaptive_edge_checkbox)
-
-        # Scene type selector
-        adaptive_layout.addWidget(QtWidgets.QLabel("Scene Type:"))
-        self.scene_type_combo = QtWidgets.QComboBox()
-        self.scene_type_combo.addItems(["Auto", "Low Contrast", "High Detail", "Thermal"])
-        self.scene_type_combo.setCurrentText("Auto")
-        self.scene_type_combo.setToolTip(
-            "Auto: Automatic scene detection\n"
-            "Low Contrast: Low-contrast scenes (aggressive enhancement)\n"
-            "High Detail: High-detail scenes (sensitive detection)\n"
-            "Thermal: Optimized for thermal cameras"
-        )
-        self.scene_type_combo.currentTextChanged.connect(self._on_scene_type_changed)
-        adaptive_layout.addWidget(self.scene_type_combo)
-
-        # Multi-scale checkbox
-        self.multi_scale_checkbox = QtWidgets.QCheckBox("Use Multi-Scale Detection")
-        self.multi_scale_checkbox.setChecked(self.adaptive_multi_scale)
-        self.multi_scale_checkbox.setToolTip("Combine multiple scales for robust edge detection")
-        self.multi_scale_checkbox.stateChanged.connect(self._toggle_multi_scale)
-        adaptive_layout.addWidget(self.multi_scale_checkbox)
-
-        # Scene info label
-        self.scene_info_label = QtWidgets.QLabel("Detected: --")
-        self.scene_info_label.setStyleSheet("font-size: 8pt; color: #888;")
-        adaptive_layout.addWidget(self.scene_info_label)
-
-        layout.addWidget(adaptive_group)
-
-        # Focus quality indicator
+    def _create_focus_quality_controls(self, layout):
+        """Create focus quality indicator section (Focus tab)."""
         if ENABLE_FOCUS_QUALITY_INDICATOR:
             quality_group = QtWidgets.QGroupBox("Focus Quality")
             quality_layout = QtWidgets.QVBoxLayout(quality_group)
@@ -563,12 +549,13 @@ class BosonFocusGUI(QtWidgets.QWidget):
 
             layout.addWidget(quality_group)
 
-        # Multi-algorithm ensemble (Phase 3)
-        ensemble_group = QtWidgets.QGroupBox("Algorithm Ensemble (Phase 3)")
+    def _create_ensemble_controls(self, layout):
+        """Create multi-algorithm ensemble controls (Focus tab)."""
+        ensemble_group = QtWidgets.QGroupBox("Multi-Algorithm Voting")
         ensemble_layout = QtWidgets.QVBoxLayout(ensemble_group)
 
         # Enable ensemble voting checkbox
-        self.ensemble_voting_checkbox = QtWidgets.QCheckBox("Enable Multi-Algorithm Voting")
+        self.ensemble_voting_checkbox = QtWidgets.QCheckBox("Enable Ensemble Voting")
         self.ensemble_voting_checkbox.setChecked(self.ensemble_voting_enabled)
         self.ensemble_voting_checkbox.setToolTip("Combine all algorithms for robust focus detection")
         self.ensemble_voting_checkbox.stateChanged.connect(self._toggle_ensemble_voting)
@@ -605,8 +592,72 @@ class BosonFocusGUI(QtWidgets.QWidget):
 
         layout.addWidget(ensemble_group)
 
-        # Smart palette switcher (Phase 6)
-        palette_group = QtWidgets.QGroupBox("Smart Palette (Phase 6)")
+    def _create_edge_threshold_controls(self, layout):
+        """Create edge threshold control section (Edges tab)."""
+        group = QtWidgets.QGroupBox("Edge Threshold")
+        group_layout = QtWidgets.QVBoxLayout(group)
+
+        # Edge threshold slider
+        group_layout.addWidget(QtWidgets.QLabel("Threshold (1-100):"))
+        self.th_slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
+        self.th_slider.setRange(MIN_EDGE_THRESHOLD, MAX_EDGE_THRESHOLD)
+        self.th_slider.setValue(self.edge_threshold)
+        self.th_slider.valueChanged.connect(self._edge_changed)
+        group_layout.addWidget(self.th_slider)
+
+        self.th_label = QtWidgets.QLabel(f"Threshold: {self.edge_threshold}")
+        group_layout.addWidget(self.th_label)
+
+        # Color picker
+        self.color_btn = QtWidgets.QPushButton("Peaking Color")
+        self.color_btn.clicked.connect(self._pick_color)
+        group_layout.addWidget(self.color_btn)
+
+        layout.addWidget(group)
+
+    def _create_adaptive_edge_controls(self, layout):
+        """Create adaptive edge detection controls (Edges tab)."""
+        adaptive_group = QtWidgets.QGroupBox("Adaptive Edge Detection")
+        adaptive_layout = QtWidgets.QVBoxLayout(adaptive_group)
+
+        # Enable adaptive edge detection checkbox
+        self.adaptive_edge_checkbox = QtWidgets.QCheckBox("Enable Adaptive Detection")
+        self.adaptive_edge_checkbox.setChecked(self.adaptive_edge_enabled)
+        self.adaptive_edge_checkbox.setToolTip("Scene-aware edge detection with multi-scale support")
+        self.adaptive_edge_checkbox.stateChanged.connect(self._toggle_adaptive_edge)
+        adaptive_layout.addWidget(self.adaptive_edge_checkbox)
+
+        # Scene type selector
+        adaptive_layout.addWidget(QtWidgets.QLabel("Scene Type:"))
+        self.scene_type_combo = QtWidgets.QComboBox()
+        self.scene_type_combo.addItems(["Auto", "Low Contrast", "High Detail", "Thermal"])
+        self.scene_type_combo.setCurrentText("Auto")
+        self.scene_type_combo.setToolTip(
+            "Auto: Automatic scene detection\n"
+            "Low Contrast: Low-contrast scenes (aggressive enhancement)\n"
+            "High Detail: High-detail scenes (sensitive detection)\n"
+            "Thermal: Optimized for thermal cameras"
+        )
+        self.scene_type_combo.currentTextChanged.connect(self._on_scene_type_changed)
+        adaptive_layout.addWidget(self.scene_type_combo)
+
+        # Multi-scale checkbox
+        self.multi_scale_checkbox = QtWidgets.QCheckBox("Use Multi-Scale Detection")
+        self.multi_scale_checkbox.setChecked(self.adaptive_multi_scale)
+        self.multi_scale_checkbox.setToolTip("Combine multiple scales for robust edge detection")
+        self.multi_scale_checkbox.stateChanged.connect(self._toggle_multi_scale)
+        adaptive_layout.addWidget(self.multi_scale_checkbox)
+
+        # Scene info label
+        self.scene_info_label = QtWidgets.QLabel("Detected: --")
+        self.scene_info_label.setStyleSheet("font-size: 8pt; color: #888;")
+        adaptive_layout.addWidget(self.scene_info_label)
+
+        layout.addWidget(adaptive_group)
+
+    def _create_palette_controls(self, layout):
+        """Create smart palette switcher controls (Advanced tab)."""
+        palette_group = QtWidgets.QGroupBox("Smart Palette Switching")
         palette_layout = QtWidgets.QVBoxLayout(palette_group)
 
         # Auto-switch checkbox
@@ -633,7 +684,8 @@ class BosonFocusGUI(QtWidgets.QWidget):
 
         layout.addWidget(palette_group)
 
-        # Zoom controls (New Feature)
+    def _create_zoom_controls(self, layout):
+        """Create zoom/ROI inspector controls (Advanced tab)."""
         zoom_group = QtWidgets.QGroupBox("Zoom / ROI Inspector")
         zoom_layout = QtWidgets.QVBoxLayout(zoom_group)
 
@@ -700,6 +752,22 @@ class BosonFocusGUI(QtWidgets.QWidget):
 
         layout.addWidget(zoom_group)
 
+    def _create_theme_controls(self, layout):
+        """Create theme selector controls (Advanced tab)."""
+        group = QtWidgets.QGroupBox("Theme")
+        group_layout = QtWidgets.QVBoxLayout(group)
+
+        theme_layout = QtWidgets.QHBoxLayout()
+        theme_layout.addWidget(QtWidgets.QLabel("Theme:"))
+        self.theme_combo = QtWidgets.QComboBox()
+        self.theme_combo.addItems(AVAILABLE_THEMES)
+        self.theme_combo.setCurrentText(DEFAULT_THEME)
+        self.theme_combo.currentTextChanged.connect(self._on_theme_changed)
+        theme_layout.addWidget(self.theme_combo)
+        group_layout.addLayout(theme_layout)
+
+        layout.addWidget(group)
+
     def _create_roi_table(self, layout):
         """Create ROI table."""
         layout.addWidget(QtWidgets.QLabel("<b>Regions of Interest</b>"))
@@ -732,41 +800,32 @@ class BosonFocusGUI(QtWidgets.QWidget):
 
     def _create_action_buttons(self, layout):
         """Create action buttons."""
-        # Row 1
+        # Row 1: Save/Load
         row1 = QtWidgets.QHBoxLayout()
-        self.save_btn = QtWidgets.QPushButton("Save Config")
+        self.save_btn = QtWidgets.QPushButton("💾 Save Config")
         self.save_btn.clicked.connect(self._save_config)
         row1.addWidget(self.save_btn)
 
-        self.load_btn = QtWidgets.QPushButton("Load Config")
+        self.load_btn = QtWidgets.QPushButton("📂 Load Config")
         self.load_btn.clicked.connect(self._load_config)
         row1.addWidget(self.load_btn)
         layout.addLayout(row1)
 
-        # Row 2
+        # Row 2: Export/Delete
         row2 = QtWidgets.QHBoxLayout()
-        self.export_btn = QtWidgets.QPushButton("Export CSV")
+        self.export_btn = QtWidgets.QPushButton("📊 Export CSV")
         self.export_btn.clicked.connect(self._export_csv)
         row2.addWidget(self.export_btn)
 
-        self.del_btn = QtWidgets.QPushButton("Delete ROI")
+        self.del_btn = QtWidgets.QPushButton("🗑️ Delete ROI")
         self.del_btn.clicked.connect(self._delete_selected)
         row2.addWidget(self.del_btn)
         layout.addLayout(row2)
 
-        # Row 3 - Theme selector
-        row3 = QtWidgets.QHBoxLayout()
-        row3.addWidget(QtWidgets.QLabel("Theme:"))
-        self.theme_combo = QtWidgets.QComboBox()
-        self.theme_combo.addItems(AVAILABLE_THEMES)
-        self.theme_combo.setCurrentText(DEFAULT_THEME)
-        self.theme_combo.currentTextChanged.connect(self._on_theme_changed)
-        row3.addWidget(self.theme_combo)
-        layout.addLayout(row3)
-
         # Auto-scale graph checkbox
         self.auto_scale_checkbox = QtWidgets.QCheckBox("Auto-scale Graph (Thermal)")
         self.auto_scale_checkbox.setChecked(True)
+        self.auto_scale_checkbox.setToolTip("Automatically adjust graph Y-axis to data range")
         self.auto_scale_checkbox.stateChanged.connect(self._toggle_auto_scale)
         layout.addWidget(self.auto_scale_checkbox)
 
