@@ -408,43 +408,70 @@ class BosonFocusGUI(QtWidgets.QWidget):
         right_layout = QtWidgets.QVBoxLayout()
         main_layout.addLayout(right_layout, 2)
 
-        # Create tabbed interface for settings
+        # Create tabbed interface for settings with scroll areas
         self.settings_tabs = QtWidgets.QTabWidget()
-        self.settings_tabs.setMaximumHeight(400)  # Limit tab height to preserve space
 
         # Tab 1: Camera
-        camera_tab = QtWidgets.QWidget()
-        camera_layout = QtWidgets.QVBoxLayout(camera_tab)
+        camera_tab_widget = QtWidgets.QWidget()
+        camera_layout = QtWidgets.QVBoxLayout(camera_tab_widget)
+        camera_layout.setContentsMargins(5, 5, 5, 5)
         self._create_camera_controls(camera_layout)
         self._create_boson_controls(camera_layout)
         camera_layout.addStretch()
-        self.settings_tabs.addTab(camera_tab, "📷 Camera")
+
+        camera_scroll = QtWidgets.QScrollArea()
+        camera_scroll.setWidget(camera_tab_widget)
+        camera_scroll.setWidgetResizable(True)
+        camera_scroll.setFrameShape(QtWidgets.QFrame.NoFrame)
+        camera_scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.settings_tabs.addTab(camera_scroll, "📷 Camera")
 
         # Tab 2: Focus
-        focus_tab = QtWidgets.QWidget()
-        focus_layout = QtWidgets.QVBoxLayout(focus_tab)
+        focus_tab_widget = QtWidgets.QWidget()
+        focus_layout = QtWidgets.QVBoxLayout(focus_tab_widget)
+        focus_layout.setContentsMargins(5, 5, 5, 5)
         self._create_focus_algorithm_controls(focus_layout)
         self._create_focus_quality_controls(focus_layout)
         self._create_ensemble_controls(focus_layout)
         focus_layout.addStretch()
-        self.settings_tabs.addTab(focus_tab, "🎯 Focus")
+
+        focus_scroll = QtWidgets.QScrollArea()
+        focus_scroll.setWidget(focus_tab_widget)
+        focus_scroll.setWidgetResizable(True)
+        focus_scroll.setFrameShape(QtWidgets.QFrame.NoFrame)
+        focus_scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.settings_tabs.addTab(focus_scroll, "🎯 Focus")
 
         # Tab 3: Edge Detection
-        edge_tab = QtWidgets.QWidget()
-        edge_layout = QtWidgets.QVBoxLayout(edge_tab)
+        edge_tab_widget = QtWidgets.QWidget()
+        edge_layout = QtWidgets.QVBoxLayout(edge_tab_widget)
+        edge_layout.setContentsMargins(5, 5, 5, 5)
         self._create_edge_threshold_controls(edge_layout)
         self._create_adaptive_edge_controls(edge_layout)
         edge_layout.addStretch()
-        self.settings_tabs.addTab(edge_tab, "🔍 Edges")
+
+        edge_scroll = QtWidgets.QScrollArea()
+        edge_scroll.setWidget(edge_tab_widget)
+        edge_scroll.setWidgetResizable(True)
+        edge_scroll.setFrameShape(QtWidgets.QFrame.NoFrame)
+        edge_scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.settings_tabs.addTab(edge_scroll, "🔍 Edges")
 
         # Tab 4: Advanced
-        advanced_tab = QtWidgets.QWidget()
-        advanced_layout = QtWidgets.QVBoxLayout(advanced_tab)
+        advanced_tab_widget = QtWidgets.QWidget()
+        advanced_layout = QtWidgets.QVBoxLayout(advanced_tab_widget)
+        advanced_layout.setContentsMargins(5, 5, 5, 5)
         self._create_palette_controls(advanced_layout)
         self._create_zoom_controls(advanced_layout)
         self._create_theme_controls(advanced_layout)
         advanced_layout.addStretch()
-        self.settings_tabs.addTab(advanced_tab, "⚙️ Advanced")
+
+        advanced_scroll = QtWidgets.QScrollArea()
+        advanced_scroll.setWidget(advanced_tab_widget)
+        advanced_scroll.setWidgetResizable(True)
+        advanced_scroll.setFrameShape(QtWidgets.QFrame.NoFrame)
+        advanced_scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.settings_tabs.addTab(advanced_scroll, "⚙️ Advanced")
 
         right_layout.addWidget(self.settings_tabs)
 
