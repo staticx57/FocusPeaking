@@ -776,7 +776,7 @@ class BosonFocusGUI(QtWidgets.QWidget):
         zoom_buttons_layout = QtWidgets.QHBoxLayout()
 
         self.zoom_reset_btn = QtWidgets.QPushButton("Reset Pan")
-        self.zoom_reset_btn.setToolTip("Reset pan to center")
+        self.zoom_reset_btn.setToolTip("Reset pan to center (Use arrow keys to pan when zoomed)")
         self.zoom_reset_btn.clicked.connect(self._zoom_reset_pan)
         zoom_buttons_layout.addWidget(self.zoom_reset_btn)
 
@@ -796,6 +796,12 @@ class BosonFocusGUI(QtWidgets.QWidget):
         self.zoom_status_label = QtWidgets.QLabel("Zoom: Off")
         self.zoom_status_label.setStyleSheet("font-size: 8pt; color: palette(mid);")
         zoom_layout.addWidget(self.zoom_status_label)
+
+        # Pan controls hint
+        pan_hint = QtWidgets.QLabel("Use ← → ↑ ↓ arrow keys to pan when zoomed")
+        pan_hint.setStyleSheet("font-size: 8pt; font-style: italic; color: palette(mid);")
+        pan_hint.setWordWrap(True)
+        zoom_layout.addWidget(pan_hint)
 
         layout.addWidget(zoom_group)
 
@@ -1736,6 +1742,40 @@ class BosonFocusGUI(QtWidgets.QWidget):
             QtGui.QImage.Format_BGR888,
         )
         self.graph_label.setPixmap(QtGui.QPixmap.fromImage(qg))
+
+    # ========================================================================
+    # Event Handlers
+    # ========================================================================
+
+    def keyPressEvent(self, ev):
+        """Handle keyboard input for pan controls."""
+        # Only handle arrow keys when zoom is active (not OFF mode)
+        if self.zoom_manager.mode == ZoomMode.OFF:
+            super().keyPressEvent(ev)
+            return
+
+        # Pan step size (in pixels)
+        pan_step = 20
+
+        # Arrow key panning
+        if ev.key() == QtCore.Qt.Key_Left:
+            self.zoom_manager.pan(-pan_step, 0)
+            self.logger.debug("Panned left")
+            ev.accept()
+        elif ev.key() == QtCore.Qt.Key_Right:
+            self.zoom_manager.pan(pan_step, 0)
+            self.logger.debug("Panned right")
+            ev.accept()
+        elif ev.key() == QtCore.Qt.Key_Up:
+            self.zoom_manager.pan(0, -pan_step)
+            self.logger.debug("Panned up")
+            ev.accept()
+        elif ev.key() == QtCore.Qt.Key_Down:
+            self.zoom_manager.pan(0, pan_step)
+            self.logger.debug("Panned down")
+            ev.accept()
+        else:
+            super().keyPressEvent(ev)
 
     # ========================================================================
     # Cleanup
