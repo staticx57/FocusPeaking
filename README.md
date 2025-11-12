@@ -178,14 +178,21 @@ python main.py
 
 **4 Zoom Modes**:
 - **Off**: Normal view
-- **Manual**: Set zoom level and pan manually
+- **Manual**: Set zoom level and pan manually, or draw custom area
 - **Auto-ROI**: Zoom to selected ROI
 - **Auto-All-ROIs**: Zoom to encompass all ROIs
+
+**Manual Zoom Drawing**:
+1. Click "Draw Zoom Area" button to activate drawing mode
+2. Click and drag on video to define custom zoom rectangle
+3. Blue dashed rectangle shows the area being selected
+4. On release, automatically switches to Manual zoom mode
+5. Selected area is zoomed and displayed
 
 **Controls**:
 - Zoom level slider: 1.0x - 4.0x
 - "Reset Pan" button: Recenter view
-- "Draw Zoom Area": Manual rectangle selection
+- "Draw Zoom Area": Click-and-drag to define custom zoom area (shown in blue)
 
 ## ⌨️ Keyboard Shortcuts
 
@@ -356,21 +363,23 @@ Settings saved to `focus_config.json`:
 ## 🚦 Version History
 
 ### v3.0.0 (Current - November 12, 2025)
-**ALL PHASES COMPLETE - 100% Feature Implementation**
+**ALL PHASES COMPLETE - 100% Feature Implementation + Enhancements**
 
 **New in 3.0.0**:
 - ✨ Phase 5: Adaptive Edge Detection with scene-aware thresholds
 - ✨ Multi-scale edge detection
 - ✨ Real-time scene type classification
 - ✨ Complete UI integration for all Phase 5 features
-- 📝 Documentation updates
+- ✨ **Zoom Rectangle Drawing**: Click-and-drag custom zoom areas (blue dashed rectangle)
+- 📝 Comprehensive documentation updates
 - 🎉 **100% completion** of all planned enhancement phases!
 
-**Previous Updates**:
+**Previous Updates in 3.0.0**:
 - Phase 6: Smart Palette Switching
 - Phase 3: Multi-Algorithm Voting System
-- ROI Zoom/Inspector feature
+- ROI Zoom/Inspector feature (4 modes)
 - Complete Phase 1-4 implementation
+- Full Boson SDK integration
 
 ### v2.2.0 (November 12, 2025)
 - Phase 6: Smart Palette Switching
