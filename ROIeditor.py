@@ -373,6 +373,10 @@ class BosonFocusGUI(QtWidgets.QWidget):
         self.adaptive_scene_type = "auto"  # auto, low_contrast, high_detail, thermal
         self.adaptive_multi_scale = True  # Use multi-scale detection
 
+        # Stripe pattern for focus peaking
+        self.stripes_enabled = False
+        self.stripe_offset = 0  # Animation counter (0-7)
+
         # Setup UI
         self._create_ui()
 
@@ -643,6 +647,13 @@ class BosonFocusGUI(QtWidgets.QWidget):
         self.color_btn = QtWidgets.QPushButton("Peaking Color")
         self.color_btn.clicked.connect(self._pick_color)
         group_layout.addWidget(self.color_btn)
+
+        # Striping pattern checkbox
+        self.stripes_checkbox = QtWidgets.QCheckBox("Enable Stripe Pattern")
+        self.stripes_checkbox.setChecked(False)
+        self.stripes_checkbox.setToolTip("Diagonal stripe pattern for better edge visibility (animated)")
+        self.stripes_checkbox.stateChanged.connect(self._toggle_stripes)
+        group_layout.addWidget(self.stripes_checkbox)
 
         layout.addWidget(group)
 
@@ -1173,6 +1184,11 @@ class BosonFocusGUI(QtWidgets.QWidget):
         self.adaptive_edge_enabled = (state == QtCore.Qt.Checked)
         self.logger.info(f"Adaptive edge detection: {'enabled' if self.adaptive_edge_enabled else 'disabled'}")
 
+    def _toggle_stripes(self, state):
+        """Toggle stripe pattern for focus peaking."""
+        self.stripes_enabled = (state == QtCore.Qt.Checked)
+        self.logger.info(f"Stripe pattern: {'enabled' if self.stripes_enabled else 'disabled'}")
+
     def _on_scene_type_changed(self, scene_type_text):
         """Handle scene type selection change."""
         # Map UI text to internal scene type
@@ -1314,6 +1330,7 @@ class BosonFocusGUI(QtWidgets.QWidget):
                 "adaptive_edge_enabled": self.adaptive_edge_enabled,
                 "adaptive_scene_type": self.adaptive_scene_type,
                 "adaptive_multi_scale": self.adaptive_multi_scale,
+                "stripes_enabled": self.stripes_enabled,
             }
 
             with open(get_config_path(), "w") as f:
@@ -1374,6 +1391,11 @@ class BosonFocusGUI(QtWidgets.QWidget):
                 self.adaptive_edge_checkbox.setChecked(self.adaptive_edge_enabled)
             if "adaptive_scene_type" in config:
                 self.adaptive_scene_type = config["adaptive_scene_type"]
+
+            # Load stripe pattern setting
+            if "stripes_enabled" in config:
+                self.stripes_enabled = config["stripes_enabled"]
+                self.stripes_checkbox.setChecked(self.stripes_enabled)
                 # Map internal type back to UI text
                 scene_type_ui_map = {
                     "auto": "Auto",
@@ -1482,23 +1504,29 @@ class BosonFocusGUI(QtWidgets.QWidget):
         if self.thermal_preprocessing_enabled:
             gray = thermal_preprocess(gray, enhance_contrast=True, reduce_noise=False)
 
+        # Animate stripe pattern (increment offset each frame, wrap at 8)
+        if self.stripes_enabled:
+            self.stripe_offset = (self.stripe_offset + 1) % 8
+
         # Choose edge detection method: adaptive or standard
         if self.adaptive_edge_enabled:
             # Use adaptive edge detection
             displayed = self.adaptive_edge_detector.create_adaptive_focus_peaking(
-                frame, gray, self.edge_threshold, self.focus_color, PEAKING_ALPHA, self.adaptive_scene_type
+                frame, gray, self.edge_threshold, self.focus_color, PEAKING_ALPHA,
+                self.adaptive_scene_type, self.stripes_enabled, self.stripe_offset
             )
 
             # Update scene info display
             if hasattr(self, 'scene_info_label'):
-                scene_info = self.adaptive_edge_detector.get_scene_info()
-                detected_type = scene_info.get('detected_scene_type', 'unknown')
+                scene_info = self.adaptive_edge_detector.get_scene_info(gray)
+                detected_type = scene_info.get('detected_scene', 'unknown')
                 contrast = scene_info.get('contrast', 0)
                 self.scene_info_label.setText(f"Detected: {detected_type} (σ={contrast:.1f})")
         else:
             # Use standard focus peaking
             displayed = create_focus_peaking_overlay(
-                frame, self.edge_threshold, self.focus_color, PEAKING_ALPHA
+                frame, self.edge_threshold, self.focus_color, PEAKING_ALPHA,
+                self.stripes_enabled, self.stripe_offset
             )
 
         # Choose focus computation method: ensemble or single algorithm

@@ -88,7 +88,11 @@ def normalized_variance_focus(gray: np.ndarray) -> float:
         if mean == 0:
             return 0.0
         variance = gray.var()
-        return float(variance / mean)
+        normalized = float(variance / mean)
+
+        # Scale up by 100x to match typical Laplacian variance range (1000-10000)
+        # Typical normalized variance is 10-50, so this brings it to 1000-5000
+        return normalized * 100.0
     except Exception as e:
         logger.error(f"Error calculating normalized variance: {e}")
         return 0.0
@@ -125,9 +129,10 @@ def tenengrad_focus_metric(gray: np.ndarray, ksize: int = 3) -> float:
         threshold = np.mean(magnitude)
         magnitude_thresholded = magnitude[magnitude > threshold]
 
-        # Return mean of thresholded magnitudes
+        # Return mean of thresholded magnitudes, scaled to match other algorithms
         if magnitude_thresholded.size > 0:
-            return float(np.mean(magnitude_thresholded))
+            # Scale up by 50x to match typical Laplacian variance range (1000-10000)
+            return float(np.mean(magnitude_thresholded)) * 50.0
         else:
             return 0.0
 
@@ -161,8 +166,13 @@ def brenner_gradient_metric(gray: np.ndarray) -> float:
 
         diff = gray[:, 2:].astype(np.float64) - gray[:, :-2].astype(np.float64)
 
-        # Return sum of squared differences
-        return float(np.sum(diff**2))
+        # Return MEAN of squared differences (normalized by number of pixels)
+        # This makes the scale comparable to other algorithms
+        mean_squared_diff = float(np.mean(diff**2))
+
+        # Scale up by factor to match typical Laplacian variance range
+        # Empirically determined to put it in similar 1000-10000 range
+        return mean_squared_diff * 10.0
 
     except Exception as e:
         logger.error(f"Error calculating Brenner gradient: {e}")
@@ -481,7 +491,9 @@ def create_focus_peaking_overlay(
     frame: np.ndarray,
     edge_threshold: int = 50,
     peaking_color: Tuple[int, int, int] = (0, 0, 255),
-    blend_alpha: float = 0.5
+    blend_alpha: float = 0.5,
+    use_stripes: bool = False,
+    stripe_offset: int = 0
 ) -> np.ndarray:
     """
     Create focus peaking overlay with colored edge highlights.
@@ -492,6 +504,8 @@ def create_focus_peaking_overlay(
                        Lower = more sensitive, Higher = only strong edges
         peaking_color: BGR color for edge highlights
         blend_alpha: Overlay transparency (0.0-1.0)
+        use_stripes: Enable diagonal stripe pattern for better visibility
+        stripe_offset: Offset for animating stripes (0-7)
 
     Returns:
         Frame with focus peaking overlay
@@ -511,6 +525,22 @@ def create_focus_peaking_overlay(
             255,
             cv2.THRESH_BINARY
         )
+
+        # Apply striping pattern if enabled
+        if use_stripes:
+            # Create diagonal stripe pattern (45° angle)
+            h, w = edge_mask.shape
+            stripe_pattern = np.zeros((h, w), dtype=np.uint8)
+
+            # Create diagonal stripes (4 pixels wide)
+            for y in range(h):
+                for x in range(w):
+                    # Diagonal stripe calculation with animation offset
+                    if ((x + y + stripe_offset) // 4) % 2 == 0:
+                        stripe_pattern[y, x] = 255
+
+            # Apply stripe pattern to edge mask
+            edge_mask = cv2.bitwise_and(edge_mask, stripe_pattern)
 
         # Create colored overlay
         overlay = frame.copy()
@@ -651,7 +681,9 @@ class AdaptiveEdgeDetector:
         threshold: int,
         peaking_color: Tuple[int, int, int],
         blend_alpha: float = 0.5,
-        scene_type: str = "auto"
+        scene_type: str = "auto",
+        use_stripes: bool = False,
+        stripe_offset: int = 0
     ) -> np.ndarray:
         """
         Create focus peaking overlay with adaptive edge detection.
@@ -663,6 +695,8 @@ class AdaptiveEdgeDetector:
             peaking_color: BGR color for edge highlights
             blend_alpha: Overlay transparency (0.0-1.0)
             scene_type: Scene type for edge detection
+            use_stripes: Enable diagonal stripe pattern for better visibility
+            stripe_offset: Offset for animating stripes (0-7)
 
         Returns:
             Frame with adaptive focus peaking overlay
@@ -677,6 +711,22 @@ class AdaptiveEdgeDetector:
                 # Threshold the edge mask
                 threshold_val = int((threshold - 100) * 2.5)  # Scale to 0-500 range
                 _, edges = cv2.threshold(edges, threshold_val, 255, cv2.THRESH_BINARY)
+
+            # Apply striping pattern if enabled
+            if use_stripes:
+                # Create diagonal stripe pattern (45° angle)
+                h, w = edges.shape
+                stripe_pattern = np.zeros((h, w), dtype=np.uint8)
+
+                # Create diagonal stripes (4 pixels wide)
+                for y in range(h):
+                    for x in range(w):
+                        # Diagonal stripe calculation with animation offset
+                        if ((x + y + stripe_offset) // 4) % 2 == 0:
+                            stripe_pattern[y, x] = 255
+
+                # Apply stripe pattern to edge mask
+                edges = cv2.bitwise_and(edges, stripe_pattern)
 
             # Create colored overlay
             overlay = frame.copy()
