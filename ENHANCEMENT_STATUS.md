@@ -1,7 +1,7 @@
 # FLIR Boson Focus Utility - Enhancement Status
 
 **Last Updated:** November 12, 2025
-**Version:** 3.0.0
+**Version:** 3.0.1
 **Status:** ALL PHASES COMPLETE - Production Ready
 
 ---
@@ -569,6 +569,63 @@ if use_stripes:
 
 ---
 
+#### **Zoom Drawing Bug Fixes** ✅ COMPLETE
+**Status:** 100% Complete - BUG FIXES
+**Completion Date:** November 12, 2025
+**Version:** 3.0.1
+
+**Problem:**
+- "Cancel Drawing" button didn't clear zoom rectangle visual feedback
+- Blue dashed zoom rectangle remained visible after canceling
+- "Reset Pan" button didn't clear zoom drawing state
+- Users reported: "cancel drawing and reset pan do not seem to work"
+
+**Root Causes:**
+1. **Cancel Drawing**: set_zoom_drawing_mode() only set flag, didn't clear:
+   - current_zoom_rect (rectangle coordinates)
+   - zoom_start (starting position)
+   - Visual feedback on screen
+
+2. **Reset Pan**: _zoom_reset_pan() only reset pan offset, didn't:
+   - Cancel active zoom drawing
+   - Clear zoom rectangle
+   - Update draw button state
+
+**Solution:**
+```python
+# set_zoom_drawing_mode() - focus_utility.py:136-144
+def set_zoom_drawing_mode(self, enabled: bool) -> None:
+    self.zoom_drawing = enabled
+    if not enabled:
+        self.current_zoom_rect = None  # Clear rectangle
+        self.zoom_start = None          # Clear start position
+        self.update()                   # Trigger repaint
+
+# _zoom_reset_pan() - focus_utility.py:1290-1299
+def _zoom_reset_pan(self):
+    self.zoom_manager.reset_pan()
+    if self.zoom_draw_btn.isChecked():
+        self.zoom_draw_btn.setChecked(False)  # Cancel drawing
+    else:
+        self.video_label.set_zoom_drawing_mode(False)  # Clear lingering rects
+```
+
+**Files Modified:**
+- `focus_utility.py` - Fixed both cancel and reset functions (+11 lines)
+
+**Results:**
+- ✅ "Cancel Drawing" immediately clears blue dashed rectangle
+- ✅ "Reset Pan" resets pan and cancels any active zoom drawing
+- ✅ No more stuck zoom rectangles on screen
+- ✅ All zoom drawing state properly managed
+
+**User Impact:**
+- Buttons now work as expected
+- Clear visual feedback when canceling operations
+- Better user experience with zoom tools
+
+---
+
 #### **Complete Application Consolidation** ✅ COMPLETE
 **Status:** 100% Complete - ARCHITECTURE SIMPLIFICATION
 **Completion Date:** November 12, 2025
@@ -780,6 +837,8 @@ The FLIR Boson Focus Utility now includes:
 **Next Review:** As needed based on user feedback
 
 **Recent Updates:**
+- November 12, 2025: **Zoom Drawing Bug Fixes** - **BUG FIX** v3.0.1 (cancel drawing and reset pan now work correctly)
+- November 12, 2025: **Batch File Updates** - **POLISH** v3.0.1 (all launchers updated to v3.0.1)
 - November 12, 2025: **Complete Application Consolidation** - **ARCHITECTURE** (single file, removed main.py and ROIeditor.py)
 - November 12, 2025: **Algorithm Scale Normalization** - **CRITICAL FIX** (Brenner was 1000x too large, all algorithms now comparable)
 - November 12, 2025: **Tab Widget Theme Support** - **FIX** (all 8 themes now properly style tabs, not just Light)

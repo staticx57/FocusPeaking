@@ -136,6 +136,11 @@ class VideoLabel(QtWidgets.QLabel):
     def set_zoom_drawing_mode(self, enabled: bool) -> None:
         """Enable or disable zoom rectangle drawing mode."""
         self.zoom_drawing = enabled
+        # Clear any existing zoom rectangle when disabling
+        if not enabled:
+            self.current_zoom_rect = None
+            self.zoom_start = None
+            self.update()  # Trigger repaint to clear visual feedback
         self.logger.debug(f"Zoom drawing mode: {'enabled' if enabled else 'disabled'}")
 
     def mousePressEvent(self, ev):
@@ -1285,6 +1290,12 @@ class BosonFocusGUI(QtWidgets.QWidget):
     def _zoom_reset_pan(self):
         """Reset zoom pan to center."""
         self.zoom_manager.reset_pan()
+        # Also clear any zoom drawing in progress
+        if self.zoom_draw_btn.isChecked():
+            self.zoom_draw_btn.setChecked(False)  # This will trigger _toggle_zoom_drawing(False)
+        else:
+            # If button not checked, still clear any lingering zoom rect
+            self.video_label.set_zoom_drawing_mode(False)
         self.logger.debug("Zoom pan reset")
 
     def _toggle_zoom_drawing(self, checked):
