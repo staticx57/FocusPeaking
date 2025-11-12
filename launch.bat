@@ -1,10 +1,10 @@
 @echo off
 REM FLIR Boson Focus Utility Launcher
-REM Version 3.0.0
+REM Version 3.0.1
 
 echo ===============================================
 echo   FLIR Boson Focus Utility
-echo   Version 3.0.0 - Unified Application
+echo   Version 3.0.1 - Unified Application
 echo ===============================================
 echo.
 

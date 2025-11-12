@@ -418,10 +418,23 @@ Settings saved to `focus_config.json`:
 
 ## 🚦 Version History
 
-### v3.0.0 (Current - November 12, 2025)
+### v3.0.1 (Current - November 12, 2025)
+**Bug Fixes and Polish**
+
+**Updates**:
+- 🐛 **Cancel Drawing Fix**: "Cancel Drawing" button now properly clears zoom rectangle visual feedback
+- 🐛 **Reset Pan Fix**: "Reset Pan" button now fully resets zoom state and clears any active drawings
+- 📦 **Batch File Updates**: All .bat launchers updated to v3.0.1 and launch unified application
+
+**Fixes Applied**:
+- VideoLabel.set_zoom_drawing_mode() now clears current_zoom_rect and zoom_start when disabling
+- _zoom_reset_pan() now unchecks draw button and clears lingering zoom rectangles
+- No more stuck blue dashed rectangles on screen after canceling
+
+### v3.0.0 (November 12, 2025)
 **ALL PHASES COMPLETE - 100% Feature Implementation + Enhancements**
 
-**Latest Updates (November 12, 2025)**:
+**Major Updates (November 12, 2025)**:
 - 🔄 **Complete Application Consolidation**: Single file architecture - all GUI code now in focus_utility.py (removed main.py and ROIeditor.py)
 - 🐛 **Algorithm Scale Normalization**: Fixed Brenner Gradient (was 1000x too large!), scaled Tenengrad and Normalized Variance
 - 🎨 **Tab Widget Theme Support**: All 8 themes now properly style tabs (was only working in Light theme)
