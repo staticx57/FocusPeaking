@@ -13,7 +13,7 @@ from pathlib import Path
 # ============================================================================
 
 APP_NAME = "FLIR Boson Focus Utility"
-APP_VERSION = "2.0.0"
+APP_VERSION = "3.0.0"
 CONFIG_FILE = "focus_config.json"
 LOG_FILE = "flir_focus.log"
 
@@ -83,6 +83,37 @@ DEFAULT_FOCUS_ALGORITHM = "Laplacian Variance"
 
 # Enable multi-algorithm comparison mode
 ENABLE_ALGORITHM_COMPARISON = False  # Show all algorithms side-by-side
+
+# ============================================================================
+# Multi-Algorithm Voting System (Phase 3)
+# ============================================================================
+
+# Enable ensemble voting system
+ENABLE_ENSEMBLE_VOTING = False  # User can enable via UI
+
+# Ensemble algorithm weights (higher = more influence)
+ENSEMBLE_ALGORITHM_WEIGHTS = {
+    "Laplacian Variance": 1.0,
+    "Tenengrad": 1.2,           # Slightly favor Tenengrad (best for details)
+    "Brenner Gradient": 0.8,
+    "Normalized Variance": 0.9,
+    "Variance of Laplacian": 1.0,
+}
+
+# Confidence thresholds
+ENSEMBLE_CONFIDENCE_THRESHOLDS = {
+    "excellent": 0.85,  # Algorithms strongly agree
+    "good": 0.70,       # Good agreement
+    "fair": 0.50,       # Moderate agreement
+    "poor": 0.0         # Poor agreement / conflicting
+}
+
+# History size for ensemble normalization
+ENSEMBLE_HISTORY_SIZE = 10
+
+# Display settings
+SHOW_ALL_ALGORITHM_SCORES = False  # Show individual algorithm scores in UI
+SHOW_CONFIDENCE_INDICATOR = True   # Show consensus confidence
 
 # ============================================================================
 # Thermal Preprocessing Settings

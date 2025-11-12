@@ -32,12 +32,15 @@ from focus_utils import (
     thermal_preprocess,
     FocusStatistics,
     FocusQualityIndicator,
+    FocusEnsemble,
+    AdaptiveEdgeDetector,
     validate_roi,
 )
 from theme_manager import ThemeManager
 from data_export import FocusDataExporter, generate_default_export_filename
-from boson_control import BosonController, GainMode, AGCMode, FFCMode, apply_palette_software
+from boson_control import BosonController, GainMode, AGCMode, FFCMode, apply_palette_software, SmartPaletteSwitcher
 from boson_ui import BosonControlPanel
+from zoom_manager import ZoomManager, ZoomMode
 
 # Setup logging
 logger = setup_logging()
@@ -293,6 +296,28 @@ class BosonFocusGUI(QtWidgets.QWidget):
         # Focus quality indicator
         self.focus_quality = FocusQualityIndicator()
 
+        # Multi-algorithm ensemble (Phase 3)
+        self.ensemble_voting_enabled = ENABLE_ENSEMBLE_VOTING
+        self.show_all_algorithms = SHOW_ALL_ALGORITHM_SCORES
+        self.focus_ensemble = FocusEnsemble(
+            algorithms=FOCUS_ALGORITHMS,
+            weights=ENSEMBLE_ALGORITHM_WEIGHTS,
+            history_size=ENSEMBLE_HISTORY_SIZE
+        )
+
+        # Smart palette switcher (Phase 6)
+        self.palette_switcher = SmartPaletteSwitcher(self.boson_controller)
+        self.auto_palette_switch_enabled = False  # Default off
+
+        # Zoom manager (New Feature)
+        self.zoom_manager = ZoomManager()
+
+        # Adaptive edge detection (Phase 5)
+        self.adaptive_edge_detector = AdaptiveEdgeDetector()
+        self.adaptive_edge_enabled = False  # Default off
+        self.adaptive_scene_type = "auto"  # auto, low_contrast, high_detail, thermal
+        self.adaptive_multi_scale = True  # Use multi-scale detection
+
         # Setup UI
         self._create_ui()
         self._setup_timer()
@@ -428,6 +453,45 @@ class BosonFocusGUI(QtWidgets.QWidget):
 
         layout.addWidget(group)
 
+        # Adaptive Edge Detection (Phase 5)
+        adaptive_group = QtWidgets.QGroupBox("Adaptive Edge Detection (Phase 5)")
+        adaptive_layout = QtWidgets.QVBoxLayout(adaptive_group)
+
+        # Enable adaptive edge detection checkbox
+        self.adaptive_edge_checkbox = QtWidgets.QCheckBox("Enable Adaptive Edge Detection")
+        self.adaptive_edge_checkbox.setChecked(self.adaptive_edge_enabled)
+        self.adaptive_edge_checkbox.setToolTip("Scene-aware edge detection with multi-scale support")
+        self.adaptive_edge_checkbox.stateChanged.connect(self._toggle_adaptive_edge)
+        adaptive_layout.addWidget(self.adaptive_edge_checkbox)
+
+        # Scene type selector
+        adaptive_layout.addWidget(QtWidgets.QLabel("Scene Type:"))
+        self.scene_type_combo = QtWidgets.QComboBox()
+        self.scene_type_combo.addItems(["Auto", "Low Contrast", "High Detail", "Thermal"])
+        self.scene_type_combo.setCurrentText("Auto")
+        self.scene_type_combo.setToolTip(
+            "Auto: Automatic scene detection\n"
+            "Low Contrast: Low-contrast scenes (aggressive enhancement)\n"
+            "High Detail: High-detail scenes (sensitive detection)\n"
+            "Thermal: Optimized for thermal cameras"
+        )
+        self.scene_type_combo.currentTextChanged.connect(self._on_scene_type_changed)
+        adaptive_layout.addWidget(self.scene_type_combo)
+
+        # Multi-scale checkbox
+        self.multi_scale_checkbox = QtWidgets.QCheckBox("Use Multi-Scale Detection")
+        self.multi_scale_checkbox.setChecked(self.adaptive_multi_scale)
+        self.multi_scale_checkbox.setToolTip("Combine multiple scales for robust edge detection")
+        self.multi_scale_checkbox.stateChanged.connect(self._toggle_multi_scale)
+        adaptive_layout.addWidget(self.multi_scale_checkbox)
+
+        # Scene info label
+        self.scene_info_label = QtWidgets.QLabel("Detected: --")
+        self.scene_info_label.setStyleSheet("font-size: 8pt; color: #888;")
+        adaptive_layout.addWidget(self.scene_info_label)
+
+        layout.addWidget(adaptive_group)
+
         # Focus quality indicator
         if ENABLE_FOCUS_QUALITY_INDICATOR:
             quality_group = QtWidgets.QGroupBox("Focus Quality")
@@ -442,6 +506,139 @@ class BosonFocusGUI(QtWidgets.QWidget):
             quality_layout.addWidget(self.quality_score_label)
 
             layout.addWidget(quality_group)
+
+        # Multi-algorithm ensemble (Phase 3)
+        ensemble_group = QtWidgets.QGroupBox("Algorithm Ensemble (Phase 3)")
+        ensemble_layout = QtWidgets.QVBoxLayout(ensemble_group)
+
+        # Enable ensemble voting checkbox
+        self.ensemble_voting_checkbox = QtWidgets.QCheckBox("Enable Multi-Algorithm Voting")
+        self.ensemble_voting_checkbox.setChecked(self.ensemble_voting_enabled)
+        self.ensemble_voting_checkbox.setToolTip("Combine all algorithms for robust focus detection")
+        self.ensemble_voting_checkbox.stateChanged.connect(self._toggle_ensemble_voting)
+        ensemble_layout.addWidget(self.ensemble_voting_checkbox)
+
+        # Confidence indicator
+        if SHOW_CONFIDENCE_INDICATOR:
+            self.ensemble_confidence_label = QtWidgets.QLabel("Confidence: --")
+            self.ensemble_confidence_label.setStyleSheet("font-size: 9pt; font-weight: bold;")
+            ensemble_layout.addWidget(self.ensemble_confidence_label)
+
+        # Show all algorithms checkbox
+        self.show_algorithms_checkbox = QtWidgets.QCheckBox("Show All Algorithm Scores")
+        self.show_algorithms_checkbox.setChecked(self.show_all_algorithms)
+        self.show_algorithms_checkbox.setToolTip("Display individual scores from each algorithm")
+        self.show_algorithms_checkbox.stateChanged.connect(self._toggle_show_algorithms)
+        ensemble_layout.addWidget(self.show_algorithms_checkbox)
+
+        # Algorithm scores display (collapsible)
+        self.algorithm_scores_widget = QtWidgets.QWidget()
+        self.algorithm_scores_layout = QtWidgets.QVBoxLayout(self.algorithm_scores_widget)
+        self.algorithm_scores_layout.setContentsMargins(10, 5, 10, 5)
+
+        # Create labels for each algorithm
+        self.algorithm_score_labels = {}
+        for algo_name in FOCUS_ALGORITHMS:
+            label = QtWidgets.QLabel(f"{algo_name}: --")
+            label.setStyleSheet("font-size: 8pt; font-family: monospace;")
+            self.algorithm_scores_layout.addWidget(label)
+            self.algorithm_score_labels[algo_name] = label
+
+        self.algorithm_scores_widget.setVisible(self.show_all_algorithms)
+        ensemble_layout.addWidget(self.algorithm_scores_widget)
+
+        layout.addWidget(ensemble_group)
+
+        # Smart palette switcher (Phase 6)
+        palette_group = QtWidgets.QGroupBox("Smart Palette (Phase 6)")
+        palette_layout = QtWidgets.QVBoxLayout(palette_group)
+
+        # Auto-switch checkbox
+        self.auto_palette_checkbox = QtWidgets.QCheckBox("Auto-switch to WhiteHot when Focusing")
+        self.auto_palette_checkbox.setChecked(self.auto_palette_switch_enabled)
+        self.auto_palette_checkbox.setToolTip(
+            "Automatically switch to WhiteHot palette during focus adjustment\n"
+            "(Industry best practice for thermal cameras)"
+        )
+        self.auto_palette_checkbox.stateChanged.connect(self._toggle_auto_palette_switch)
+        palette_layout.addWidget(self.auto_palette_checkbox)
+
+        # Manual focus mode button
+        self.focus_mode_btn = QtWidgets.QPushButton("Enter Focus Mode")
+        self.focus_mode_btn.setCheckable(True)
+        self.focus_mode_btn.setToolTip("Manually switch to WhiteHot for easier focusing")
+        self.focus_mode_btn.clicked.connect(self._toggle_focus_mode_manual)
+        palette_layout.addWidget(self.focus_mode_btn)
+
+        # Status label
+        self.palette_status_label = QtWidgets.QLabel("Focus Mode: Inactive")
+        self.palette_status_label.setStyleSheet("font-size: 8pt; color: #888;")
+        palette_layout.addWidget(self.palette_status_label)
+
+        layout.addWidget(palette_group)
+
+        # Zoom controls (New Feature)
+        zoom_group = QtWidgets.QGroupBox("Zoom / ROI Inspector")
+        zoom_layout = QtWidgets.QVBoxLayout(zoom_group)
+
+        # Zoom mode selector
+        zoom_layout.addWidget(QtWidgets.QLabel("Zoom Mode:"))
+        self.zoom_mode_combo = QtWidgets.QComboBox()
+        self.zoom_mode_combo.addItems([mode.value for mode in ZoomMode])
+        self.zoom_mode_combo.setCurrentText(ZoomMode.OFF.value)
+        self.zoom_mode_combo.setToolTip(
+            "Off: Normal view\n"
+            "Manual: Draw zoom rectangle\n"
+            "Auto-ROI: Zoom to selected ROI\n"
+            "Auto-All-ROIs: Zoom to all ROIs"
+        )
+        self.zoom_mode_combo.currentTextChanged.connect(self._on_zoom_mode_changed)
+        zoom_layout.addWidget(self.zoom_mode_combo)
+
+        # ROI selector (for Auto-ROI mode)
+        roi_selector_layout = QtWidgets.QHBoxLayout()
+        roi_selector_layout.addWidget(QtWidgets.QLabel("Target ROI:"))
+        self.zoom_roi_combo = QtWidgets.QComboBox()
+        self.zoom_roi_combo.addItem("None", None)
+        self.zoom_roi_combo.setToolTip("Select ROI to zoom to (Auto-ROI mode)")
+        self.zoom_roi_combo.currentIndexChanged.connect(self._on_zoom_roi_changed)
+        roi_selector_layout.addWidget(self.zoom_roi_combo)
+        zoom_layout.addLayout(roi_selector_layout)
+
+        # Zoom level slider (for Manual mode)
+        zoom_layout.addWidget(QtWidgets.QLabel("Zoom Level:"))
+        self.zoom_level_slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
+        self.zoom_level_slider.setRange(10, 40)  # 1.0x to 4.0x
+        self.zoom_level_slider.setValue(10)  # 1.0x default
+        self.zoom_level_slider.valueChanged.connect(self._on_zoom_level_changed)
+        zoom_layout.addWidget(self.zoom_level_slider)
+
+        self.zoom_level_label = QtWidgets.QLabel("Level: 1.0x")
+        self.zoom_level_label.setStyleSheet("font-size: 8pt;")
+        zoom_layout.addWidget(self.zoom_level_label)
+
+        # Control buttons
+        zoom_buttons_layout = QtWidgets.QHBoxLayout()
+
+        self.zoom_reset_btn = QtWidgets.QPushButton("Reset Pan")
+        self.zoom_reset_btn.setToolTip("Reset pan to center")
+        self.zoom_reset_btn.clicked.connect(self._zoom_reset_pan)
+        zoom_buttons_layout.addWidget(self.zoom_reset_btn)
+
+        self.zoom_draw_btn = QtWidgets.QPushButton("Draw Zoom Area")
+        self.zoom_draw_btn.setCheckable(True)
+        self.zoom_draw_btn.setToolTip("Click and drag to define zoom area (Manual mode)")
+        self.zoom_draw_btn.clicked.connect(self._toggle_zoom_drawing)
+        zoom_buttons_layout.addWidget(self.zoom_draw_btn)
+
+        zoom_layout.addLayout(zoom_buttons_layout)
+
+        # Status label
+        self.zoom_status_label = QtWidgets.QLabel("Zoom: Off")
+        self.zoom_status_label.setStyleSheet("font-size: 8pt; color: #888;")
+        zoom_layout.addWidget(self.zoom_status_label)
+
+        layout.addWidget(zoom_group)
 
     def _create_roi_table(self, layout):
         """Create ROI table."""
@@ -694,6 +891,25 @@ class BosonFocusGUI(QtWidgets.QWidget):
             btn.clicked.connect(lambda _, rid=r["id"]: self._select_from_table(rid))
             self.table.setCellWidget(row, 3, btn)
 
+        # Also update zoom ROI combo
+        self._refresh_zoom_roi_combo()
+
+    def _refresh_zoom_roi_combo(self):
+        """Refresh zoom ROI selector combo box."""
+        current_id = self.zoom_roi_combo.currentData()
+        self.zoom_roi_combo.clear()
+        self.zoom_roi_combo.addItem("None", None)
+
+        for r in self.regions:
+            self.zoom_roi_combo.addItem(f"ROI #{r['id']}", r['id'])
+
+        # Try to restore previous selection
+        if current_id is not None:
+            for i in range(self.zoom_roi_combo.count()):
+                if self.zoom_roi_combo.itemData(i) == current_id:
+                    self.zoom_roi_combo.setCurrentIndex(i)
+                    break
+
     def _select_from_table(self, rid):
         """Select ROI from table click."""
         self.selected_id = rid
@@ -752,12 +968,118 @@ class BosonFocusGUI(QtWidgets.QWidget):
         self.thermal_preprocessing_enabled = (state == QtCore.Qt.Checked)
         self.logger.info(f"Thermal preprocessing: {'enabled' if self.thermal_preprocessing_enabled else 'disabled'}")
 
+    def _toggle_adaptive_edge(self, state):
+        """Toggle adaptive edge detection."""
+        self.adaptive_edge_enabled = (state == QtCore.Qt.Checked)
+        self.logger.info(f"Adaptive edge detection: {'enabled' if self.adaptive_edge_enabled else 'disabled'}")
+
+    def _on_scene_type_changed(self, scene_type_text):
+        """Handle scene type selection change."""
+        # Map UI text to internal scene type
+        scene_type_map = {
+            "Auto": "auto",
+            "Low Contrast": "low_contrast",
+            "High Detail": "high_detail",
+            "Thermal": "thermal"
+        }
+        self.adaptive_scene_type = scene_type_map.get(scene_type_text, "auto")
+        self.adaptive_edge_detector.set_scene_type(self.adaptive_scene_type)
+        self.logger.info(f"Adaptive scene type changed to: {self.adaptive_scene_type}")
+
+    def _toggle_multi_scale(self, state):
+        """Toggle multi-scale detection."""
+        self.adaptive_multi_scale = (state == QtCore.Qt.Checked)
+        self.adaptive_edge_detector.set_multi_scale(self.adaptive_multi_scale)
+        self.logger.info(f"Multi-scale detection: {'enabled' if self.adaptive_multi_scale else 'disabled'}")
+
+    def _toggle_ensemble_voting(self, state):
+        """Toggle ensemble voting system."""
+        self.ensemble_voting_enabled = (state == QtCore.Qt.Checked)
+        self.logger.info(f"Ensemble voting: {'enabled' if self.ensemble_voting_enabled else 'disabled'}")
+
+        # Reset ensemble history when toggling
+        if self.ensemble_voting_enabled:
+            self.focus_ensemble.reset_history()
+
+    def _toggle_show_algorithms(self, state):
+        """Toggle display of all algorithm scores."""
+        self.show_all_algorithms = (state == QtCore.Qt.Checked)
+        if hasattr(self, 'algorithm_scores_widget'):
+            self.algorithm_scores_widget.setVisible(self.show_all_algorithms)
+        self.logger.debug(f"Show all algorithms: {self.show_all_algorithms}")
+
+    def _toggle_auto_palette_switch(self, state):
+        """Toggle automatic palette switching."""
+        self.auto_palette_switch_enabled = (state == QtCore.Qt.Checked)
+        self.palette_switcher.enable_auto_switch(self.auto_palette_switch_enabled)
+        self.logger.info(f"Auto palette switch: {'enabled' if self.auto_palette_switch_enabled else 'disabled'}")
+
+    def _toggle_focus_mode_manual(self, checked):
+        """Manually toggle focus mode on/off."""
+        if checked:
+            # Enter focus mode
+            success = self.palette_switcher.enter_focus_mode(manual=True)
+            if success:
+                self.focus_mode_btn.setText("Exit Focus Mode")
+                self.palette_status_label.setText("Focus Mode: Active (Manual)")
+                self.palette_status_label.setStyleSheet("font-size: 8pt; color: #51cf66; font-weight: bold;")
+            else:
+                self.focus_mode_btn.setChecked(False)
+                self.palette_status_label.setText("Focus Mode: Failed to activate")
+                self.palette_status_label.setStyleSheet("font-size: 8pt; color: #ff6b6b;")
+        else:
+            # Exit focus mode
+            self.palette_switcher.exit_focus_mode(force=True)
+            self.focus_mode_btn.setText("Enter Focus Mode")
+            self.palette_status_label.setText("Focus Mode: Inactive")
+            self.palette_status_label.setStyleSheet("font-size: 8pt; color: #888;")
+
     def _toggle_pause(self):
         """Toggle video pause."""
         self.paused = not self.paused
         status = "paused" if self.paused else "running"
         self.status_label.setText(f"Video {status}")
         self.logger.info(f"Video {status}")
+
+    def _on_zoom_mode_changed(self, mode_text):
+        """Handle zoom mode change."""
+        mode = ZoomMode(mode_text)
+        self.zoom_manager.set_mode(mode)
+        self.zoom_status_label.setText(f"Zoom: {mode.value}")
+        self.logger.info(f"Zoom mode changed to: {mode.value}")
+
+        # Update UI state based on mode
+        self.zoom_draw_btn.setEnabled(mode == ZoomMode.MANUAL)
+        self.zoom_roi_combo.setEnabled(mode == ZoomMode.AUTO_ROI)
+        self.zoom_level_slider.setEnabled(mode == ZoomMode.MANUAL)
+
+    def _on_zoom_level_changed(self, value):
+        """Handle zoom level slider change."""
+        level = value / 10.0  # Convert 10-40 to 1.0-4.0
+        self.zoom_manager.set_zoom_level(level)
+        self.zoom_level_label.setText(f"Level: {level:.1f}x")
+
+    def _on_zoom_roi_changed(self, index):
+        """Handle zoom ROI selection change."""
+        roi_id = self.zoom_roi_combo.itemData(index)
+        self.zoom_manager.set_target_roi(roi_id)
+        if roi_id:
+            self.logger.debug(f"Zoom target set to ROI {roi_id}")
+
+    def _zoom_reset_pan(self):
+        """Reset zoom pan to center."""
+        self.zoom_manager.reset_pan()
+        self.logger.debug("Zoom pan reset")
+
+    def _toggle_zoom_drawing(self, checked):
+        """Toggle zoom rectangle drawing mode."""
+        if checked:
+            self.zoom_draw_btn.setText("Cancel Drawing")
+            self.logger.info("Zoom drawing mode activated")
+            # TODO: Implement drawing in VideoLabel
+        else:
+            self.zoom_draw_btn.setText("Draw Zoom Area")
+            self.logger.info("Zoom drawing mode deactivated")
 
     def _toggle_auto_scale(self, state):
         """Toggle graph auto-scaling."""
@@ -785,6 +1107,12 @@ class BosonFocusGUI(QtWidgets.QWidget):
                 "boson": self.boson_panel.get_settings(),
                 "focus_algorithm": self.current_algorithm,
                 "thermal_preprocessing": self.thermal_preprocessing_enabled,
+                "ensemble_voting_enabled": self.ensemble_voting_enabled,
+                "show_all_algorithms": self.show_all_algorithms,
+                "auto_palette_switch_enabled": self.auto_palette_switch_enabled,
+                "adaptive_edge_enabled": self.adaptive_edge_enabled,
+                "adaptive_scene_type": self.adaptive_scene_type,
+                "adaptive_multi_scale": self.adaptive_multi_scale,
             }
 
             with open(get_config_path(), "w") as f:
@@ -822,6 +1150,43 @@ class BosonFocusGUI(QtWidgets.QWidget):
             if "thermal_preprocessing" in config:
                 self.thermal_preprocessing_enabled = config["thermal_preprocessing"]
                 self.thermal_preprocessing_checkbox.setChecked(self.thermal_preprocessing_enabled)
+
+            # Load ensemble voting settings
+            if "ensemble_voting_enabled" in config:
+                self.ensemble_voting_enabled = config["ensemble_voting_enabled"]
+                self.ensemble_voting_checkbox.setChecked(self.ensemble_voting_enabled)
+            if "show_all_algorithms" in config:
+                self.show_all_algorithms = config["show_all_algorithms"]
+                self.show_algorithms_checkbox.setChecked(self.show_all_algorithms)
+                if hasattr(self, 'algorithm_scores_widget'):
+                    self.algorithm_scores_widget.setVisible(self.show_all_algorithms)
+
+            # Load smart palette switcher settings (Phase 6)
+            if "auto_palette_switch_enabled" in config:
+                self.auto_palette_switch_enabled = config["auto_palette_switch_enabled"]
+                self.auto_palette_checkbox.setChecked(self.auto_palette_switch_enabled)
+                self.palette_switcher.enable_auto_switch(self.auto_palette_switch_enabled)
+
+            # Load adaptive edge detection settings (Phase 5)
+            if "adaptive_edge_enabled" in config:
+                self.adaptive_edge_enabled = config["adaptive_edge_enabled"]
+                self.adaptive_edge_checkbox.setChecked(self.adaptive_edge_enabled)
+            if "adaptive_scene_type" in config:
+                self.adaptive_scene_type = config["adaptive_scene_type"]
+                # Map internal type back to UI text
+                scene_type_ui_map = {
+                    "auto": "Auto",
+                    "low_contrast": "Low Contrast",
+                    "high_detail": "High Detail",
+                    "thermal": "Thermal"
+                }
+                ui_text = scene_type_ui_map.get(self.adaptive_scene_type, "Auto")
+                self.scene_type_combo.setCurrentText(ui_text)
+                self.adaptive_edge_detector.set_scene_type(self.adaptive_scene_type)
+            if "adaptive_multi_scale" in config:
+                self.adaptive_multi_scale = config["adaptive_multi_scale"]
+                self.multi_scale_checkbox.setChecked(self.adaptive_multi_scale)
+                self.adaptive_edge_detector.set_multi_scale(self.adaptive_multi_scale)
 
             self.regions = [
                 {
@@ -916,25 +1281,83 @@ class BosonFocusGUI(QtWidgets.QWidget):
         if self.thermal_preprocessing_enabled:
             gray = thermal_preprocess(gray, enhance_contrast=True, reduce_noise=False)
 
-        displayed = create_focus_peaking_overlay(
-            frame, self.edge_threshold, self.focus_color, PEAKING_ALPHA
-        )
+        # Choose edge detection method: adaptive or standard
+        if self.adaptive_edge_enabled:
+            # Use adaptive edge detection
+            displayed = self.adaptive_edge_detector.create_adaptive_focus_peaking(
+                frame, gray, self.edge_threshold, self.focus_color, PEAKING_ALPHA, self.adaptive_scene_type
+            )
 
-        # Get selected focus metric function
-        if self.current_algorithm in self.algorithm_map:
-            metric_func = self.algorithm_map[self.current_algorithm]
+            # Update scene info display
+            if hasattr(self, 'scene_info_label'):
+                scene_info = self.adaptive_edge_detector.get_scene_info()
+                detected_type = scene_info.get('detected_scene_type', 'unknown')
+                contrast = scene_info.get('contrast', 0)
+                self.scene_info_label.setText(f"Detected: {detected_type} (σ={contrast:.1f})")
         else:
-            metric_func = laplacian_focus_metric
+            # Use standard focus peaking
+            displayed = create_focus_peaking_overlay(
+                frame, self.edge_threshold, self.focus_color, PEAKING_ALPHA
+            )
 
-        # Compute ROI scores
-        if self.regions:
-            scores = compute_roi_scores(gray, self.regions, metric_func)
-            for roi, score in zip(self.regions, scores):
-                roi["score"] = score
+        # Choose focus computation method: ensemble or single algorithm
+        if self.ensemble_voting_enabled:
+            # Use ensemble voting system
+            global_score, details = self.focus_ensemble.compute_ensemble_focus(gray, return_details=True)
 
-            global_score = compute_weighted_focus(gray, self.regions, metric_func)
+            # Update ensemble UI
+            if hasattr(self, 'ensemble_confidence_label') and SHOW_CONFIDENCE_INDICATOR:
+                confidence = details['confidence']
+                quality = details['consensus_quality']
+                self.ensemble_confidence_label.setText(
+                    f"Confidence: {confidence*100:.0f}% ({quality.title()})"
+                )
+
+                # Color code by quality
+                quality_color = QUALITY_COLORS.get(quality, "#868e96")
+                self.ensemble_confidence_label.setStyleSheet(
+                    f"font-size: 9pt; font-weight: bold; color: {quality_color};"
+                )
+
+            # Update individual algorithm scores display
+            if self.show_all_algorithms and hasattr(self, 'algorithm_score_labels'):
+                all_scores = details['all_scores']
+                best_algo = details['best_algorithm']
+
+                for algo_name, score in all_scores.items():
+                    if algo_name in self.algorithm_score_labels:
+                        marker = " ⭐" if algo_name == best_algo else ""
+                        self.algorithm_score_labels[algo_name].setText(
+                            f"{algo_name}: {score:.1f}{marker}"
+                        )
+
+            # For ROI scores, still use the currently selected algorithm
+            if self.regions:
+                if self.current_algorithm in self.algorithm_map:
+                    metric_func = self.algorithm_map[self.current_algorithm]
+                else:
+                    metric_func = laplacian_focus_metric
+
+                scores = compute_roi_scores(gray, self.regions, metric_func)
+                for roi, score in zip(self.regions, scores):
+                    roi["score"] = score
+
         else:
-            global_score = metric_func(gray)
+            # Use single selected algorithm
+            if self.current_algorithm in self.algorithm_map:
+                metric_func = self.algorithm_map[self.current_algorithm]
+            else:
+                metric_func = laplacian_focus_metric
+
+            # Compute ROI scores
+            if self.regions:
+                scores = compute_roi_scores(gray, self.regions, metric_func)
+                for roi, score in zip(self.regions, scores):
+                    roi["score"] = score
+
+                global_score = compute_weighted_focus(gray, self.regions, metric_func)
+            else:
+                global_score = metric_func(gray)
 
         self.focus_history.append(global_score)
         self.stats_tracker.add_score(global_score)
@@ -971,6 +1394,9 @@ class BosonFocusGUI(QtWidgets.QWidget):
             2,
         )
 
+        # Apply zoom before display
+        displayed = self.zoom_manager.apply_zoom(displayed, self.regions)
+
         # Update display
         rgb = cv2.cvtColor(displayed, cv2.COLOR_BGR2RGB)
         h, w, ch = rgb.shape
@@ -994,6 +1420,20 @@ class BosonFocusGUI(QtWidgets.QWidget):
             f"Std:     {stats['std']:7.1f}"
         )
         self.stats_label.setText(stats_text)
+
+        # Update smart palette switcher (Phase 6)
+        self.palette_switcher.update(self.focus_history)
+
+        # Update UI status based on palette switcher state
+        if self.palette_switcher.is_active() and not self.focus_mode_btn.isChecked():
+            # Auto-mode is active
+            self.palette_status_label.setText("Focus Mode: Active (Auto)")
+            self.palette_status_label.setStyleSheet("font-size: 8pt; color: #ffa94d; font-weight: bold;")
+        elif not self.palette_switcher.is_active() and not self.focus_mode_btn.isChecked():
+            # Inactive
+            self.palette_status_label.setText("Focus Mode: Inactive")
+            self.palette_status_label.setStyleSheet("font-size: 8pt; color: #888;")
+        # If manual button is checked, keep manual status (set in _toggle_focus_mode_manual)
 
         # Update graph
         self._update_graph()
