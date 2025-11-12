@@ -58,6 +58,7 @@ class VideoLabel(QtWidgets.QLabel):
     roiSelected = QtCore.pyqtSignal(int)
     roiMoved = QtCore.pyqtSignal(int, tuple)
     mouseOver = QtCore.pyqtSignal(tuple)
+    zoomRectCreated = QtCore.pyqtSignal(tuple)  # Signal for zoom rectangle drawing
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -70,6 +71,12 @@ class VideoLabel(QtWidgets.QLabel):
         self.selected_id = None
         self.moving = False
         self.move_offset = (0, 0)
+
+        # Zoom rectangle drawing
+        self.zoom_drawing = False
+        self.zoom_start = None
+        self.current_zoom_rect = None
+
         self.logger = get_logger(self.__class__.__name__)
 
     def setPixmap(self, pixmap: QtGui.QPixmap) -> None:
@@ -126,10 +133,22 @@ class VideoLabel(QtWidgets.QLabel):
             int(y0 + y2 * sy),
         ]
 
+    def set_zoom_drawing_mode(self, enabled: bool) -> None:
+        """Enable or disable zoom rectangle drawing mode."""
+        self.zoom_drawing = enabled
+        self.logger.debug(f"Zoom drawing mode: {'enabled' if enabled else 'disabled'}")
+
     def mousePressEvent(self, ev):
         x, y = ev.x(), ev.y()
         if ev.button() == QtCore.Qt.LeftButton:
             fx, fy = self.map_to_frame(x, y)
+
+            # If in zoom drawing mode, start drawing zoom rect
+            if self.zoom_drawing:
+                self.zoom_start = (fx, fy)
+                self.current_zoom_rect = (fx, fy, fx, fy)
+                self.logger.debug("Started zoom rectangle drawing")
+                return
 
             # Check if clicking inside existing ROI
             for r in reversed(self.rois):
@@ -153,7 +172,12 @@ class VideoLabel(QtWidgets.QLabel):
         fx, fy = self.map_to_frame(x, y)
         self.mouseOver.emit((fx, fy))
 
-        if self.drawing and self.start:
+        # Handle zoom rectangle drawing
+        if self.zoom_drawing and self.zoom_start:
+            x0, y0 = self.zoom_start
+            self.current_zoom_rect = (x0, y0, fx, fy)
+            self.update()
+        elif self.drawing and self.start:
             x0, y0 = self.start
             self.current_rect = (x0, y0, fx, fy)
             self.update()
@@ -177,6 +201,23 @@ class VideoLabel(QtWidgets.QLabel):
 
     def mouseReleaseEvent(self, ev):
         if ev.button() == QtCore.Qt.LeftButton:
+            # Handle zoom rectangle completion
+            if self.zoom_drawing and self.current_zoom_rect is not None:
+                x1, y1, x2, y2 = self.current_zoom_rect
+                if abs(x2 - x1) > MIN_ROI_WIDTH and abs(y2 - y1) > MIN_ROI_HEIGHT:
+                    norm_rect = [
+                        int(min(x1, x2)),
+                        int(min(y1, y2)),
+                        int(max(x1, x2)),
+                        int(max(y1, y2)),
+                    ]
+                    self.zoomRectCreated.emit(tuple(norm_rect))
+                    self.logger.info(f"Zoom rectangle created: {norm_rect}")
+                self.current_zoom_rect = None
+                self.zoom_start = None
+                self.update()
+                return
+
             if self.drawing and self.current_rect is not None:
                 x1, y1, x2, y2 = self.current_rect
                 if abs(x2 - x1) > MIN_ROI_WIDTH and abs(y2 - y1) > MIN_ROI_HEIGHT:
@@ -222,6 +263,20 @@ class VideoLabel(QtWidgets.QLabel):
                 int(self.current_rect[3]),
             ])
             qp.setPen(QtGui.QPen(QtGui.QColor(*ROI_COLOR_DRAWING), 2, QtCore.Qt.DashLine))
+            qp.setBrush(QtCore.Qt.NoBrush)
+            x1, y1, x2, y2 = rect_disp
+            qp.drawRect(x1, y1, x2 - x1, y2 - y1)
+
+        # Draw current zoom rectangle (use blue color to distinguish from ROIs)
+        if self.current_zoom_rect:
+            rect_disp = self.map_from_frame([
+                int(self.current_zoom_rect[0]),
+                int(self.current_zoom_rect[1]),
+                int(self.current_zoom_rect[2]),
+                int(self.current_zoom_rect[3]),
+            ])
+            # Blue dashed line with thicker pen
+            qp.setPen(QtGui.QPen(QtGui.QColor(0, 150, 255), 3, QtCore.Qt.DashLine))
             qp.setBrush(QtCore.Qt.NoBrush)
             x1, y1, x2, y2 = rect_disp
             qp.drawRect(x1, y1, x2 - x1, y2 - y1)
@@ -366,6 +421,7 @@ class BosonFocusGUI(QtWidgets.QWidget):
         self.video_label.roiCreated.connect(self._on_roi_created)
         self.video_label.roiSelected.connect(self._on_roi_selected)
         self.video_label.roiMoved.connect(self._on_roi_moved)
+        self.video_label.zoomRectCreated.connect(self._on_zoom_rect_created)
 
     def _create_camera_controls(self, layout):
         """Create camera control section."""
@@ -627,7 +683,11 @@ class BosonFocusGUI(QtWidgets.QWidget):
 
         self.zoom_draw_btn = QtWidgets.QPushButton("Draw Zoom Area")
         self.zoom_draw_btn.setCheckable(True)
-        self.zoom_draw_btn.setToolTip("Click and drag to define zoom area (Manual mode)")
+        self.zoom_draw_btn.setToolTip(
+            "Click and drag on video to define custom zoom area\n"
+            "Automatically switches to Manual zoom mode\n"
+            "Draw area shown in blue"
+        )
         self.zoom_draw_btn.clicked.connect(self._toggle_zoom_drawing)
         zoom_buttons_layout.addWidget(self.zoom_draw_btn)
 
@@ -848,6 +908,22 @@ class BosonFocusGUI(QtWidgets.QWidget):
             reg["rect"] = list(rect)
             self._sync_rois_to_label()
             self._refresh_table()
+
+    def _on_zoom_rect_created(self, rect):
+        """Handle zoom rectangle creation."""
+        # Set the manual zoom rectangle
+        self.zoom_manager.set_manual_zoom_rect(list(rect))
+
+        # Switch to manual zoom mode
+        self.zoom_mode_combo.setCurrentText(ZoomMode.MANUAL.value)
+
+        # Disable zoom drawing mode
+        if self.zoom_draw_btn.isChecked():
+            self.zoom_draw_btn.setChecked(False)
+
+        self.logger.info(f"Zoom rectangle set: {rect}")
+        self.zoom_status_label.setText(f"Zoom: Manual (rect set)")
+        self.zoom_status_label.setStyleSheet("font-size: 8pt; color: #51cf66;")
 
     def _find_region(self, rid):
         """Find region by ID."""
@@ -1075,10 +1151,11 @@ class BosonFocusGUI(QtWidgets.QWidget):
         """Toggle zoom rectangle drawing mode."""
         if checked:
             self.zoom_draw_btn.setText("Cancel Drawing")
-            self.logger.info("Zoom drawing mode activated")
-            # TODO: Implement drawing in VideoLabel
+            self.video_label.set_zoom_drawing_mode(True)
+            self.logger.info("Zoom drawing mode activated - click and drag to define zoom area")
         else:
             self.zoom_draw_btn.setText("Draw Zoom Area")
+            self.video_label.set_zoom_drawing_mode(False)
             self.logger.info("Zoom drawing mode deactivated")
 
     def _toggle_auto_scale(self, state):
