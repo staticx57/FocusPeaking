@@ -165,6 +165,22 @@ python main.py
 - Explicitly control palette switching
 - Click "Exit Focus Mode" to restore
 
+### Edge Threshold Control
+
+The edge threshold slider controls the sensitivity of focus peaking edge detection:
+
+**Threshold Range**: 1-100 (optimized for practical use)
+- **1-30**: Very sensitive - shows all edges including fine details
+- **30-80**: Optimal range for most thermal imaging use cases
+- **80-100**: Less sensitive - shows only strong, prominent edges
+
+**Default**: 50 (balanced for general use)
+
+**Tips**:
+- Lower values: Better for low-contrast thermal scenes
+- Higher values: Better for high-contrast scenes with strong edges
+- The entire slider range now provides useful variation (improved from original 1-300 range where only 1-75 had practical effect)
+
 ### ROI Management
 
 - **Create**: Click and drag on video
@@ -238,6 +254,22 @@ confidence = 1 - (std / mean)  # Lower variance = higher confidence
 - Fine edges: Canny(20, 60)
 - Coarse edges: Canny(40, 120)
 - Combined with bitwise OR
+
+### Edge Threshold Detection
+
+**Laplacian-based Edge Detection**:
+```python
+edges = cv2.Laplacian(gray, cv2.CV_64F)
+edges_abs = np.abs(edges)
+mask = edges_abs > threshold  # threshold range: 1-100
+```
+
+**Threshold Behavior**:
+- Laplacian values typically range 0-255
+- Most useful edge information concentrated in 0-100 range
+- Values above 100 catch only the strongest edges
+- Optimized slider range (1-100) provides useful variation across entire range
+- Default threshold: 50 (balanced for general thermal imaging)
 
 ### ROI Weighted Scoring
 
@@ -371,6 +403,7 @@ Settings saved to `focus_config.json`:
 - ✨ Real-time scene type classification
 - ✨ Complete UI integration for all Phase 5 features
 - ✨ **Zoom Rectangle Drawing**: Click-and-drag custom zoom areas (blue dashed rectangle)
+- 🔧 **Edge Threshold Slider Improvement**: Optimized range from 1-300 to 1-100 for better usability (entire slider now functionally useful)
 - 📝 Comprehensive documentation updates
 - 🎉 **100% completion** of all planned enhancement phases!
 

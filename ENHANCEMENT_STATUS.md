@@ -355,6 +355,57 @@ Thermal          | (20,60)+(40,120)| Multi-scale + CLAHE
 
 ---
 
+#### **Edge Threshold Slider Usability Improvement** ✅ COMPLETE
+**Status:** 100% Complete
+**Completion Date:** November 12, 2025
+
+**Problem:**
+- Original slider range: 1-300
+- Only first 1/4 of slider (1-75) produced noticeable differences
+- Remaining 3/4 of slider (75-300) had minimal practical effect
+- Poor user experience with dead range
+
+**Root Cause:**
+- Laplacian edge detection produces values typically in 0-255 range
+- Most useful edge information concentrated in 0-100 threshold range
+- Thresholds above 100 only catch the strongest edges
+- Values 100-300 produced nearly identical results (diminishing returns)
+
+**Solution:**
+- Reduced MAX_EDGE_THRESHOLD from 300 to 100
+- Changed DEFAULT_EDGE_THRESHOLD from 100 to 50 (better starting point)
+- Added comprehensive documentation explaining threshold behavior
+- Updated function defaults and docstrings
+
+**New Behavior:**
+```
+Threshold Range: 1-100 (optimized)
+- 1-30:   Very sensitive (all edges, fine details)
+- 30-80:  Optimal range for most thermal imaging use cases
+- 80-100: Less sensitive (only strong edges)
+Default: 50 (balanced for general use)
+```
+
+**Files Modified:**
+- `config.py` - Updated MAX_EDGE_THRESHOLD and DEFAULT_EDGE_THRESHOLD with documentation (+6 lines)
+- `focus_utils.py` - Updated create_focus_peaking_overlay() default and docstring (+3 lines)
+- `README.md` - Added Edge Threshold Control section and technical details (+25 lines)
+- `ENHANCEMENT_STATUS.md` - Documented improvement (+42 lines)
+
+**User Benefits:**
+- ✅ Entire slider range now functionally useful
+- ✅ Better granular control across full range
+- ✅ More intuitive for users
+- ✅ Improved default value (50 vs 100)
+- ✅ Enhanced documentation for threshold behavior
+
+**Performance:**
+- ✅ No performance impact
+- ✅ Same edge detection algorithm
+- ✅ Better user experience
+
+---
+
 ## Performance Metrics
 
 ### **Achieved Improvements:**
@@ -520,6 +571,7 @@ The FLIR Boson Focus Utility now includes:
 **Next Review:** As needed based on user feedback
 
 **Recent Updates:**
+- November 12, 2025: Edge Threshold Slider Usability Fix - **COMPLETE** (range optimized from 1-300 to 1-100, default changed from 100 to 50)
 - November 12, 2025: Zoom Rectangle Drawing enhancement - **COMPLETE**
 - November 12, 2025: Phase 5 (Adaptive Edge Detection) implemented - **100% COMPLETE**
 - November 12, 2025: Phase 6 (Smart Palette Switching) implemented
