@@ -249,17 +249,28 @@ The edge threshold slider controls the sensitivity of focus peaking edge detecti
 - **Auto-ROI**: Zoom to selected ROI
 - **Auto-All-ROIs**: Zoom to encompass all ROIs
 
-**Manual Zoom Drawing**:
+**Manual Zoom Usage**:
+1. Select "Manual" zoom mode from dropdown
+2. Adjust zoom level slider (1.0x - 4.0x) - zooms from center immediately
+3. **Use arrow keys (← → ↑ ↓) to pan around the zoomed view**
+4. Click "Reset Pan" to recenter the view
+
+**Optional - Draw Specific Zoom Area**:
 1. Click "Draw Zoom Area" button to activate drawing mode
 2. Click and drag on video to define custom zoom rectangle
 3. Blue dashed rectangle shows the area being selected
 4. On release, automatically switches to Manual zoom mode
 5. Selected area is zoomed and displayed
+6. Zoom level and pan controls apply to your drawn area
 
-**Controls**:
-- Zoom level slider: 1.0x - 4.0x
-- "Reset Pan" button: Recenter view
-- "Draw Zoom Area": Click-and-drag to define custom zoom area (shown in blue)
+**Pan Controls** (when zoomed):
+- **← Left Arrow**: Pan left
+- **→ Right Arrow**: Pan right
+- **↑ Up Arrow**: Pan up
+- **↓ Down Arrow**: Pan down
+- **Reset Pan Button**: Return to center
+
+**Note**: Arrow key panning only works when zoom mode is not "Off"
 
 ## ⌨️ Keyboard Shortcuts
 
@@ -269,6 +280,7 @@ The edge threshold slider controls the sensitivity of focus peaking edge detecti
 - `Ctrl+E`: Export focus data to CSV
 - `Space`: Pause/Resume video
 - `+` / `-`: Increase/decrease edge threshold
+- `← → ↑ ↓` (Arrow Keys): Pan view when zoomed (Manual/Auto-ROI/Auto-All-ROIs modes)
 
 ## 📊 Technical Details
 
@@ -469,11 +481,17 @@ Settings saved to `focus_config.json`:
 **Updates**:
 - 🐛 **Cancel Drawing Fix**: "Cancel Drawing" button now properly clears zoom rectangle visual feedback
 - 🐛 **Reset Pan Fix**: "Reset Pan" button now fully resets zoom state and clears any active drawings
+- 🐛 **Zoom Level Fix**: Manual zoom mode now works immediately from center without needing to draw a rectangle first
+- ⌨️ **Pan Controls Added**: Arrow keys (← → ↑ ↓) now pan the view when zoomed (20 pixel steps)
+- 📚 **Adaptive Edge Detection Documentation**: Comprehensive technical documentation added for scene-adaptive edge detection
 - 📦 **Batch File Updates**: All .bat launchers updated to v3.0.1 and launch unified application
 
 **Fixes Applied**:
 - VideoLabel.set_zoom_drawing_mode() now clears current_zoom_rect and zoom_start when disabling
 - _zoom_reset_pan() now unchecks draw button and clears lingering zoom rectangles
+- ZoomManager.get_zoom_rect() now applies zoom to center when no manual_zoom_rect exists
+- BosonFocusGUI.keyPressEvent() added for arrow key pan controls
+- Pan controls only active when zoom mode is not OFF
 - No more stuck blue dashed rectangles on screen after canceling
 
 ### v3.0.0 (November 12, 2025)

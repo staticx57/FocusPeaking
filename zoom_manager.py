@@ -131,8 +131,9 @@ class ZoomManager:
             if self.manual_zoom_rect:
                 return self._apply_pan_and_zoom(self.manual_zoom_rect, w, h)
             else:
-                # No manual rect set, return full frame
-                return (0, 0, w, h)
+                # No manual rect set, zoom from center of frame
+                center_rect = [0, 0, w, h]
+                return self._apply_pan_and_zoom(center_rect, w, h)
 
         elif self.mode == ZoomMode.AUTO_ROI:
             if not regions or self.target_roi_id is None:

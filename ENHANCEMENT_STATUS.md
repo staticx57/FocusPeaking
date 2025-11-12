@@ -569,6 +569,97 @@ if use_stripes:
 
 ---
 
+#### **Zoom Level and Pan Controls Fix** ✅ COMPLETE
+**Status:** 100% Complete - BUG FIX + NEW FEATURE
+**Completion Date:** November 12, 2025
+**Version:** 3.0.1
+
+**Problems Reported:**
+1. **Zoom Level**: "zoom level also feels broken" - slider didn't work without drawing rectangle first
+2. **Reset Pan**: "reset pan doesnt work" - button did nothing (no way to pan)
+
+**Root Causes:**
+
+1. **Zoom Level Not Working**:
+   - In Manual zoom mode, zoom_level slider did nothing until user drew a zoom rectangle
+   - If no manual_zoom_rect was set, ZoomManager.get_zoom_rect() returned full frame (0, 0, w, h)
+   - Zoom level changes had no effect on full frame view
+   - User couldn't use zoom slider to explore thermal image from center
+
+2. **Pan Controls Missing**:
+   - ZoomManager.pan() method existed but was never called
+   - No keyboard controls to pan the view
+   - No mouse controls to pan the view
+   - pan_offset remained [0, 0] always
+   - "Reset Pan" button tried to reset something that never changed
+
+**Solution:**
+
+**1. Zoom From Center** (zoom_manager.py:130-136):
+```python
+elif self.mode == ZoomMode.MANUAL:
+    if self.manual_zoom_rect:
+        return self._apply_pan_and_zoom(self.manual_zoom_rect, w, h)
+    else:
+        # No manual rect set, zoom from center of frame
+        center_rect = [0, 0, w, h]
+        return self._apply_pan_and_zoom(center_rect, w, h)
+```
+- Changed to always apply zoom transformation
+- When no custom rectangle drawn, zooms from center of entire frame
+- Zoom level slider now works immediately
+
+**2. Arrow Key Pan Controls** (focus_utility.py:1744-1772):
+```python
+def keyPressEvent(self, ev):
+    """Handle keyboard input for pan controls."""
+    if self.zoom_manager.mode == ZoomMode.OFF:
+        super().keyPressEvent(ev)
+        return
+
+    pan_step = 20  # pixels
+
+    if ev.key() == QtCore.Qt.Key_Left:
+        self.zoom_manager.pan(-pan_step, 0)
+    elif ev.key() == QtCore.Qt.Key_Right:
+        self.zoom_manager.pan(pan_step, 0)
+    elif ev.key() == QtCore.Qt.Key_Up:
+        self.zoom_manager.pan(0, -pan_step)
+    elif ev.key() == QtCore.Qt.Key_Down:
+        self.zoom_manager.pan(0, pan_step)
+```
+- Added keyPressEvent handler to BosonFocusGUI
+- Arrow keys pan view 20 pixels per keypress
+- Only active when zoom mode is not OFF
+- Works in Manual, Auto-ROI, and Auto-All-ROIs modes
+
+**3. UI Improvements**:
+- Updated "Reset Pan" button tooltip: "Reset pan to center (Use arrow keys to pan when zoomed)"
+- Added helpful hint label: "Use ← → ↑ ↓ arrow keys to pan when zoomed"
+
+**Files Modified:**
+- `zoom_manager.py` - Apply zoom to center_rect when no manual rect (+1 line)
+- `focus_utility.py` - Added keyPressEvent handler, updated UI (+35 lines)
+
+**Results:**
+- ✅ Zoom level slider works immediately in Manual mode (no rectangle drawing required)
+- ✅ Arrow key controls pan the zoomed view
+- ✅ Reset Pan button actually resets the pan (now that panning exists)
+- ✅ Zoom from center provides intuitive starting point
+- ✅ Users can explore thermal image with zoom + arrow keys
+
+**User Impact:**
+- **Zoom Workflow Now Intuitive**:
+  1. Select "Manual" mode
+  2. Adjust zoom slider → immediate zoom from center
+  3. Use arrow keys to pan around
+  4. Click "Reset Pan" to recenter
+  5. Optional: Draw specific area to zoom into
+- **All zoom functionality now working as expected**
+- **Complete zoom/pan/inspect workflow**
+
+---
+
 #### **Zoom Drawing Bug Fixes** ✅ COMPLETE
 **Status:** 100% Complete - BUG FIXES
 **Completion Date:** November 12, 2025
@@ -837,6 +928,8 @@ The FLIR Boson Focus Utility now includes:
 **Next Review:** As needed based on user feedback
 
 **Recent Updates:**
+- November 12, 2025: **Zoom Level and Pan Controls** - **BUG FIX + NEW FEATURE** v3.0.1 (zoom now works from center, arrow key pan controls added)
+- November 12, 2025: **Adaptive Edge Detection Documentation** - **DOCUMENTATION** v3.0.1 (comprehensive technical docs for scene-adaptive edge detection)
 - November 12, 2025: **Zoom Drawing Bug Fixes** - **BUG FIX** v3.0.1 (cancel drawing and reset pan now work correctly)
 - November 12, 2025: **Batch File Updates** - **POLISH** v3.0.1 (all launchers updated to v3.0.1)
 - November 12, 2025: **Complete Application Consolidation** - **ARCHITECTURE** (single file, removed main.py and ROIeditor.py)
