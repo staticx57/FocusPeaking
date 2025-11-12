@@ -650,3 +650,236 @@ def create_boson_controller(port: Optional[str] = None) -> BosonController:
         )
 
     return controller
+
+
+# ============================================================================
+# Smart Palette Switcher (Phase 6)
+# ============================================================================
+
+class SmartPaletteSwitcher:
+    """
+    Automatically switches to optimal palette during focusing.
+
+    This class follows thermal imaging best practices by switching to
+    WhiteHot (grayscale) palette when the user is adjusting focus, making
+    edges more visible. It automatically detects focus attempts based on
+    rapid focus score changes.
+    """
+
+    def __init__(self, boson_controller: Optional[BosonController] = None):
+        """
+        Initialize the smart palette switcher.
+
+        Args:
+            boson_controller: Optional BosonController instance
+        """
+        self.controller = boson_controller
+        self.original_palette = None
+        self.focus_mode_active = False
+        self.auto_switch_enabled = False
+        self.focus_mode_palette = "WhiteHot"  # Best for focusing
+
+        # Auto-detection state
+        self.detection_enabled = True
+        self.focus_stable_count = 0
+        self.stable_threshold = 10  # Frames of stability before exit
+
+        logger.debug("SmartPaletteSwitcher initialized")
+
+    def enable_auto_switch(self, enabled: bool) -> None:
+        """
+        Enable or disable automatic palette switching.
+
+        Args:
+            enabled: True to enable auto-switching
+        """
+        self.auto_switch_enabled = enabled
+        logger.info(f"Auto palette switching: {'enabled' if enabled else 'disabled'}")
+
+        # Exit focus mode if auto-switch is disabled
+        if not enabled and self.focus_mode_active:
+            self.exit_focus_mode()
+
+    def enter_focus_mode(self, manual: bool = False) -> bool:
+        """
+        Enter focus mode - switch to WhiteHot palette.
+
+        Args:
+            manual: If True, this is a manual activation (not auto-detected)
+
+        Returns:
+            True if successfully entered focus mode
+        """
+        if not self.controller or not self.controller.is_connected:
+            logger.debug("Cannot enter focus mode: Boson not connected")
+            return False
+
+        if self.focus_mode_active:
+            logger.debug("Focus mode already active")
+            return True
+
+        # Save current palette
+        try:
+            self.original_palette = self.controller.current_palette or "WhiteHot"
+            logger.debug(f"Saved original palette: {self.original_palette}")
+        except Exception as e:
+            logger.warning(f"Could not save current palette: {e}")
+            self.original_palette = "WhiteHot"
+
+        # Switch to focus mode palette
+        try:
+            if self.original_palette != self.focus_mode_palette:
+                # Only switch if not already in focus mode palette
+                success = self.controller.set_palette(self.focus_mode_palette)
+                if success:
+                    self.focus_mode_active = True
+                    self.focus_stable_count = 0
+                    mode_type = "manually" if manual else "automatically"
+                    logger.info(f"Entered focus mode {mode_type}: switched to {self.focus_mode_palette}")
+                    return True
+                else:
+                    logger.warning("Failed to switch to focus mode palette")
+                    return False
+            else:
+                logger.debug(f"Already using {self.focus_mode_palette}, no switch needed")
+                self.focus_mode_active = True
+                return True
+
+        except Exception as e:
+            logger.error(f"Error entering focus mode: {e}")
+            return False
+
+    def exit_focus_mode(self, force: bool = False) -> bool:
+        """
+        Exit focus mode - restore original palette.
+
+        Args:
+            force: If True, exit immediately even if auto-detection is active
+
+        Returns:
+            True if successfully exited focus mode
+        """
+        if not self.focus_mode_active:
+            return True
+
+        if not self.controller or not self.controller.is_connected:
+            self.focus_mode_active = False
+            return True
+
+        # Restore original palette
+        try:
+            if self.original_palette and self.original_palette != self.focus_mode_palette:
+                success = self.controller.set_palette(self.original_palette)
+                if success:
+                    self.focus_mode_active = False
+                    logger.info(f"Exited focus mode: restored {self.original_palette} palette")
+                    return True
+                else:
+                    logger.warning("Failed to restore original palette")
+                    return False
+            else:
+                self.focus_mode_active = False
+                logger.debug("Exited focus mode (no palette change needed)")
+                return True
+
+        except Exception as e:
+            logger.error(f"Error exiting focus mode: {e}")
+            self.focus_mode_active = False
+            return False
+
+    def auto_detect_focus_attempt(self, focus_history: 'deque') -> bool:
+        """
+        Detect if user is adjusting focus based on rapid changes.
+
+        Args:
+            focus_history: Deque of recent focus scores
+
+        Returns:
+            True if focus adjustment detected
+        """
+        if not self.auto_switch_enabled or not self.detection_enabled:
+            return False
+
+        if len(focus_history) < 5:
+            return False
+
+        # Get recent focus scores
+        recent = list(focus_history)[-5:]
+
+        try:
+            variance = float(np.var(recent))
+            mean = float(np.mean(recent))
+
+            if mean == 0:
+                return False
+
+            # Calculate coefficient of variation (normalized variance)
+            coefficient_of_variation = (float(np.sqrt(variance)) / mean)
+
+            # High variation suggests focus adjustment
+            # 15% variation threshold
+            is_adjusting = coefficient_of_variation > 0.15
+
+            if is_adjusting:
+                self.focus_stable_count = 0
+                return True
+            else:
+                self.focus_stable_count += 1
+                return False
+
+        except Exception as e:
+            logger.error(f"Error in focus detection: {e}")
+            return False
+
+    def update(self, focus_history: 'deque') -> None:
+        """
+        Update the palette switcher state based on focus history.
+
+        This should be called on each frame to enable automatic switching.
+
+        Args:
+            focus_history: Deque of recent focus scores
+        """
+        if not self.auto_switch_enabled:
+            return
+
+        # Detect if focusing
+        is_focusing = self.auto_detect_focus_attempt(focus_history)
+
+        if is_focusing:
+            # Enter focus mode if not already in it
+            if not self.focus_mode_active:
+                self.enter_focus_mode(manual=False)
+        else:
+            # Exit focus mode if stable for long enough
+            if self.focus_mode_active and self.focus_stable_count > self.stable_threshold:
+                self.exit_focus_mode(force=False)
+
+    def set_focus_mode_palette(self, palette: str) -> None:
+        """
+        Set the palette to use in focus mode.
+
+        Args:
+            palette: Palette name (default: "WhiteHot")
+        """
+        self.focus_mode_palette = palette
+        logger.info(f"Focus mode palette set to: {palette}")
+
+    def is_active(self) -> bool:
+        """Check if focus mode is currently active."""
+        return self.focus_mode_active
+
+    def get_status(self) -> Dict[str, any]:
+        """
+        Get current status of the palette switcher.
+
+        Returns:
+            Dictionary with status information
+        """
+        return {
+            'focus_mode_active': self.focus_mode_active,
+            'auto_switch_enabled': self.auto_switch_enabled,
+            'original_palette': self.original_palette,
+            'focus_mode_palette': self.focus_mode_palette,
+            'focus_stable_count': self.focus_stable_count,
+        }

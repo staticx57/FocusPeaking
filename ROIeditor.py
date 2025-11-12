@@ -37,7 +37,7 @@ from focus_utils import (
 )
 from theme_manager import ThemeManager
 from data_export import FocusDataExporter, generate_default_export_filename
-from boson_control import BosonController, GainMode, AGCMode, FFCMode, apply_palette_software
+from boson_control import BosonController, GainMode, AGCMode, FFCMode, apply_palette_software, SmartPaletteSwitcher
 from boson_ui import BosonControlPanel
 
 # Setup logging
@@ -303,6 +303,10 @@ class BosonFocusGUI(QtWidgets.QWidget):
             history_size=ENSEMBLE_HISTORY_SIZE
         )
 
+        # Smart palette switcher (Phase 6)
+        self.palette_switcher = SmartPaletteSwitcher(self.boson_controller)
+        self.auto_palette_switch_enabled = False  # Default off
+
         # Setup UI
         self._create_ui()
         self._setup_timer()
@@ -494,6 +498,34 @@ class BosonFocusGUI(QtWidgets.QWidget):
         ensemble_layout.addWidget(self.algorithm_scores_widget)
 
         layout.addWidget(ensemble_group)
+
+        # Smart palette switcher (Phase 6)
+        palette_group = QtWidgets.QGroupBox("Smart Palette (Phase 6)")
+        palette_layout = QtWidgets.QVBoxLayout(palette_group)
+
+        # Auto-switch checkbox
+        self.auto_palette_checkbox = QtWidgets.QCheckBox("Auto-switch to WhiteHot when Focusing")
+        self.auto_palette_checkbox.setChecked(self.auto_palette_switch_enabled)
+        self.auto_palette_checkbox.setToolTip(
+            "Automatically switch to WhiteHot palette during focus adjustment\n"
+            "(Industry best practice for thermal cameras)"
+        )
+        self.auto_palette_checkbox.stateChanged.connect(self._toggle_auto_palette_switch)
+        palette_layout.addWidget(self.auto_palette_checkbox)
+
+        # Manual focus mode button
+        self.focus_mode_btn = QtWidgets.QPushButton("Enter Focus Mode")
+        self.focus_mode_btn.setCheckable(True)
+        self.focus_mode_btn.setToolTip("Manually switch to WhiteHot for easier focusing")
+        self.focus_mode_btn.clicked.connect(self._toggle_focus_mode_manual)
+        palette_layout.addWidget(self.focus_mode_btn)
+
+        # Status label
+        self.palette_status_label = QtWidgets.QLabel("Focus Mode: Inactive")
+        self.palette_status_label.setStyleSheet("font-size: 8pt; color: #888;")
+        palette_layout.addWidget(self.palette_status_label)
+
+        layout.addWidget(palette_group)
 
     def _create_roi_table(self, layout):
         """Create ROI table."""
@@ -820,6 +852,32 @@ class BosonFocusGUI(QtWidgets.QWidget):
             self.algorithm_scores_widget.setVisible(self.show_all_algorithms)
         self.logger.debug(f"Show all algorithms: {self.show_all_algorithms}")
 
+    def _toggle_auto_palette_switch(self, state):
+        """Toggle automatic palette switching."""
+        self.auto_palette_switch_enabled = (state == QtCore.Qt.Checked)
+        self.palette_switcher.enable_auto_switch(self.auto_palette_switch_enabled)
+        self.logger.info(f"Auto palette switch: {'enabled' if self.auto_palette_switch_enabled else 'disabled'}")
+
+    def _toggle_focus_mode_manual(self, checked):
+        """Manually toggle focus mode on/off."""
+        if checked:
+            # Enter focus mode
+            success = self.palette_switcher.enter_focus_mode(manual=True)
+            if success:
+                self.focus_mode_btn.setText("Exit Focus Mode")
+                self.palette_status_label.setText("Focus Mode: Active (Manual)")
+                self.palette_status_label.setStyleSheet("font-size: 8pt; color: #51cf66; font-weight: bold;")
+            else:
+                self.focus_mode_btn.setChecked(False)
+                self.palette_status_label.setText("Focus Mode: Failed to activate")
+                self.palette_status_label.setStyleSheet("font-size: 8pt; color: #ff6b6b;")
+        else:
+            # Exit focus mode
+            self.palette_switcher.exit_focus_mode(force=True)
+            self.focus_mode_btn.setText("Enter Focus Mode")
+            self.palette_status_label.setText("Focus Mode: Inactive")
+            self.palette_status_label.setStyleSheet("font-size: 8pt; color: #888;")
+
     def _toggle_pause(self):
         """Toggle video pause."""
         self.paused = not self.paused
@@ -855,6 +913,7 @@ class BosonFocusGUI(QtWidgets.QWidget):
                 "thermal_preprocessing": self.thermal_preprocessing_enabled,
                 "ensemble_voting_enabled": self.ensemble_voting_enabled,
                 "show_all_algorithms": self.show_all_algorithms,
+                "auto_palette_switch_enabled": self.auto_palette_switch_enabled,
             }
 
             with open(get_config_path(), "w") as f:
@@ -902,6 +961,12 @@ class BosonFocusGUI(QtWidgets.QWidget):
                 self.show_algorithms_checkbox.setChecked(self.show_all_algorithms)
                 if hasattr(self, 'algorithm_scores_widget'):
                     self.algorithm_scores_widget.setVisible(self.show_all_algorithms)
+
+            # Load smart palette switcher settings (Phase 6)
+            if "auto_palette_switch_enabled" in config:
+                self.auto_palette_switch_enabled = config["auto_palette_switch_enabled"]
+                self.auto_palette_checkbox.setChecked(self.auto_palette_switch_enabled)
+                self.palette_switcher.enable_auto_switch(self.auto_palette_switch_enabled)
 
             self.regions = [
                 {
@@ -1117,6 +1182,20 @@ class BosonFocusGUI(QtWidgets.QWidget):
             f"Std:     {stats['std']:7.1f}"
         )
         self.stats_label.setText(stats_text)
+
+        # Update smart palette switcher (Phase 6)
+        self.palette_switcher.update(self.focus_history)
+
+        # Update UI status based on palette switcher state
+        if self.palette_switcher.is_active() and not self.focus_mode_btn.isChecked():
+            # Auto-mode is active
+            self.palette_status_label.setText("Focus Mode: Active (Auto)")
+            self.palette_status_label.setStyleSheet("font-size: 8pt; color: #ffa94d; font-weight: bold;")
+        elif not self.palette_switcher.is_active() and not self.focus_mode_btn.isChecked():
+            # Inactive
+            self.palette_status_label.setText("Focus Mode: Inactive")
+            self.palette_status_label.setStyleSheet("font-size: 8pt; color: #888;")
+        # If manual button is checked, keep manual status (set in _toggle_focus_mode_manual)
 
         # Update graph
         self._update_graph()
