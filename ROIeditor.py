@@ -309,7 +309,7 @@ class BosonFocusGUI(QtWidgets.QWidget):
         self.logger.info("Initializing Boson Focus GUI v2.0")
 
         self.setWindowTitle(f"{APP_NAME} v{APP_VERSION}")
-        self.resize(WINDOW_WIDTH, WINDOW_HEIGHT)
+        # Window size will be set after UI creation for auto-scaling
 
         # Initialize managers
         self.camera_manager = CameraManager()
@@ -375,6 +375,10 @@ class BosonFocusGUI(QtWidgets.QWidget):
 
         # Setup UI
         self._create_ui()
+
+        # Auto-scale window to fit content
+        self._auto_scale_window()
+
         self._setup_timer()
         self._setup_shortcuts()
         self._load_config_if_exists()
@@ -392,7 +396,7 @@ class BosonFocusGUI(QtWidgets.QWidget):
 
         self.video_label = VideoLabel()
         self.video_label.setMinimumSize(640, 480)
-        self.video_label.setStyleSheet("border: 2px solid #3f3f3f;")
+        self.video_label.setStyleSheet("border: 2px solid palette(mid);")
         self.video_label.setScaledContents(False)
         self.video_label.setSizePolicy(
             QtWidgets.QSizePolicy.Expanding,
@@ -510,7 +514,7 @@ class BosonFocusGUI(QtWidgets.QWidget):
         # Camera info
         self.camera_info_label = QtWidgets.QLabel("No camera connected")
         self.camera_info_label.setWordWrap(True)
-        self.camera_info_label.setStyleSheet("font-size: 8pt; color: #888;")
+        self.camera_info_label.setStyleSheet("font-size: 8pt; color: palette(mid);")
         group_layout.addWidget(self.camera_info_label)
 
         layout.addWidget(group)
@@ -571,7 +575,7 @@ class BosonFocusGUI(QtWidgets.QWidget):
             quality_layout.addWidget(self.quality_status_label)
 
             self.quality_score_label = QtWidgets.QLabel("Score: -- / 100")
-            self.quality_score_label.setStyleSheet("font-size: 9pt; color: #888;")
+            self.quality_score_label.setStyleSheet("font-size: 9pt; color: palette(mid);")
             quality_layout.addWidget(self.quality_score_label)
 
             layout.addWidget(quality_group)
@@ -677,7 +681,7 @@ class BosonFocusGUI(QtWidgets.QWidget):
 
         # Scene info label
         self.scene_info_label = QtWidgets.QLabel("Detected: --")
-        self.scene_info_label.setStyleSheet("font-size: 8pt; color: #888;")
+        self.scene_info_label.setStyleSheet("font-size: 8pt; color: palette(mid);")
         adaptive_layout.addWidget(self.scene_info_label)
 
         layout.addWidget(adaptive_group)
@@ -706,7 +710,7 @@ class BosonFocusGUI(QtWidgets.QWidget):
 
         # Status label
         self.palette_status_label = QtWidgets.QLabel("Focus Mode: Inactive")
-        self.palette_status_label.setStyleSheet("font-size: 8pt; color: #888;")
+        self.palette_status_label.setStyleSheet("font-size: 8pt; color: palette(mid);")
         palette_layout.addWidget(self.palette_status_label)
 
         layout.addWidget(palette_group)
@@ -774,7 +778,7 @@ class BosonFocusGUI(QtWidgets.QWidget):
 
         # Status label
         self.zoom_status_label = QtWidgets.QLabel("Zoom: Off")
-        self.zoom_status_label.setStyleSheet("font-size: 8pt; color: #888;")
+        self.zoom_status_label.setStyleSheet("font-size: 8pt; color: palette(mid);")
         zoom_layout.addWidget(self.zoom_status_label)
 
         layout.addWidget(zoom_group)
@@ -855,6 +859,36 @@ class BosonFocusGUI(QtWidgets.QWidget):
         self.auto_scale_checkbox.setToolTip("Automatically adjust graph Y-axis to data range")
         self.auto_scale_checkbox.stateChanged.connect(self._toggle_auto_scale)
         layout.addWidget(self.auto_scale_checkbox)
+
+    def _auto_scale_window(self):
+        """Auto-scale window to fit content on startup."""
+        # Get screen geometry
+        screen = QtWidgets.QApplication.desktop().screenGeometry()
+        screen_width = screen.width()
+        screen_height = screen.height()
+
+        # Calculate optimal size with some padding
+        # Use 80% of screen width and 85% of screen height as maximum
+        max_width = int(screen_width * 0.8)
+        max_height = int(screen_height * 0.85)
+
+        # Get size hint from the layout
+        size_hint = self.sizeHint()
+
+        # Use the larger of size hint or minimum comfortable size
+        optimal_width = max(min(size_hint.width(), max_width), 1400)
+        optimal_height = max(min(size_hint.height(), max_height), 800)
+
+        # Set the window size
+        self.resize(optimal_width, optimal_height)
+
+        # Center the window on screen
+        self.move(
+            (screen_width - optimal_width) // 2,
+            (screen_height - optimal_height) // 2
+        )
+
+        self.logger.info(f"Window auto-scaled to {optimal_width}x{optimal_height}")
 
     def _setup_timer(self):
         """Setup update timer."""
@@ -1194,7 +1228,7 @@ class BosonFocusGUI(QtWidgets.QWidget):
             self.palette_switcher.exit_focus_mode(force=True)
             self.focus_mode_btn.setText("Enter Focus Mode")
             self.palette_status_label.setText("Focus Mode: Inactive")
-            self.palette_status_label.setStyleSheet("font-size: 8pt; color: #888;")
+            self.palette_status_label.setStyleSheet("font-size: 8pt; color: palette(mid);")
 
     def _toggle_pause(self):
         """Toggle video pause."""
@@ -1595,7 +1629,7 @@ class BosonFocusGUI(QtWidgets.QWidget):
         elif not self.palette_switcher.is_active() and not self.focus_mode_btn.isChecked():
             # Inactive
             self.palette_status_label.setText("Focus Mode: Inactive")
-            self.palette_status_label.setStyleSheet("font-size: 8pt; color: #888;")
+            self.palette_status_label.setStyleSheet("font-size: 8pt; color: palette(mid);")
         # If manual button is checked, keep manual status (set in _toggle_focus_mode_manual)
 
         # Update graph

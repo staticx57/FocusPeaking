@@ -314,6 +314,26 @@ class ThemeManager:
         QMenu::item:selected {
             background-color: #0078d4;
         }
+
+        QGroupBox {
+            border: 1px solid #3f3f3f;
+            border-radius: 4px;
+            margin-top: 8px;
+            padding-top: 8px;
+            font-weight: bold;
+        }
+
+        QGroupBox::title {
+            subcontrol-origin: margin;
+            subcontrol-position: top left;
+            padding: 0 4px;
+            color: #ffffff;
+        }
+
+        /* Theme-aware muted text color for status labels */
+        .muted {
+            color: #999999;
+        }
         """
 
     def _generate_light_theme(self) -> str:
@@ -402,6 +422,26 @@ class ThemeManager:
             border: 1px solid #cccccc;
             selection-background-color: #0078d4;
         }
+
+        QGroupBox {
+            border: 1px solid #cccccc;
+            border-radius: 4px;
+            margin-top: 8px;
+            padding-top: 8px;
+            font-weight: bold;
+        }
+
+        QGroupBox::title {
+            subcontrol-origin: margin;
+            subcontrol-position: top left;
+            padding: 0 4px;
+            color: #000000;
+        }
+
+        /* Theme-aware muted text color for status labels */
+        .muted {
+            color: #666666;
+        }
         """
 
     def _generate_breeze_dark_theme(self) -> str:
@@ -443,6 +483,25 @@ class ThemeManager:
             background-color: #232629;
             gridline-color: #4d545e;
             border: 1px solid #4d545e;
+        }
+
+        QGroupBox {
+            border: 1px solid #4d545e;
+            border-radius: 4px;
+            margin-top: 8px;
+            padding-top: 8px;
+            font-weight: bold;
+        }
+
+        QGroupBox::title {
+            subcontrol-origin: margin;
+            subcontrol-position: top left;
+            padding: 0 4px;
+            color: #eff0f1;
+        }
+
+        .muted {
+            color: #a0a0a0;
         }
         """
 
@@ -505,6 +564,25 @@ class ThemeManager:
             background-color: {accent};
             color: {bg};
         }}
+
+        QGroupBox {{
+            border: 1px solid {border};
+            border-radius: 4px;
+            margin-top: 8px;
+            padding-top: 8px;
+            font-weight: bold;
+        }}
+
+        QGroupBox::title {{
+            subcontrol-origin: margin;
+            subcontrol-position: top left;
+            padding: 0 4px;
+            color: {fg};
+        }}
+
+        .muted {{
+            color: #808080;
+        }}
         """
 
     def _generate_dracula_theme(self) -> str:
@@ -560,6 +638,25 @@ class ThemeManager:
             background-color: #bd93f9;
             color: #282a36;
         }
+
+        QGroupBox {
+            border: 1px solid #6272a4;
+            border-radius: 4px;
+            margin-top: 8px;
+            padding-top: 8px;
+            font-weight: bold;
+        }
+
+        QGroupBox::title {
+            subcontrol-origin: margin;
+            subcontrol-position: top left;
+            padding: 0 4px;
+            color: #f8f8f2;
+        }
+
+        .muted {
+            color: #999999;
+        }
         """
 
     def _generate_monokai_theme(self) -> str:
@@ -609,6 +706,25 @@ class ThemeManager:
             background-color: #3e3d32;
             gridline-color: #49483e;
             border: 1px solid #49483e;
+        }
+
+        QGroupBox {
+            border: 1px solid #49483e;
+            border-radius: 4px;
+            margin-top: 8px;
+            padding-top: 8px;
+            font-weight: bold;
+        }
+
+        QGroupBox::title {
+            subcontrol-origin: margin;
+            subcontrol-position: top left;
+            padding: 0 4px;
+            color: #f8f8f2;
+        }
+
+        .muted {
+            color: #999999;
         }
         """
 
@@ -660,6 +776,25 @@ class ThemeManager:
             gridline-color: #586e75;
             border: 1px solid #586e75;
         }
+
+        QGroupBox {
+            border: 1px solid #586e75;
+            border-radius: 4px;
+            margin-top: 8px;
+            padding-top: 8px;
+            font-weight: bold;
+        }
+
+        QGroupBox::title {
+            subcontrol-origin: margin;
+            subcontrol-position: top left;
+            padding: 0 4px;
+            color: #839496;
+        }
+
+        .muted {
+            color: #657b83;
+        }
         """
 
     def _generate_solarized_light_theme(self) -> str:
@@ -709,6 +844,25 @@ class ThemeManager:
             background-color: #eee8d5;
             gridline-color: #93a1a1;
             border: 1px solid #93a1a1;
+        }
+
+        QGroupBox {
+            border: 1px solid #93a1a1;
+            border-radius: 4px;
+            margin-top: 8px;
+            padding-top: 8px;
+            font-weight: bold;
+        }
+
+        QGroupBox::title {
+            subcontrol-origin: margin;
+            subcontrol-position: top left;
+            padding: 0 4px;
+            color: #657b83;
+        }
+
+        .muted {
+            color: #93a1a1;
         }
         """
 

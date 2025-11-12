@@ -261,7 +261,7 @@ class BosonFocusUtility(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("FLIR Boson Focus Utility - Simple")
-        self.resize(1200, 700)
+        # Window size will be set after UI creation for auto-scaling
 
         # Camera
         if ENHANCED_MODE:
@@ -307,6 +307,9 @@ class BosonFocusUtility(QtWidgets.QWidget):
         # Setup UI
         self._create_ui()
 
+        # Auto-scale window to fit content
+        self._auto_scale_window()
+
         # Timer
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self._update_frame)
@@ -323,7 +326,7 @@ class BosonFocusUtility(QtWidgets.QWidget):
         # Video display with ROI editing (increased from 3 to 5 for more space)
         self.video_label = VideoLabel()
         self.video_label.setMinimumSize(640, 480)
-        self.video_label.setStyleSheet("border: 2px solid #3f3f3f;")
+        self.video_label.setStyleSheet("border: 2px solid palette(mid);")
         self.video_label.setScaledContents(False)
         self.video_label.setSizePolicy(
             QtWidgets.QSizePolicy.Expanding,
@@ -367,7 +370,7 @@ class BosonFocusUtility(QtWidgets.QWidget):
 
             self.camera_info_label = QtWidgets.QLabel("No camera")
             self.camera_info_label.setWordWrap(True)
-            self.camera_info_label.setStyleSheet("font-size: 8pt; color: #888;")
+            self.camera_info_label.setStyleSheet("font-size: 8pt; color: palette(mid);")
             camera_layout.addWidget(self.camera_info_label)
 
             main_tab_layout.addWidget(camera_group)
@@ -406,7 +409,7 @@ class BosonFocusUtility(QtWidgets.QWidget):
                 quality_layout.addWidget(self.quality_status_label)
 
                 self.quality_score_label = QtWidgets.QLabel("Score: -- / 100")
-                self.quality_score_label.setStyleSheet("font-size: 9pt; color: #888;")
+                self.quality_score_label.setStyleSheet("font-size: 9pt; color: palette(mid);")
                 quality_layout.addWidget(self.quality_score_label)
 
                 main_tab_layout.addWidget(quality_group)
@@ -505,11 +508,11 @@ class BosonFocusUtility(QtWidgets.QWidget):
         control_layout.addWidget(QtWidgets.QLabel("<b>Focus Trend</b>"))
         self.graph_label = QtWidgets.QLabel()
         self.graph_label.setFixedHeight(GRAPH_HEIGHT)
-        self.graph_label.setStyleSheet("background-color: #111;")
+        self.graph_label.setStyleSheet("background-color: palette(base); border: 1px solid palette(mid);")
         control_layout.addWidget(self.graph_label)
 
         self.graph_range_label = QtWidgets.QLabel("Range: 0 - 1000")
-        self.graph_range_label.setStyleSheet("font-size: 8pt; color: #888;")
+        self.graph_range_label.setStyleSheet("font-size: 8pt; color: palette(mid);")
         control_layout.addWidget(self.graph_range_label)
 
         control_layout.addStretch()
@@ -517,6 +520,34 @@ class BosonFocusUtility(QtWidgets.QWidget):
         # Always visible: Status
         self.status_label = QtWidgets.QLabel("Ready")
         control_layout.addWidget(self.status_label)
+
+    def _auto_scale_window(self):
+        """Auto-scale window to fit content on startup."""
+        # Get screen geometry
+        screen = QtWidgets.QApplication.desktop().screenGeometry()
+        screen_width = screen.width()
+        screen_height = screen.height()
+
+        # Calculate optimal size with some padding
+        # Use 75% of screen width and 80% of screen height as maximum
+        max_width = int(screen_width * 0.75)
+        max_height = int(screen_height * 0.80)
+
+        # Get size hint from the layout
+        size_hint = self.sizeHint()
+
+        # Use the larger of size hint or minimum comfortable size
+        optimal_width = max(min(size_hint.width(), max_width), 1200)
+        optimal_height = max(min(size_hint.height(), max_height), 750)
+
+        # Set the window size
+        self.resize(optimal_width, optimal_height)
+
+        # Center the window on screen
+        self.move(
+            (screen_width - optimal_width) // 2,
+            (screen_height - optimal_height) // 2
+        )
 
     def _connect_camera(self):
         """Connect to camera in enhanced mode."""
