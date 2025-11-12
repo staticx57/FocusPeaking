@@ -330,6 +330,38 @@ class ThemeManager:
             color: #ffffff;
         }
 
+        /* Tab Widget Styling */
+        QTabWidget::pane {
+            border: 1px solid #3f3f3f;
+            border-radius: 4px;
+            background-color: #1e1e1e;
+            padding: 4px;
+        }
+
+        QTabBar::tab {
+            background-color: #2d2d2d;
+            color: #ffffff;
+            border: 1px solid #3f3f3f;
+            border-bottom: none;
+            padding: 8px 16px;
+            margin-right: 2px;
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+        }
+
+        QTabBar::tab:selected {
+            background-color: #0078d4;
+            color: #ffffff;
+        }
+
+        QTabBar::tab:hover:!selected {
+            background-color: #3f3f3f;
+        }
+
+        QTabBar::tab:!selected {
+            margin-top: 2px;
+        }
+
         /* Theme-aware muted text color for status labels */
         .muted {
             color: #999999;
@@ -438,6 +470,38 @@ class ThemeManager:
             color: #000000;
         }
 
+        /* Tab Widget Styling */
+        QTabWidget::pane {
+            border: 1px solid #cccccc;
+            border-radius: 4px;
+            background-color: #ffffff;
+            padding: 4px;
+        }
+
+        QTabBar::tab {
+            background-color: #f5f5f5;
+            color: #000000;
+            border: 1px solid #cccccc;
+            border-bottom: none;
+            padding: 8px 16px;
+            margin-right: 2px;
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+        }
+
+        QTabBar::tab:selected {
+            background-color: #0078d4;
+            color: #ffffff;
+        }
+
+        QTabBar::tab:hover:!selected {
+            background-color: #e0e0e0;
+        }
+
+        QTabBar::tab:!selected {
+            margin-top: 2px;
+        }
+
         /* Theme-aware muted text color for status labels */
         .muted {
             color: #666666;
@@ -498,6 +562,38 @@ class ThemeManager:
             subcontrol-position: top left;
             padding: 0 4px;
             color: #eff0f1;
+        }
+
+        /* Tab Widget Styling */
+        QTabWidget::pane {
+            border: 1px solid #4d545e;
+            border-radius: 4px;
+            background-color: #31363b;
+            padding: 4px;
+        }
+
+        QTabBar::tab {
+            background-color: #232629;
+            color: #eff0f1;
+            border: 1px solid #4d545e;
+            border-bottom: none;
+            padding: 8px 16px;
+            margin-right: 2px;
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+        }
+
+        QTabBar::tab:selected {
+            background-color: #3daee9;
+            color: #eff0f1;
+        }
+
+        QTabBar::tab:hover:!selected {
+            background-color: #3b4045;
+        }
+
+        QTabBar::tab:!selected {
+            margin-top: 2px;
         }
 
         .muted {
@@ -580,6 +676,38 @@ class ThemeManager:
             color: {fg};
         }}
 
+        /* Tab Widget Styling */
+        QTabWidget::pane {{
+            border: 1px solid {border};
+            border-radius: 4px;
+            background-color: {bg};
+            padding: 4px;
+        }}
+
+        QTabBar::tab {{
+            background-color: #3b4252;
+            color: {fg};
+            border: 1px solid {border};
+            border-bottom: none;
+            padding: 8px 16px;
+            margin-right: 2px;
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+        }}
+
+        QTabBar::tab:selected {{
+            background-color: {accent};
+            color: {bg};
+        }}
+
+        QTabBar::tab:hover:!selected {{
+            background-color: #434c5e;
+        }}
+
+        QTabBar::tab:!selected {{
+            margin-top: 2px;
+        }}
+
         .muted {{
             color: #808080;
         }}
@@ -654,6 +782,38 @@ class ThemeManager:
             color: #f8f8f2;
         }
 
+        /* Tab Widget Styling */
+        QTabWidget::pane {
+            border: 1px solid #6272a4;
+            border-radius: 4px;
+            background-color: #282a36;
+            padding: 4px;
+        }
+
+        QTabBar::tab {
+            background-color: #44475a;
+            color: #f8f8f2;
+            border: 1px solid #6272a4;
+            border-bottom: none;
+            padding: 8px 16px;
+            margin-right: 2px;
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+        }
+
+        QTabBar::tab:selected {
+            background-color: #bd93f9;
+            color: #282a36;
+        }
+
+        QTabBar::tab:hover:!selected {
+            background-color: #525566;
+        }
+
+        QTabBar::tab:!selected {
+            margin-top: 2px;
+        }
+
         .muted {
             color: #999999;
         }
@@ -721,6 +881,38 @@ class ThemeManager:
             subcontrol-position: top left;
             padding: 0 4px;
             color: #f8f8f2;
+        }
+
+        /* Tab Widget Styling */
+        QTabWidget::pane {
+            border: 1px solid #49483e;
+            border-radius: 4px;
+            background-color: #272822;
+            padding: 4px;
+        }
+
+        QTabBar::tab {
+            background-color: #3e3d32;
+            color: #f8f8f2;
+            border: 1px solid #49483e;
+            border-bottom: none;
+            padding: 8px 16px;
+            margin-right: 2px;
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+        }
+
+        QTabBar::tab:selected {
+            background-color: #66d9ef;
+            color: #272822;
+        }
+
+        QTabBar::tab:hover:!selected {
+            background-color: #49483e;
+        }
+
+        QTabBar::tab:!selected {
+            margin-top: 2px;
         }
 
         .muted {
@@ -792,6 +984,38 @@ class ThemeManager:
             color: #839496;
         }
 
+        /* Tab Widget Styling */
+        QTabWidget::pane {
+            border: 1px solid #586e75;
+            border-radius: 4px;
+            background-color: #002b36;
+            padding: 4px;
+        }
+
+        QTabBar::tab {
+            background-color: #073642;
+            color: #839496;
+            border: 1px solid #586e75;
+            border-bottom: none;
+            padding: 8px 16px;
+            margin-right: 2px;
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+        }
+
+        QTabBar::tab:selected {
+            background-color: #268bd2;
+            color: #fdf6e3;
+        }
+
+        QTabBar::tab:hover:!selected {
+            background-color: #0c4759;
+        }
+
+        QTabBar::tab:!selected {
+            margin-top: 2px;
+        }
+
         .muted {
             color: #657b83;
         }
@@ -859,6 +1083,38 @@ class ThemeManager:
             subcontrol-position: top left;
             padding: 0 4px;
             color: #657b83;
+        }
+
+        /* Tab Widget Styling */
+        QTabWidget::pane {
+            border: 1px solid #93a1a1;
+            border-radius: 4px;
+            background-color: #fdf6e3;
+            padding: 4px;
+        }
+
+        QTabBar::tab {
+            background-color: #eee8d5;
+            color: #657b83;
+            border: 1px solid #93a1a1;
+            border-bottom: none;
+            padding: 8px 16px;
+            margin-right: 2px;
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+        }
+
+        QTabBar::tab:selected {
+            background-color: #268bd2;
+            color: #fdf6e3;
+        }
+
+        QTabBar::tab:hover:!selected {
+            background-color: #e0dbc5;
+        }
+
+        QTabBar::tab:!selected {
+            margin-top: 2px;
         }
 
         .muted {
