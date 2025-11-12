@@ -317,19 +317,19 @@ class BosonFocusUtility(QtWidgets.QWidget):
             self._connect_camera()
 
     def _create_ui(self):
-        """Create user interface."""
+        """Create user interface with tabbed settings."""
         layout = QtWidgets.QHBoxLayout(self)
 
-        # Video display with ROI editing
+        # Video display with ROI editing (increased from 3 to 5 for more space)
         self.video_label = VideoLabel()
-        self.video_label.setMinimumSize(400, 300)
+        self.video_label.setMinimumSize(640, 480)
         self.video_label.setStyleSheet("border: 2px solid #3f3f3f;")
         self.video_label.setScaledContents(False)
         self.video_label.setSizePolicy(
             QtWidgets.QSizePolicy.Expanding,
             QtWidgets.QSizePolicy.Expanding
         )
-        layout.addWidget(self.video_label, 3)
+        layout.addWidget(self.video_label, 5)
 
         # Connect ROI signals
         self.video_label.roiCreated.connect(self._on_roi_created)
@@ -338,10 +338,18 @@ class BosonFocusUtility(QtWidgets.QWidget):
 
         # Controls
         control_layout = QtWidgets.QVBoxLayout()
-        layout.addLayout(control_layout, 1)
+        layout.addLayout(control_layout, 2)
 
-        # Camera selector
+        # Create tabbed interface for settings (if enhanced mode) or simple controls
         if ENHANCED_MODE:
+            self.settings_tabs = QtWidgets.QTabWidget()
+
+            # Tab 1: Camera & Focus
+            main_tab_widget = QtWidgets.QWidget()
+            main_tab_layout = QtWidgets.QVBoxLayout(main_tab_widget)
+            main_tab_layout.setContentsMargins(5, 5, 5, 5)
+
+            # Camera selector
             camera_group = QtWidgets.QGroupBox("Camera")
             camera_layout = QtWidgets.QVBoxLayout(camera_group)
 
@@ -362,74 +370,33 @@ class BosonFocusUtility(QtWidgets.QWidget):
             self.camera_info_label.setStyleSheet("font-size: 8pt; color: #888;")
             camera_layout.addWidget(self.camera_info_label)
 
-            control_layout.addWidget(camera_group)
+            main_tab_layout.addWidget(camera_group)
 
             # Boson controls
             self.boson_panel = BosonControlPanel()
             self.boson_panel.set_controller(self.boson_controller)
-            control_layout.addWidget(self.boson_panel)
+            main_tab_layout.addWidget(self.boson_panel)
 
-        # ROI Weight
-        control_layout.addWidget(QtWidgets.QLabel("<b>ROI Weight</b>"))
-        self.weight_slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
-        self.weight_slider.setRange(1, 300)
-        self.weight_slider.setValue(100)
-        self.weight_slider.valueChanged.connect(self._weight_changed)
-        control_layout.addWidget(self.weight_slider)
-
-        self.weight_label = QtWidgets.QLabel("Weight: 1.00")
-        control_layout.addWidget(self.weight_label)
-
-        # Edge Threshold
-        control_layout.addWidget(QtWidgets.QLabel("<b>Edge Threshold</b>"))
-        self.threshold_slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
-        self.threshold_slider.setRange(1, 300)
-        self.threshold_slider.setValue(self.edge_threshold)
-        self.threshold_slider.valueChanged.connect(self._threshold_changed)
-        control_layout.addWidget(self.threshold_slider)
-
-        self.threshold_label = QtWidgets.QLabel(f"Threshold: {self.edge_threshold}")
-        control_layout.addWidget(self.threshold_label)
-
-        # Color picker
-        self.color_btn = QtWidgets.QPushButton("Peaking Color")
-        self.color_btn.clicked.connect(self._pick_color)
-        control_layout.addWidget(self.color_btn)
-
-        # Delete ROI
-        self.delete_btn = QtWidgets.QPushButton("Delete Selected ROI")
-        self.delete_btn.clicked.connect(self._delete_roi)
-        control_layout.addWidget(self.delete_btn)
-
-        # Graph scaling toggle
-        self.auto_scale_checkbox = QtWidgets.QCheckBox("Auto-scale Graph")
-        self.auto_scale_checkbox.setChecked(True)
-        self.auto_scale_checkbox.stateChanged.connect(self._toggle_auto_scale)
-        control_layout.addWidget(self.auto_scale_checkbox)
-
-        # Enhanced focus features
-        if ENHANCED_MODE:
-            control_layout.addSpacing(10)
-
-            # Focus algorithm selector
-            algo_layout = QtWidgets.QHBoxLayout()
-            algo_layout.addWidget(QtWidgets.QLabel("Focus Algorithm:"))
+            # Focus algorithm
+            algo_group = QtWidgets.QGroupBox("Focus Algorithm")
+            algo_layout = QtWidgets.QVBoxLayout(algo_group)
+            algo_layout.addWidget(QtWidgets.QLabel("Algorithm:"))
             self.algorithm_combo = QtWidgets.QComboBox()
             self.algorithm_combo.addItems(FOCUS_ALGORITHMS)
             self.algorithm_combo.setCurrentText(self.current_algorithm)
             self.algorithm_combo.setToolTip("Select focus detection algorithm")
             self.algorithm_combo.currentTextChanged.connect(self._on_algorithm_changed)
             algo_layout.addWidget(self.algorithm_combo)
-            control_layout.addLayout(algo_layout)
 
-            # Thermal preprocessing toggle
             self.thermal_preprocessing_checkbox = QtWidgets.QCheckBox("Thermal Enhancement (CLAHE)")
             self.thermal_preprocessing_checkbox.setChecked(self.thermal_preprocessing_enabled)
             self.thermal_preprocessing_checkbox.setToolTip("Enable contrast enhancement for thermal cameras")
             self.thermal_preprocessing_checkbox.stateChanged.connect(self._toggle_thermal_preprocessing)
-            control_layout.addWidget(self.thermal_preprocessing_checkbox)
+            algo_layout.addWidget(self.thermal_preprocessing_checkbox)
 
-            # Focus quality indicator
+            main_tab_layout.addWidget(algo_group)
+
+            # Focus quality
             if ENABLE_FOCUS_QUALITY_INDICATOR:
                 quality_group = QtWidgets.QGroupBox("Focus Quality")
                 quality_layout = QtWidgets.QVBoxLayout(quality_group)
@@ -442,48 +409,112 @@ class BosonFocusUtility(QtWidgets.QWidget):
                 self.quality_score_label.setStyleSheet("font-size: 9pt; color: #888;")
                 quality_layout.addWidget(self.quality_score_label)
 
-                control_layout.addWidget(quality_group)
+                main_tab_layout.addWidget(quality_group)
 
-        # Save/Load
-        btn_layout = QtWidgets.QHBoxLayout()
-        self.save_btn = QtWidgets.QPushButton("Save")
-        self.save_btn.clicked.connect(self._save_config)
-        btn_layout.addWidget(self.save_btn)
+            main_tab_layout.addStretch()
 
-        self.load_btn = QtWidgets.QPushButton("Load")
-        self.load_btn.clicked.connect(self._load_config)
-        btn_layout.addWidget(self.load_btn)
-        control_layout.addLayout(btn_layout)
+            main_scroll = QtWidgets.QScrollArea()
+            main_scroll.setWidget(main_tab_widget)
+            main_scroll.setWidgetResizable(True)
+            main_scroll.setFrameShape(QtWidgets.QFrame.NoFrame)
+            main_scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+            self.settings_tabs.addTab(main_scroll, "📷 Camera & Focus")
 
-        # Theme selector (if enhanced mode)
-        if ENHANCED_MODE:
-            control_layout.addSpacing(10)
-            theme_layout = QtWidgets.QHBoxLayout()
-            theme_layout.addWidget(QtWidgets.QLabel("Theme:"))
+            # Tab 2: Settings
+            settings_tab_widget = QtWidgets.QWidget()
+            settings_tab_layout = QtWidgets.QVBoxLayout(settings_tab_widget)
+            settings_tab_layout.setContentsMargins(5, 5, 5, 5)
+
+            # Theme selector
+            theme_group = QtWidgets.QGroupBox("Theme")
+            theme_layout = QtWidgets.QVBoxLayout(theme_group)
+            theme_selector_layout = QtWidgets.QHBoxLayout()
+            theme_selector_layout.addWidget(QtWidgets.QLabel("Theme:"))
             self.theme_combo = QtWidgets.QComboBox()
             self.theme_combo.addItems(AVAILABLE_THEMES)
             self.theme_combo.setCurrentText(DEFAULT_THEME)
             self.theme_combo.currentTextChanged.connect(self._on_theme_changed)
-            theme_layout.addWidget(self.theme_combo)
-            control_layout.addLayout(theme_layout)
+            theme_selector_layout.addWidget(self.theme_combo)
+            theme_layout.addLayout(theme_selector_layout)
+            settings_tab_layout.addWidget(theme_group)
 
-        control_layout.addSpacing(20)
+            settings_tab_layout.addStretch()
 
-        # Focus graph with auto-scaling
-        control_layout.addWidget(QtWidgets.QLabel("<b>Focus Trend (Auto-scaled)</b>"))
+            settings_scroll = QtWidgets.QScrollArea()
+            settings_scroll.setWidget(settings_tab_widget)
+            settings_scroll.setWidgetResizable(True)
+            settings_scroll.setFrameShape(QtWidgets.QFrame.NoFrame)
+            settings_scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+            self.settings_tabs.addTab(settings_scroll, "⚙️ Settings")
+
+            control_layout.addWidget(self.settings_tabs)
+
+        # Always visible: ROI Weight
+        weight_group = QtWidgets.QGroupBox("ROI Weight")
+        weight_layout = QtWidgets.QVBoxLayout(weight_group)
+        self.weight_slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
+        self.weight_slider.setRange(1, 300)
+        self.weight_slider.setValue(100)
+        self.weight_slider.valueChanged.connect(self._weight_changed)
+        weight_layout.addWidget(self.weight_slider)
+        self.weight_label = QtWidgets.QLabel("Weight: 1.00")
+        weight_layout.addWidget(self.weight_label)
+        control_layout.addWidget(weight_group)
+
+        # Always visible: Edge Threshold
+        threshold_group = QtWidgets.QGroupBox("Edge Threshold")
+        threshold_layout = QtWidgets.QVBoxLayout(threshold_group)
+        threshold_layout.addWidget(QtWidgets.QLabel("Threshold (1-100):"))
+        self.threshold_slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
+        self.threshold_slider.setRange(MIN_EDGE_THRESHOLD, MAX_EDGE_THRESHOLD)
+        self.threshold_slider.setValue(self.edge_threshold)
+        self.threshold_slider.valueChanged.connect(self._threshold_changed)
+        threshold_layout.addWidget(self.threshold_slider)
+        self.threshold_label = QtWidgets.QLabel(f"Threshold: {self.edge_threshold}")
+        threshold_layout.addWidget(self.threshold_label)
+        control_layout.addWidget(threshold_group)
+
+        # Always visible: Color picker & Delete
+        self.color_btn = QtWidgets.QPushButton("Peaking Color")
+        self.color_btn.clicked.connect(self._pick_color)
+        control_layout.addWidget(self.color_btn)
+
+        self.delete_btn = QtWidgets.QPushButton("🗑️ Delete Selected ROI")
+        self.delete_btn.clicked.connect(self._delete_roi)
+        control_layout.addWidget(self.delete_btn)
+
+        # Always visible: Graph controls
+        self.auto_scale_checkbox = QtWidgets.QCheckBox("Auto-scale Graph")
+        self.auto_scale_checkbox.setChecked(True)
+        self.auto_scale_checkbox.setToolTip("Automatically adjust graph Y-axis to data range")
+        self.auto_scale_checkbox.stateChanged.connect(self._toggle_auto_scale)
+        control_layout.addWidget(self.auto_scale_checkbox)
+
+        # Always visible: Save/Load buttons
+        btn_layout = QtWidgets.QHBoxLayout()
+        self.save_btn = QtWidgets.QPushButton("💾 Save")
+        self.save_btn.clicked.connect(self._save_config)
+        btn_layout.addWidget(self.save_btn)
+
+        self.load_btn = QtWidgets.QPushButton("📂 Load")
+        self.load_btn.clicked.connect(self._load_config)
+        btn_layout.addWidget(self.load_btn)
+        control_layout.addLayout(btn_layout)
+
+        # Always visible: Focus graph
+        control_layout.addWidget(QtWidgets.QLabel("<b>Focus Trend</b>"))
         self.graph_label = QtWidgets.QLabel()
         self.graph_label.setFixedHeight(GRAPH_HEIGHT)
         self.graph_label.setStyleSheet("background-color: #111;")
         control_layout.addWidget(self.graph_label)
 
-        # Graph range display
         self.graph_range_label = QtWidgets.QLabel("Range: 0 - 1000")
         self.graph_range_label.setStyleSheet("font-size: 8pt; color: #888;")
         control_layout.addWidget(self.graph_range_label)
 
         control_layout.addStretch()
 
-        # Status
+        # Always visible: Status
         self.status_label = QtWidgets.QLabel("Ready")
         control_layout.addWidget(self.status_label)
 
