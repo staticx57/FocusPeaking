@@ -532,6 +532,271 @@ def create_focus_peaking_overlay(
 
 
 # ============================================================================
+# Adaptive Edge Detection (Phase 5)
+# ============================================================================
+
+class AdaptiveEdgeDetector:
+    """
+    Scene-adaptive edge detection for improved focus peaking.
+
+    Automatically detects scene characteristics and applies optimal
+    edge detection parameters. Supports multi-scale detection for
+    better visualization across varying content types.
+    """
+
+    # Scene type enumeration
+    SCENE_TYPES = ["auto", "low_contrast", "high_detail", "thermal"]
+
+    # Contrast thresholds for auto-detection
+    LOW_CONTRAST_THRESHOLD = 20
+    HIGH_DETAIL_THRESHOLD = 60
+
+    def __init__(self):
+        """Initialize the adaptive edge detector."""
+        self.scene_type = "auto"
+        self.multi_scale = True
+        self.enhance_low_contrast = True
+        logger.debug("AdaptiveEdgeDetector initialized")
+
+    def detect_scene_type(self, gray: np.ndarray) -> str:
+        """
+        Auto-detect scene type based on image statistics.
+
+        Args:
+            gray: Grayscale image
+
+        Returns:
+            Scene type: "low_contrast", "high_detail", or "thermal"
+        """
+        try:
+            # Calculate contrast as standard deviation
+            contrast = float(np.std(gray))
+
+            if contrast < self.LOW_CONTRAST_THRESHOLD:
+                return "low_contrast"
+            elif contrast > self.HIGH_DETAIL_THRESHOLD:
+                return "high_detail"
+            else:
+                return "thermal"
+
+        except Exception as e:
+            logger.error(f"Error detecting scene type: {e}")
+            return "thermal"  # Default fallback
+
+    def adaptive_edge_detection(
+        self,
+        gray: np.ndarray,
+        scene_type: str = "auto"
+    ) -> np.ndarray:
+        """
+        Perform adaptive edge detection based on scene characteristics.
+
+        Args:
+            gray: Grayscale input image
+            scene_type: Scene type ("auto", "low_contrast", "high_detail", "thermal")
+
+        Returns:
+            Binary edge mask optimized for the scene
+        """
+        try:
+            # Auto-detect scene type if requested
+            if scene_type == "auto":
+                scene_type = self.detect_scene_type(gray)
+
+            if scene_type == "low_contrast":
+                # Enhanced sensitivity for low contrast scenes
+                # Lower thresholds to detect subtle edges
+                edges = cv2.Canny(gray, threshold1=10, threshold2=30)
+
+                # Dilate to connect broken edges
+                kernel = np.ones((3, 3), np.uint8)
+                edges = cv2.dilate(edges, kernel, iterations=1)
+
+            elif scene_type == "high_detail":
+                # Standard Canny with higher thresholds
+                # Reduces noise in detailed scenes
+                edges = cv2.Canny(gray, threshold1=50, threshold2=150)
+
+            else:  # thermal or default
+                if self.enhance_low_contrast:
+                    # Apply CLAHE for contrast enhancement
+                    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+                    enhanced = clahe.apply(gray)
+                else:
+                    enhanced = gray
+
+                if self.multi_scale:
+                    # Multi-scale Canny for better edge detection
+                    edges1 = cv2.Canny(enhanced, threshold1=20, threshold2=60)
+                    edges2 = cv2.Canny(enhanced, threshold1=40, threshold2=120)
+
+                    # Combine scales (union of edges)
+                    edges = cv2.bitwise_or(edges1, edges2)
+                else:
+                    # Single scale
+                    edges = cv2.Canny(enhanced, threshold1=30, threshold2=90)
+
+            return edges
+
+        except Exception as e:
+            logger.error(f"Error in adaptive edge detection: {e}")
+            # Fallback to basic Canny
+            return cv2.Canny(gray, threshold1=50, threshold2=150)
+
+    def create_adaptive_focus_peaking(
+        self,
+        frame: np.ndarray,
+        gray: np.ndarray,
+        threshold: int,
+        peaking_color: Tuple[int, int, int],
+        blend_alpha: float = 0.5,
+        scene_type: str = "auto"
+    ) -> np.ndarray:
+        """
+        Create focus peaking overlay with adaptive edge detection.
+
+        Args:
+            frame: Input BGR frame
+            gray: Grayscale version of frame
+            threshold: User threshold (used for intensity scaling)
+            peaking_color: BGR color for edge highlights
+            blend_alpha: Overlay transparency (0.0-1.0)
+            scene_type: Scene type for edge detection
+
+        Returns:
+            Frame with adaptive focus peaking overlay
+        """
+        try:
+            # Detect edges using adaptive method
+            edges = self.adaptive_edge_detection(gray, scene_type)
+
+            # Apply user threshold by scaling edge intensity
+            # Higher user threshold = only show stronger edges
+            if threshold > 100:
+                # Threshold the edge mask
+                threshold_val = int((threshold - 100) * 2.5)  # Scale to 0-500 range
+                _, edges = cv2.threshold(edges, threshold_val, 255, cv2.THRESH_BINARY)
+
+            # Create colored overlay
+            overlay = frame.copy()
+            overlay[edges > 0] = peaking_color
+
+            # Blend with original frame
+            result = cv2.addWeighted(
+                frame,
+                1.0 - blend_alpha,
+                overlay,
+                blend_alpha,
+                0
+            )
+
+            return result
+
+        except Exception as e:
+            logger.error(f"Error creating adaptive focus peaking: {e}")
+            return frame
+
+    def create_multi_scale_peaking(
+        self,
+        frame: np.ndarray,
+        gray: np.ndarray,
+        peaking_color: Tuple[int, int, int],
+        blend_alpha: float = 0.5
+    ) -> np.ndarray:
+        """
+        Create multi-scale focus peaking with intensity-based colors.
+
+        Fine edges are shown in full color, coarse edges in dimmed color.
+
+        Args:
+            frame: Input BGR frame
+            gray: Grayscale version of frame
+            peaking_color: BGR color for edge highlights
+            blend_alpha: Overlay transparency
+
+        Returns:
+            Frame with multi-scale focus peaking overlay
+        """
+        try:
+            # Detect edges at multiple scales
+            edges_fine = self.adaptive_edge_detection(gray, "high_detail")
+            edges_coarse = self.adaptive_edge_detection(gray, "thermal")
+
+            # Create overlay with intensity-based colors
+            overlay = frame.copy()
+
+            # Coarse edges (50% intensity) - background edges
+            coarse_color = tuple(int(c * 0.5) for c in peaking_color)
+            overlay[edges_coarse > 0] = coarse_color
+
+            # Fine edges (full intensity) - foreground edges
+            overlay[edges_fine > 0] = peaking_color
+
+            # Blend with original
+            result = cv2.addWeighted(
+                frame,
+                1.0 - blend_alpha,
+                overlay,
+                blend_alpha,
+                0
+            )
+
+            return result
+
+        except Exception as e:
+            logger.error(f"Error creating multi-scale peaking: {e}")
+            return frame
+
+    def set_scene_type(self, scene_type: str) -> None:
+        """
+        Set the scene type manually.
+
+        Args:
+            scene_type: One of "auto", "low_contrast", "high_detail", "thermal"
+        """
+        if scene_type in self.SCENE_TYPES:
+            self.scene_type = scene_type
+            logger.info(f"Scene type set to: {scene_type}")
+        else:
+            logger.warning(f"Invalid scene type: {scene_type}")
+
+    def set_multi_scale(self, enabled: bool) -> None:
+        """Enable or disable multi-scale edge detection."""
+        self.multi_scale = enabled
+        logger.debug(f"Multi-scale edge detection: {'enabled' if enabled else 'disabled'}")
+
+    def set_enhance_low_contrast(self, enabled: bool) -> None:
+        """Enable or disable contrast enhancement."""
+        self.enhance_low_contrast = enabled
+        logger.debug(f"Contrast enhancement: {'enabled' if enabled else 'disabled'}")
+
+    def get_scene_info(self, gray: np.ndarray) -> Dict[str, any]:
+        """
+        Get scene information and statistics.
+
+        Args:
+            gray: Grayscale image
+
+        Returns:
+            Dictionary with scene information
+        """
+        try:
+            contrast = float(np.std(gray))
+            detected_scene = self.detect_scene_type(gray)
+
+            return {
+                'contrast': contrast,
+                'detected_scene': detected_scene,
+                'current_scene_type': self.scene_type,
+                'multi_scale_enabled': self.multi_scale,
+                'enhancement_enabled': self.enhance_low_contrast,
+            }
+        except Exception as e:
+            logger.error(f"Error getting scene info: {e}")
+            return {}
+
+
+# ============================================================================
 # Statistics and Analysis
 # ============================================================================
 

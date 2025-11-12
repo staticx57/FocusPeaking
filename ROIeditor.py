@@ -33,6 +33,7 @@ from focus_utils import (
     FocusStatistics,
     FocusQualityIndicator,
     FocusEnsemble,
+    AdaptiveEdgeDetector,
     validate_roi,
 )
 from theme_manager import ThemeManager
@@ -311,6 +312,12 @@ class BosonFocusGUI(QtWidgets.QWidget):
         # Zoom manager (New Feature)
         self.zoom_manager = ZoomManager()
 
+        # Adaptive edge detection (Phase 5)
+        self.adaptive_edge_detector = AdaptiveEdgeDetector()
+        self.adaptive_edge_enabled = False  # Default off
+        self.adaptive_scene_type = "auto"  # auto, low_contrast, high_detail, thermal
+        self.adaptive_multi_scale = True  # Use multi-scale detection
+
         # Setup UI
         self._create_ui()
         self._setup_timer()
@@ -445,6 +452,45 @@ class BosonFocusGUI(QtWidgets.QWidget):
         group_layout.addWidget(self.thermal_preprocessing_checkbox)
 
         layout.addWidget(group)
+
+        # Adaptive Edge Detection (Phase 5)
+        adaptive_group = QtWidgets.QGroupBox("Adaptive Edge Detection (Phase 5)")
+        adaptive_layout = QtWidgets.QVBoxLayout(adaptive_group)
+
+        # Enable adaptive edge detection checkbox
+        self.adaptive_edge_checkbox = QtWidgets.QCheckBox("Enable Adaptive Edge Detection")
+        self.adaptive_edge_checkbox.setChecked(self.adaptive_edge_enabled)
+        self.adaptive_edge_checkbox.setToolTip("Scene-aware edge detection with multi-scale support")
+        self.adaptive_edge_checkbox.stateChanged.connect(self._toggle_adaptive_edge)
+        adaptive_layout.addWidget(self.adaptive_edge_checkbox)
+
+        # Scene type selector
+        adaptive_layout.addWidget(QtWidgets.QLabel("Scene Type:"))
+        self.scene_type_combo = QtWidgets.QComboBox()
+        self.scene_type_combo.addItems(["Auto", "Low Contrast", "High Detail", "Thermal"])
+        self.scene_type_combo.setCurrentText("Auto")
+        self.scene_type_combo.setToolTip(
+            "Auto: Automatic scene detection\n"
+            "Low Contrast: Low-contrast scenes (aggressive enhancement)\n"
+            "High Detail: High-detail scenes (sensitive detection)\n"
+            "Thermal: Optimized for thermal cameras"
+        )
+        self.scene_type_combo.currentTextChanged.connect(self._on_scene_type_changed)
+        adaptive_layout.addWidget(self.scene_type_combo)
+
+        # Multi-scale checkbox
+        self.multi_scale_checkbox = QtWidgets.QCheckBox("Use Multi-Scale Detection")
+        self.multi_scale_checkbox.setChecked(self.adaptive_multi_scale)
+        self.multi_scale_checkbox.setToolTip("Combine multiple scales for robust edge detection")
+        self.multi_scale_checkbox.stateChanged.connect(self._toggle_multi_scale)
+        adaptive_layout.addWidget(self.multi_scale_checkbox)
+
+        # Scene info label
+        self.scene_info_label = QtWidgets.QLabel("Detected: --")
+        self.scene_info_label.setStyleSheet("font-size: 8pt; color: #888;")
+        adaptive_layout.addWidget(self.scene_info_label)
+
+        layout.addWidget(adaptive_group)
 
         # Focus quality indicator
         if ENABLE_FOCUS_QUALITY_INDICATOR:
@@ -922,6 +968,30 @@ class BosonFocusGUI(QtWidgets.QWidget):
         self.thermal_preprocessing_enabled = (state == QtCore.Qt.Checked)
         self.logger.info(f"Thermal preprocessing: {'enabled' if self.thermal_preprocessing_enabled else 'disabled'}")
 
+    def _toggle_adaptive_edge(self, state):
+        """Toggle adaptive edge detection."""
+        self.adaptive_edge_enabled = (state == QtCore.Qt.Checked)
+        self.logger.info(f"Adaptive edge detection: {'enabled' if self.adaptive_edge_enabled else 'disabled'}")
+
+    def _on_scene_type_changed(self, scene_type_text):
+        """Handle scene type selection change."""
+        # Map UI text to internal scene type
+        scene_type_map = {
+            "Auto": "auto",
+            "Low Contrast": "low_contrast",
+            "High Detail": "high_detail",
+            "Thermal": "thermal"
+        }
+        self.adaptive_scene_type = scene_type_map.get(scene_type_text, "auto")
+        self.adaptive_edge_detector.set_scene_type(self.adaptive_scene_type)
+        self.logger.info(f"Adaptive scene type changed to: {self.adaptive_scene_type}")
+
+    def _toggle_multi_scale(self, state):
+        """Toggle multi-scale detection."""
+        self.adaptive_multi_scale = (state == QtCore.Qt.Checked)
+        self.adaptive_edge_detector.set_multi_scale(self.adaptive_multi_scale)
+        self.logger.info(f"Multi-scale detection: {'enabled' if self.adaptive_multi_scale else 'disabled'}")
+
     def _toggle_ensemble_voting(self, state):
         """Toggle ensemble voting system."""
         self.ensemble_voting_enabled = (state == QtCore.Qt.Checked)
@@ -1040,6 +1110,9 @@ class BosonFocusGUI(QtWidgets.QWidget):
                 "ensemble_voting_enabled": self.ensemble_voting_enabled,
                 "show_all_algorithms": self.show_all_algorithms,
                 "auto_palette_switch_enabled": self.auto_palette_switch_enabled,
+                "adaptive_edge_enabled": self.adaptive_edge_enabled,
+                "adaptive_scene_type": self.adaptive_scene_type,
+                "adaptive_multi_scale": self.adaptive_multi_scale,
             }
 
             with open(get_config_path(), "w") as f:
@@ -1093,6 +1166,27 @@ class BosonFocusGUI(QtWidgets.QWidget):
                 self.auto_palette_switch_enabled = config["auto_palette_switch_enabled"]
                 self.auto_palette_checkbox.setChecked(self.auto_palette_switch_enabled)
                 self.palette_switcher.enable_auto_switch(self.auto_palette_switch_enabled)
+
+            # Load adaptive edge detection settings (Phase 5)
+            if "adaptive_edge_enabled" in config:
+                self.adaptive_edge_enabled = config["adaptive_edge_enabled"]
+                self.adaptive_edge_checkbox.setChecked(self.adaptive_edge_enabled)
+            if "adaptive_scene_type" in config:
+                self.adaptive_scene_type = config["adaptive_scene_type"]
+                # Map internal type back to UI text
+                scene_type_ui_map = {
+                    "auto": "Auto",
+                    "low_contrast": "Low Contrast",
+                    "high_detail": "High Detail",
+                    "thermal": "Thermal"
+                }
+                ui_text = scene_type_ui_map.get(self.adaptive_scene_type, "Auto")
+                self.scene_type_combo.setCurrentText(ui_text)
+                self.adaptive_edge_detector.set_scene_type(self.adaptive_scene_type)
+            if "adaptive_multi_scale" in config:
+                self.adaptive_multi_scale = config["adaptive_multi_scale"]
+                self.multi_scale_checkbox.setChecked(self.adaptive_multi_scale)
+                self.adaptive_edge_detector.set_multi_scale(self.adaptive_multi_scale)
 
             self.regions = [
                 {
@@ -1187,9 +1281,24 @@ class BosonFocusGUI(QtWidgets.QWidget):
         if self.thermal_preprocessing_enabled:
             gray = thermal_preprocess(gray, enhance_contrast=True, reduce_noise=False)
 
-        displayed = create_focus_peaking_overlay(
-            frame, self.edge_threshold, self.focus_color, PEAKING_ALPHA
-        )
+        # Choose edge detection method: adaptive or standard
+        if self.adaptive_edge_enabled:
+            # Use adaptive edge detection
+            displayed = self.adaptive_edge_detector.create_adaptive_focus_peaking(
+                frame, gray, self.edge_threshold, self.focus_color, PEAKING_ALPHA, self.adaptive_scene_type
+            )
+
+            # Update scene info display
+            if hasattr(self, 'scene_info_label'):
+                scene_info = self.adaptive_edge_detector.get_scene_info()
+                detected_type = scene_info.get('detected_scene_type', 'unknown')
+                contrast = scene_info.get('contrast', 0)
+                self.scene_info_label.setText(f"Detected: {detected_type} (σ={contrast:.1f})")
+        else:
+            # Use standard focus peaking
+            displayed = create_focus_peaking_overlay(
+                frame, self.edge_threshold, self.focus_color, PEAKING_ALPHA
+            )
 
         # Choose focus computation method: ensemble or single algorithm
         if self.ensemble_voting_enabled:
