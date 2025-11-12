@@ -392,7 +392,7 @@ class BosonFocusGUI(QtWidgets.QWidget):
 
         self.video_label = VideoLabel()
         self.video_label.setMinimumSize(640, 480)
-        self.video_label.setStyleSheet("border: 2px solid #3f3f3f;")
+        self.video_label.setStyleSheet("border: 2px solid palette(mid);")
         self.video_label.setScaledContents(False)
         self.video_label.setSizePolicy(
             QtWidgets.QSizePolicy.Expanding,
@@ -510,7 +510,7 @@ class BosonFocusGUI(QtWidgets.QWidget):
         # Camera info
         self.camera_info_label = QtWidgets.QLabel("No camera connected")
         self.camera_info_label.setWordWrap(True)
-        self.camera_info_label.setStyleSheet("font-size: 8pt; color: #888;")
+        self.camera_info_label.setStyleSheet("font-size: 8pt; color: palette(mid);")
         group_layout.addWidget(self.camera_info_label)
 
         layout.addWidget(group)
@@ -571,7 +571,7 @@ class BosonFocusGUI(QtWidgets.QWidget):
             quality_layout.addWidget(self.quality_status_label)
 
             self.quality_score_label = QtWidgets.QLabel("Score: -- / 100")
-            self.quality_score_label.setStyleSheet("font-size: 9pt; color: #888;")
+            self.quality_score_label.setStyleSheet("font-size: 9pt; color: palette(mid);")
             quality_layout.addWidget(self.quality_score_label)
 
             layout.addWidget(quality_group)
@@ -677,7 +677,7 @@ class BosonFocusGUI(QtWidgets.QWidget):
 
         # Scene info label
         self.scene_info_label = QtWidgets.QLabel("Detected: --")
-        self.scene_info_label.setStyleSheet("font-size: 8pt; color: #888;")
+        self.scene_info_label.setStyleSheet("font-size: 8pt; color: palette(mid);")
         adaptive_layout.addWidget(self.scene_info_label)
 
         layout.addWidget(adaptive_group)
@@ -706,7 +706,7 @@ class BosonFocusGUI(QtWidgets.QWidget):
 
         # Status label
         self.palette_status_label = QtWidgets.QLabel("Focus Mode: Inactive")
-        self.palette_status_label.setStyleSheet("font-size: 8pt; color: #888;")
+        self.palette_status_label.setStyleSheet("font-size: 8pt; color: palette(mid);")
         palette_layout.addWidget(self.palette_status_label)
 
         layout.addWidget(palette_group)
@@ -774,7 +774,7 @@ class BosonFocusGUI(QtWidgets.QWidget):
 
         # Status label
         self.zoom_status_label = QtWidgets.QLabel("Zoom: Off")
-        self.zoom_status_label.setStyleSheet("font-size: 8pt; color: #888;")
+        self.zoom_status_label.setStyleSheet("font-size: 8pt; color: palette(mid);")
         zoom_layout.addWidget(self.zoom_status_label)
 
         layout.addWidget(zoom_group)
@@ -1194,7 +1194,7 @@ class BosonFocusGUI(QtWidgets.QWidget):
             self.palette_switcher.exit_focus_mode(force=True)
             self.focus_mode_btn.setText("Enter Focus Mode")
             self.palette_status_label.setText("Focus Mode: Inactive")
-            self.palette_status_label.setStyleSheet("font-size: 8pt; color: #888;")
+            self.palette_status_label.setStyleSheet("font-size: 8pt; color: palette(mid);")
 
     def _toggle_pause(self):
         """Toggle video pause."""
@@ -1595,7 +1595,7 @@ class BosonFocusGUI(QtWidgets.QWidget):
         elif not self.palette_switcher.is_active() and not self.focus_mode_btn.isChecked():
             # Inactive
             self.palette_status_label.setText("Focus Mode: Inactive")
-            self.palette_status_label.setStyleSheet("font-size: 8pt; color: #888;")
+            self.palette_status_label.setStyleSheet("font-size: 8pt; color: palette(mid);")
         # If manual button is checked, keep manual status (set in _toggle_focus_mode_manual)
 
         # Update graph
