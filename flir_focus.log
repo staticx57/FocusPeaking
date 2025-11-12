@@ -610,3 +610,37 @@
 2025-11-10 08:36:05,537 - theme_manager - INFO - Applied theme: Solarized Dark
 2025-11-10 08:36:17,584 - BosonFocusGUI - INFO - Application closing...
 2025-11-10 08:36:17,921 - camera_manager - INFO - Disconnected from camera 0
+2025-11-12 11:59:03,038 - root - INFO - ============================================================
+2025-11-12 11:59:03,038 - root - INFO - FLIR Boson Focus Peaking - Logging initialized
+2025-11-12 11:59:03,038 - root - INFO - Log level: INFO
+2025-11-12 11:59:03,038 - root - INFO - Log file: C:\Users\stati\Desktop\Projects\FocusPeaking\flir_focus.log
+2025-11-12 11:59:03,038 - root - INFO - ============================================================
+2025-11-12 11:59:03,051 - theme_manager - INFO - Applied theme: Dark
+2025-11-12 11:59:03,097 - boson_control - ERROR - Cannot connect: No COM port specified
+2025-11-12 11:59:03,109 - BosonControlPanel - INFO - Boson controller connected
+2025-11-12 11:59:03,554 - camera_manager - INFO - Detecting available cameras...
+2025-11-12 11:59:04,588 - camera_manager - INFO - Found: Camera 0 (DSHOW) (Device 0)
+2025-11-12 11:59:05,139 - camera_manager - INFO - Detected 1 camera(s)
+2025-11-12 11:59:05,140 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-12 11:59:06,380 - camera_manager - INFO - Successfully connected to camera 0 (640x480)
+2025-11-12 11:59:06,380 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-12 11:59:06,772 - camera_manager - INFO - Disconnected from camera 0
+2025-11-12 11:59:08,171 - camera_manager - INFO - Successfully connected to camera 0 (640x480)
+2025-11-12 11:59:19,250 - camera_manager - INFO - Disconnected from camera 0
+2025-11-12 11:59:44,433 - root - INFO - ============================================================
+2025-11-12 11:59:44,433 - root - INFO - FLIR Boson Focus Peaking - Logging initialized
+2025-11-12 11:59:44,433 - root - INFO - Log level: INFO
+2025-11-12 11:59:44,433 - root - INFO - Log file: C:\Users\stati\Desktop\Projects\FocusPeaking\flir_focus.log
+2025-11-12 11:59:44,433 - root - INFO - ============================================================
+2025-11-12 11:59:44,454 - theme_manager - INFO - Applied theme: Dark
+2025-11-12 11:59:44,466 - boson_control - ERROR - Cannot connect: No COM port specified
+2025-11-12 11:59:44,474 - BosonControlPanel - INFO - Boson controller connected
+2025-11-12 11:59:44,707 - camera_manager - INFO - Detecting available cameras...
+2025-11-12 11:59:45,612 - camera_manager - INFO - Found: Camera 0 (DSHOW) (Device 0)
+2025-11-12 11:59:46,113 - camera_manager - INFO - Detected 1 camera(s)
+2025-11-12 11:59:46,114 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-12 11:59:47,410 - camera_manager - INFO - Successfully connected to camera 0 (640x480)
+2025-11-12 11:59:47,410 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-12 11:59:47,799 - camera_manager - INFO - Disconnected from camera 0
+2025-11-12 11:59:49,174 - camera_manager - INFO - Successfully connected to camera 0 (640x480)
+2025-11-12 11:59:57,799 - camera_manager - INFO - Disconnected from camera 0
