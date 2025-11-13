@@ -569,6 +569,112 @@ if use_stripes:
 
 ---
 
+#### **WASD Pan Controls & Comprehensive Keyboard Shortcuts** ✅ COMPLETE
+**Status:** 100% Complete - IMPROVEMENT + NEW FEATURES
+**Completion Date:** November 13, 2025
+**Version:** 3.0.1
+
+**Problem Analysis:**
+After implementing arrow key pan controls, discovered they didn't work reliably because:
+- **Sliders** capture arrow keys for value adjustment
+- **Tables** capture arrow keys for cell navigation
+- **Combo boxes** capture up/down arrows when open
+- Child widgets receive key events BEFORE parent window's keyPressEvent
+- User reported: "Investigate why the pan does not work"
+
+**Root Cause:**
+PyQt5 event propagation: Child widgets process key events first. When a slider has focus and user presses arrow key, slider adjusts value instead of panning view.
+
+**Solution 1: Event Filter System**
+```python
+# In __init__:
+self.installEventFilter(self)  # Intercept events before children
+
+def eventFilter(self, obj, event):
+    """Intercept keyboard events BEFORE child widgets receive them."""
+    if event.type() == QtCore.QEvent.KeyPress:
+        # Handle shortcuts here
+        return True  # Consumes event, prevents propagation
+    return super().eventFilter(obj, event)
+```
+
+**Solution 2: WASD Instead of Arrow Keys**
+- Changed pan controls from arrow keys to WASD
+- Arrow keys now free to work normally on GUI elements
+- WASD is standard for pan/navigation in many applications
+- No conflicts with any GUI controls
+
+**Implemented Keyboard Shortcuts** (when zoomed):
+
+| Key | Action | Details |
+|-----|--------|---------|
+| W | Pan up | 20 pixel step |
+| A | Pan left | 20 pixel step |
+| S | Pan down | 20 pixel step |
+| D | Pan right | 20 pixel step |
+| + or = | Zoom in | 0.2x increment |
+| - or _ | Zoom out | 0.2x decrement |
+| R | Reset view | Zoom to 1.0x, pan to center |
+
+**Arrow Keys Behavior:**
+- ✅ Work normally on sliders (adjust value)
+- ✅ Work normally on tables (navigate cells)
+- ✅ Work normally on combo boxes (select items)
+- ✅ No conflicts or unexpected behavior
+
+**UI Updates:**
+- **Button renamed**: "Reset Pan" → "Reset View"
+- **Button function**: Now resets BOTH zoom (1.0x) AND pan (centered)
+- **Tooltip**: "Reset zoom and pan to defaults (or press R key)"
+- **Hint label**: "Pan: W A S D  |  Zoom: +/-  |  Reset: R"
+
+**Technical Implementation:**
+```python
+# Event filter captures WASD/+/-/R before child widgets
+def eventFilter(self, obj, event):
+    if event.type() == QtCore.QEvent.KeyPress and self.zoom_manager.mode != ZoomMode.OFF:
+        key = event.key()
+
+        if key == QtCore.Qt.Key_W:
+            self.zoom_manager.pan(0, -20)
+            return True  # Consumed
+        # ... other keys
+
+    return super().eventFilter(obj, event)  # Pass through
+
+# New methods for keyboard control
+def _reset_zoom_and_pan(self):
+    """Reset both zoom level and pan (R key)."""
+    self.zoom_manager.reset_pan()
+    self.zoom_level_slider.setValue(10)  # 1.0x
+
+def _adjust_zoom(self, delta: float):
+    """Adjust zoom level by delta (+/- keys)."""
+    current = self.zoom_level_slider.value()
+    new_value = max(10, min(40, current + int(delta * 10)))
+    self.zoom_level_slider.setValue(new_value)
+```
+
+**Files Modified:**
+- `focus_utility.py`: +83 lines (event filter, new methods, UI updates)
+
+**Results:**
+- ✅ WASD pan controls work perfectly regardless of widget focus
+- ✅ Arrow keys work normally for GUI element interaction
+- ✅ +/- keyboard shortcuts for zoom adjustment
+- ✅ R key for quick reset
+- ✅ Complete keyboard-driven zoom/pan workflow
+- ✅ Zero conflicts between shortcuts and GUI controls
+- ✅ Professional UX matching industry standards (WASD navigation)
+
+**User Impact:**
+- **Clean Separation**: WASD for camera control, arrows for GUI navigation
+- **Predictable Behavior**: Keys always do what user expects
+- **Faster Workflow**: No mouse needed for zoom/pan operations
+- **Professional Feel**: WASD is standard in gaming, CAD, 3D software
+
+---
+
 #### **Zoom Level and Pan Controls Fix** ✅ COMPLETE
 **Status:** 100% Complete - BUG FIX + NEW FEATURE
 **Completion Date:** November 12, 2025
@@ -928,7 +1034,9 @@ The FLIR Boson Focus Utility now includes:
 **Next Review:** As needed based on user feedback
 
 **Recent Updates:**
-- November 12, 2025: **Zoom Level and Pan Controls** - **BUG FIX + NEW FEATURE** v3.0.1 (zoom now works from center, arrow key pan controls added)
+- November 13, 2025: **WASD Pan Controls** - **IMPROVEMENT** v3.0.1 (changed to WASD-only, arrow keys free for GUI elements)
+- November 13, 2025: **Comprehensive Zoom Shortcuts** - **NEW FEATURE** v3.0.1 (+/- zoom, R reset, event filter for global shortcuts)
+- November 12, 2025: **Zoom Level and Pan Controls** - **BUG FIX + NEW FEATURE** v3.0.1 (zoom now works from center, pan controls added)
 - November 12, 2025: **Adaptive Edge Detection Documentation** - **DOCUMENTATION** v3.0.1 (comprehensive technical docs for scene-adaptive edge detection)
 - November 12, 2025: **Zoom Drawing Bug Fixes** - **BUG FIX** v3.0.1 (cancel drawing and reset pan now work correctly)
 - November 12, 2025: **Batch File Updates** - **POLISH** v3.0.1 (all launchers updated to v3.0.1)
