@@ -801,7 +801,7 @@ class BosonFocusGUI(QtWidgets.QWidget):
         zoom_layout.addWidget(self.zoom_status_label)
 
         # Pan controls hint
-        pan_hint = QtWidgets.QLabel("Pan: ← → ↑ ↓ or WASD  |  Zoom: +/-  |  Reset: R")
+        pan_hint = QtWidgets.QLabel("Pan: W A S D  |  Zoom: +/-  |  Reset: R")
         pan_hint.setStyleSheet("font-size: 8pt; font-style: italic; color: palette(mid);")
         pan_hint.setWordWrap(True)
         zoom_layout.addWidget(pan_hint)
@@ -1789,22 +1789,22 @@ class BosonFocusGUI(QtWidgets.QWidget):
             # Pan step size (in pixels)
             pan_step = 20
 
-            # Arrow keys and WASD for panning
-            if key == QtCore.Qt.Key_Left or key == QtCore.Qt.Key_A:
+            # WASD for panning (no arrow keys to avoid GUI conflicts)
+            if key == QtCore.Qt.Key_A:
                 self.zoom_manager.pan(-pan_step, 0)
-                self.logger.debug("Panned left")
+                self.logger.debug("Panned left (A)")
                 return True  # Event handled
-            elif key == QtCore.Qt.Key_Right or key == QtCore.Qt.Key_D:
+            elif key == QtCore.Qt.Key_D:
                 self.zoom_manager.pan(pan_step, 0)
-                self.logger.debug("Panned right")
+                self.logger.debug("Panned right (D)")
                 return True
-            elif key == QtCore.Qt.Key_Up or key == QtCore.Qt.Key_W:
+            elif key == QtCore.Qt.Key_W:
                 self.zoom_manager.pan(0, -pan_step)
-                self.logger.debug("Panned up")
+                self.logger.debug("Panned up (W)")
                 return True
-            elif key == QtCore.Qt.Key_Down or key == QtCore.Qt.Key_S:
+            elif key == QtCore.Qt.Key_S:
                 self.zoom_manager.pan(0, pan_step)
-                self.logger.debug("Panned down")
+                self.logger.debug("Panned down (S)")
                 return True
             elif key == QtCore.Qt.Key_R:
                 # Reset both zoom and pan
