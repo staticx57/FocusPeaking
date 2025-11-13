@@ -252,8 +252,8 @@ The edge threshold slider controls the sensitivity of focus peaking edge detecti
 **Manual Zoom Usage**:
 1. Select "Manual" zoom mode from dropdown
 2. Adjust zoom level slider (1.0x - 4.0x) - zooms from center immediately
-3. **Use arrow keys (← → ↑ ↓) to pan around the zoomed view**
-4. Click "Reset Pan" to recenter the view
+3. **Use W A S D keys to pan around the zoomed view**
+4. Press **+/-** to zoom in/out, **R** to reset view
 
 **Optional - Draw Specific Zoom Area**:
 1. Click "Draw Zoom Area" button to activate drawing mode
@@ -263,24 +263,31 @@ The edge threshold slider controls the sensitivity of focus peaking edge detecti
 5. Selected area is zoomed and displayed
 6. Zoom level and pan controls apply to your drawn area
 
-**Pan Controls** (when zoomed):
-- **← Left Arrow**: Pan left
-- **→ Right Arrow**: Pan right
-- **↑ Up Arrow**: Pan up
-- **↓ Down Arrow**: Pan down
-- **Reset Pan Button**: Return to center
+**Pan/Zoom Controls** (when zoomed):
+- **W**: Pan up
+- **A**: Pan left
+- **S**: Pan down
+- **D**: Pan right
+- **+/-**: Zoom in/out
+- **R**: Reset zoom and pan to defaults
+- **Reset View Button**: Same as R key
 
-**Note**: Arrow key panning only works when zoom mode is not "Off"
+**Note**: WASD pan controls only work when zoom mode is not "Off". Arrow keys work normally on GUI elements (sliders, tables).
 
 ## ⌨️ Keyboard Shortcuts
 
+**General**:
 - `Delete` / `Backspace`: Delete selected ROI
 - `Ctrl+S`: Save configuration
 - `Ctrl+O`: Load configuration
 - `Ctrl+E`: Export focus data to CSV
 - `Space`: Pause/Resume video
 - `+` / `-`: Increase/decrease edge threshold
-- `← → ↑ ↓` (Arrow Keys): Pan view when zoomed (Manual/Auto-ROI/Auto-All-ROIs modes)
+
+**Zoom/Pan** (when zoomed):
+- `W` `A` `S` `D`: Pan view (up/left/down/right)
+- `+` / `-`: Zoom in/out (0.2x increments)
+- `R`: Reset zoom and pan to defaults
 
 ## 📊 Technical Details
 
@@ -475,23 +482,32 @@ Settings saved to `focus_config.json`:
 
 ## 🚦 Version History
 
-### v3.0.1 (Current - November 12, 2025)
-**Bug Fixes and Polish**
+### v3.0.1 (Current - November 12-13, 2025)
+**Bug Fixes and Enhanced Keyboard Controls**
 
 **Updates**:
 - 🐛 **Cancel Drawing Fix**: "Cancel Drawing" button now properly clears zoom rectangle visual feedback
 - 🐛 **Reset Pan Fix**: "Reset Pan" button now fully resets zoom state and clears any active drawings
 - 🐛 **Zoom Level Fix**: Manual zoom mode now works immediately from center without needing to draw a rectangle first
-- ⌨️ **Pan Controls Added**: Arrow keys (← → ↑ ↓) now pan the view when zoomed (20 pixel steps)
+- ⌨️ **WASD Pan Controls**: W/A/S/D keys pan the view when zoomed (replaces arrow keys to avoid GUI conflicts)
+- ⌨️ **Zoom Shortcuts**: +/- keys for zoom in/out, R key to reset zoom and pan
+- 🎮 **Event Filter System**: Keyboard shortcuts work even when GUI elements have focus
+- 🔄 **Reset View Button**: Now resets both zoom level (1.0x) and pan (centered)
 - 📚 **Adaptive Edge Detection Documentation**: Comprehensive technical documentation added for scene-adaptive edge detection
 - 📦 **Batch File Updates**: All .bat launchers updated to v3.0.1 and launch unified application
 
-**Fixes Applied**:
+**Keyboard Controls** (when zoomed):
+- W/A/S/D: Pan up/left/down/right (20 pixel steps)
+- +/-: Zoom in/out (0.2x increments)
+- R: Reset zoom and pan to defaults
+- Arrow keys: Work normally on GUI elements (sliders, tables)
+
+**Technical Fixes**:
 - VideoLabel.set_zoom_drawing_mode() now clears current_zoom_rect and zoom_start when disabling
 - _zoom_reset_pan() now unchecks draw button and clears lingering zoom rectangles
 - ZoomManager.get_zoom_rect() now applies zoom to center when no manual_zoom_rect exists
-- BosonFocusGUI.keyPressEvent() added for arrow key pan controls
-- Pan controls only active when zoom mode is not OFF
+- Event filter intercepts WASD/+/-/R before child widgets receive them
+- Arrow keys pass through to GUI elements (sliders use them for value adjustment)
 - No more stuck blue dashed rectangles on screen after canceling
 
 ### v3.0.0 (November 12, 2025)

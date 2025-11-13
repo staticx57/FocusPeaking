@@ -325,6 +325,9 @@ class BosonFocusGUI(QtWidgets.QWidget):
             self.boson_controller.connect()
         self.stats_tracker = FocusStatistics(window_size=STATS_WINDOW_SIZE)
 
+        # Install event filter to intercept arrow keys and WASD before child widgets get them
+        self.installEventFilter(self)
+
         # State
         self.regions = []
         self.next_id = 1
@@ -775,9 +778,9 @@ class BosonFocusGUI(QtWidgets.QWidget):
         # Control buttons
         zoom_buttons_layout = QtWidgets.QHBoxLayout()
 
-        self.zoom_reset_btn = QtWidgets.QPushButton("Reset Pan")
-        self.zoom_reset_btn.setToolTip("Reset pan to center (Use arrow keys to pan when zoomed)")
-        self.zoom_reset_btn.clicked.connect(self._zoom_reset_pan)
+        self.zoom_reset_btn = QtWidgets.QPushButton("Reset View")
+        self.zoom_reset_btn.setToolTip("Reset zoom and pan to defaults (or press R key)")
+        self.zoom_reset_btn.clicked.connect(self._reset_zoom_and_pan)
         zoom_buttons_layout.addWidget(self.zoom_reset_btn)
 
         self.zoom_draw_btn = QtWidgets.QPushButton("Draw Zoom Area")
@@ -798,7 +801,7 @@ class BosonFocusGUI(QtWidgets.QWidget):
         zoom_layout.addWidget(self.zoom_status_label)
 
         # Pan controls hint
-        pan_hint = QtWidgets.QLabel("Use ← → ↑ ↓ arrow keys to pan when zoomed")
+        pan_hint = QtWidgets.QLabel("Pan: W A S D  |  Zoom: +/-  |  Reset: R")
         pan_hint.setStyleSheet("font-size: 8pt; font-style: italic; color: palette(mid);")
         pan_hint.setWordWrap(True)
         zoom_layout.addWidget(pan_hint)
@@ -1304,6 +1307,34 @@ class BosonFocusGUI(QtWidgets.QWidget):
             self.video_label.set_zoom_drawing_mode(False)
         self.logger.debug("Zoom pan reset")
 
+    def _reset_zoom_and_pan(self):
+        """Reset both zoom level and pan to defaults (R key)."""
+        # Reset pan
+        self.zoom_manager.reset_pan()
+
+        # Reset zoom level to 1.0x
+        self.zoom_level_slider.setValue(10)  # 10 = 1.0x
+
+        # Clear any zoom drawing
+        if self.zoom_draw_btn.isChecked():
+            self.zoom_draw_btn.setChecked(False)
+        else:
+            self.video_label.set_zoom_drawing_mode(False)
+
+        self.logger.info("Zoom and pan reset to defaults (R key)")
+
+    def _adjust_zoom(self, delta: float):
+        """Adjust zoom level by delta (+/- keys)."""
+        current_value = self.zoom_level_slider.value()
+        new_value = current_value + int(delta * 10)  # delta * 10 because slider is in 0.1x increments
+
+        # Clamp to valid range
+        new_value = max(10, min(40, new_value))
+
+        self.zoom_level_slider.setValue(new_value)
+        level = new_value / 10.0
+        self.logger.debug(f"Zoom adjusted to {level:.1f}x")
+
     def _toggle_zoom_drawing(self, checked):
         """Toggle zoom rectangle drawing mode."""
         if checked:
@@ -1747,35 +1778,55 @@ class BosonFocusGUI(QtWidgets.QWidget):
     # Event Handlers
     # ========================================================================
 
+    def eventFilter(self, obj, event):
+        """
+        Event filter to intercept keyboard events before child widgets receive them.
+        This ensures pan/zoom shortcuts work even when sliders/tables have focus.
+        """
+        if event.type() == QtCore.QEvent.KeyPress and self.zoom_manager.mode != ZoomMode.OFF:
+            key = event.key()
+
+            # Pan step size (in pixels)
+            pan_step = 20
+
+            # WASD for panning (no arrow keys to avoid GUI conflicts)
+            if key == QtCore.Qt.Key_A:
+                self.zoom_manager.pan(-pan_step, 0)
+                self.logger.debug("Panned left (A)")
+                return True  # Event handled
+            elif key == QtCore.Qt.Key_D:
+                self.zoom_manager.pan(pan_step, 0)
+                self.logger.debug("Panned right (D)")
+                return True
+            elif key == QtCore.Qt.Key_W:
+                self.zoom_manager.pan(0, -pan_step)
+                self.logger.debug("Panned up (W)")
+                return True
+            elif key == QtCore.Qt.Key_S:
+                self.zoom_manager.pan(0, pan_step)
+                self.logger.debug("Panned down (S)")
+                return True
+            elif key == QtCore.Qt.Key_R:
+                # Reset both zoom and pan
+                self._reset_zoom_and_pan()
+                return True
+            elif key == QtCore.Qt.Key_Equal or key == QtCore.Qt.Key_Plus:
+                # Zoom in
+                self._adjust_zoom(0.2)
+                return True
+            elif key == QtCore.Qt.Key_Minus or key == QtCore.Qt.Key_Underscore:
+                # Zoom out
+                self._adjust_zoom(-0.2)
+                return True
+
+        # Pass event to base class
+        return super().eventFilter(obj, event)
+
     def keyPressEvent(self, ev):
-        """Handle keyboard input for pan controls."""
-        # Only handle arrow keys when zoom is active (not OFF mode)
-        if self.zoom_manager.mode == ZoomMode.OFF:
-            super().keyPressEvent(ev)
-            return
-
-        # Pan step size (in pixels)
-        pan_step = 20
-
-        # Arrow key panning
-        if ev.key() == QtCore.Qt.Key_Left:
-            self.zoom_manager.pan(-pan_step, 0)
-            self.logger.debug("Panned left")
-            ev.accept()
-        elif ev.key() == QtCore.Qt.Key_Right:
-            self.zoom_manager.pan(pan_step, 0)
-            self.logger.debug("Panned right")
-            ev.accept()
-        elif ev.key() == QtCore.Qt.Key_Up:
-            self.zoom_manager.pan(0, -pan_step)
-            self.logger.debug("Panned up")
-            ev.accept()
-        elif ev.key() == QtCore.Qt.Key_Down:
-            self.zoom_manager.pan(0, pan_step)
-            self.logger.debug("Panned down")
-            ev.accept()
-        else:
-            super().keyPressEvent(ev)
+        """Handle keyboard input - kept for compatibility."""
+        # Most keys are now handled by eventFilter
+        # This is kept as a fallback
+        super().keyPressEvent(ev)
 
     # ========================================================================
     # Cleanup
