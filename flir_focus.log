@@ -644,3 +644,371 @@
 2025-11-12 11:59:47,799 - camera_manager - INFO - Disconnected from camera 0
 2025-11-12 11:59:49,174 - camera_manager - INFO - Successfully connected to camera 0 (640x480)
 2025-11-12 11:59:57,799 - camera_manager - INFO - Disconnected from camera 0
+2025-11-13 15:35:51,978 - root - INFO - ============================================================
+2025-11-13 15:35:51,978 - root - INFO - FLIR Boson Focus Peaking - Logging initialized
+2025-11-13 15:35:51,978 - root - INFO - Log level: INFO
+2025-11-13 15:35:51,978 - root - INFO - Log file: C:\Users\stati\Desktop\Projects\FocusPeaking\flir_focus.log
+2025-11-13 15:35:51,978 - root - INFO - ============================================================
+2025-11-13 15:35:52,023 - theme_manager - INFO - Applied theme: Dark
+2025-11-13 15:35:52,023 - BosonFocusGUI - INFO - Initializing Boson Focus GUI v2.0
+2025-11-13 15:35:52,054 - boson_control - ERROR - Cannot connect: No COM port specified
+2025-11-13 15:35:52,054 - focus_utils - INFO - FocusEnsemble initialized with 5 algorithms
+2025-11-13 15:35:52,069 - BosonControlPanel - INFO - Boson controller connected
+2025-11-13 15:35:52,602 - BosonFocusGUI - INFO - Screen size: 3840x1540
+2025-11-13 15:35:52,602 - BosonFocusGUI - INFO - Window auto-scaled to 3264x1386
+2025-11-13 15:35:52,602 - BosonFocusGUI - INFO - Refreshing camera list...
+2025-11-13 15:35:52,602 - camera_manager - INFO - Detecting available cameras...
+2025-11-13 15:36:11,081 - camera_manager - INFO - Found: Camera 0 (MSMF) (Device 0)
+2025-11-13 15:36:12,926 - camera_manager - INFO - Found: Camera 2 (MSMF) (Device 2)
+2025-11-13 15:36:14,368 - camera_manager - INFO - Found: Camera 3 (MSMF) (Device 3)
+2025-11-13 15:36:15,417 - camera_manager - INFO - Detected 3 camera(s)
+2025-11-13 15:36:15,417 - BosonFocusGUI - INFO - Connecting to camera 0...
+2025-11-13 15:36:15,433 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-13 15:37:11,641 - camera_manager - INFO - Successfully connected to camera 0 (640x480)
+2025-11-13 15:37:11,641 - BosonFocusGUI - INFO - Successfully connected to camera 0
+2025-11-13 15:37:11,641 - BosonFocusGUI - INFO - Connecting to camera 0...
+2025-11-13 15:37:11,641 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-13 15:37:12,031 - camera_manager - INFO - Disconnected from camera 0
+2025-11-13 15:37:23,797 - root - INFO - ============================================================
+2025-11-13 15:37:23,797 - root - INFO - FLIR Boson Focus Peaking - Logging initialized
+2025-11-13 15:37:23,797 - root - INFO - Log level: INFO
+2025-11-13 15:37:23,797 - root - INFO - Log file: C:\Users\stati\Desktop\Projects\FocusPeaking\flir_focus.log
+2025-11-13 15:37:23,797 - root - INFO - ============================================================
+2025-11-13 15:37:23,823 - theme_manager - INFO - Applied theme: Dark
+2025-11-13 15:37:23,823 - BosonFocusGUI - INFO - Initializing Boson Focus GUI v2.0
+2025-11-13 15:37:23,836 - boson_control - INFO - Found FLIR device: COM6 - FLIR Control (COM6)
+2025-11-13 15:37:23,836 - boson_control - INFO - Auto-detected FLIR Boson on COM6
+2025-11-13 15:37:23,836 - boson_control - INFO - Attempting to connect to Boson on COM6...
+2025-11-13 15:37:24,370 - boson_control - INFO - Connected to Boson camera. Serial: 30149
+2025-11-13 15:37:24,370 - focus_utils - INFO - FocusEnsemble initialized with 5 algorithms
+2025-11-13 15:37:24,380 - BosonControlPanel - INFO - Boson controller connected
+2025-11-13 15:37:24,384 - boson_control - ERROR - Failed to set AGC mode: 353
+2025-11-13 15:37:24,384 - BosonControlPanel - ERROR - Failed to set AGC mode to Auto
+2025-11-13 15:37:24,384 - BosonControlPanel - INFO - Loaded current settings from Boson camera
+2025-11-13 15:37:24,755 - BosonFocusGUI - INFO - Screen size: 3840x1540
+2025-11-13 15:37:24,755 - BosonFocusGUI - INFO - Window auto-scaled to 3264x1386
+2025-11-13 15:37:24,756 - BosonFocusGUI - INFO - Refreshing camera list...
+2025-11-13 15:37:24,757 - camera_manager - INFO - Detecting available cameras...
+2025-11-13 15:37:43,000 - camera_manager - INFO - Found: Camera 0 (MSMF) (Device 0)
+2025-11-13 15:37:43,513 - camera_manager - INFO - Found: Camera 1 (MSMF) (Device 1)
+2025-11-13 15:37:44,422 - camera_manager - INFO - Found: Camera 2 (MSMF) (Device 2)
+2025-11-13 15:37:45,511 - camera_manager - INFO - Detected 3 camera(s)
+2025-11-13 15:37:45,511 - BosonFocusGUI - INFO - Connecting to camera 0...
+2025-11-13 15:37:45,511 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-13 15:38:28,095 - root - INFO - ============================================================
+2025-11-13 15:38:28,095 - root - INFO - FLIR Boson Focus Peaking - Logging initialized
+2025-11-13 15:38:28,095 - root - INFO - Log level: INFO
+2025-11-13 15:38:28,095 - root - INFO - Log file: C:\Users\stati\Desktop\Projects\FocusPeaking\flir_focus.log
+2025-11-13 15:38:28,095 - root - INFO - ============================================================
+2025-11-13 15:38:28,108 - theme_manager - INFO - Applied theme: Dark
+2025-11-13 15:38:28,108 - BosonFocusGUI - INFO - Initializing Boson Focus GUI v2.0
+2025-11-13 15:38:28,117 - boson_control - INFO - Found FLIR device: COM6 - FLIR Control (COM6)
+2025-11-13 15:38:28,117 - boson_control - INFO - Auto-detected FLIR Boson on COM6
+2025-11-13 15:38:28,117 - boson_control - INFO - Attempting to connect to Boson on COM6...
+2025-11-13 15:38:28,117 - boson_control - INFO - Connected to Boson camera. Serial: 30149
+2025-11-13 15:38:28,117 - focus_utils - INFO - FocusEnsemble initialized with 5 algorithms
+2025-11-13 15:38:28,133 - BosonControlPanel - INFO - Boson controller connected
+2025-11-13 15:38:28,136 - boson_control - ERROR - Failed to set AGC mode: 353
+2025-11-13 15:38:28,136 - BosonControlPanel - ERROR - Failed to set AGC mode to Auto
+2025-11-13 15:38:28,136 - BosonControlPanel - INFO - Loaded current settings from Boson camera
+2025-11-13 15:38:28,716 - BosonFocusGUI - INFO - Screen size: 3840x1540
+2025-11-13 15:38:28,716 - BosonFocusGUI - INFO - Window auto-scaled to 3264x1386
+2025-11-13 15:38:28,716 - BosonFocusGUI - INFO - Refreshing camera list...
+2025-11-13 15:38:28,716 - camera_manager - INFO - Detecting available cameras...
+2025-11-13 15:38:47,763 - camera_manager - INFO - Found: Camera 0 (MSMF) (Device 0)
+2025-11-13 15:38:48,277 - camera_manager - INFO - Found: Camera 1 (MSMF) (Device 1)
+2025-11-13 15:38:49,222 - camera_manager - INFO - Found: Camera 2 (MSMF) (Device 2)
+2025-11-13 15:38:50,495 - camera_manager - INFO - Detected 3 camera(s)
+2025-11-13 15:38:50,496 - BosonFocusGUI - INFO - Connecting to camera 0...
+2025-11-13 15:38:50,496 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-13 15:39:47,643 - camera_manager - INFO - Successfully connected to camera 0 (640x480)
+2025-11-13 15:39:47,643 - BosonFocusGUI - INFO - Successfully connected to camera 0
+2025-11-13 15:39:47,643 - BosonFocusGUI - INFO - Connecting to camera 0...
+2025-11-13 15:39:47,644 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-13 15:39:47,991 - camera_manager - INFO - Disconnected from camera 0
+2025-11-13 15:40:43,128 - camera_manager - INFO - Successfully connected to camera 0 (640x480)
+2025-11-13 15:40:43,128 - BosonFocusGUI - INFO - Successfully connected to camera 0
+2025-11-13 15:40:43,128 - BosonFocusGUI - INFO - GUI initialization complete
+2025-11-13 15:40:43,283 - __main__ - INFO - FLIR Boson Focus Utility v3.0.1 started
+2025-11-13 15:40:57,918 - BosonFocusGUI - INFO - Connecting to camera 1...
+2025-11-13 15:40:57,918 - camera_manager - INFO - Attempting to connect to camera 1...
+2025-11-13 15:40:58,267 - camera_manager - INFO - Disconnected from camera 0
+2025-11-13 15:40:58,458 - camera_manager - INFO - Successfully connected to camera 1 (640x512)
+2025-11-13 15:40:58,458 - BosonFocusGUI - INFO - Successfully connected to camera 1
+2025-11-13 15:41:20,360 - BosonFocusGUI - INFO - Peaking color changed to (72, 255, 0)
+2025-11-13 15:41:22,304 - BosonFocusGUI - INFO - Stripe pattern: enabled
+2025-11-13 15:41:25,960 - BosonFocusGUI - INFO - Adaptive edge detection: enabled
+2025-11-13 15:41:26,970 - BosonFocusGUI - INFO - Adaptive edge detection: disabled
+2025-11-13 15:41:27,599 - BosonFocusGUI - INFO - Adaptive edge detection: enabled
+2025-11-13 15:41:34,184 - BosonFocusGUI - INFO - Created ROI 1: (0, 145, 129, 270)
+2025-11-13 15:41:36,405 - BosonFocusGUI - INFO - Created ROI 2: (0, 128, 103, 294)
+2025-11-13 15:41:39,387 - BosonFocusGUI - INFO - Deleted ROI 2
+2025-11-13 15:41:40,896 - BosonFocusGUI - INFO - Deleted ROI 1
+2025-11-13 15:42:24,537 - BosonFocusGUI - INFO - Adaptive edge detection: disabled
+2025-11-13 15:42:27,361 - BosonFocusGUI - INFO - Multi-scale detection: disabled
+2025-11-13 15:42:39,818 - focus_utils - INFO - Scene type set to: low_contrast
+2025-11-13 15:42:39,818 - BosonFocusGUI - INFO - Adaptive scene type changed to: low_contrast
+2025-11-13 15:42:41,643 - BosonFocusGUI - INFO - Multi-scale detection: enabled
+2025-11-13 15:42:47,051 - BosonFocusGUI - INFO - Adaptive edge detection: enabled
+2025-11-13 15:42:48,377 - BosonFocusGUI - INFO - Adaptive edge detection: disabled
+2025-11-13 15:42:55,826 - camera_manager - WARNING - Failed to read frame from camera
+2025-11-13 15:43:09,814 - BosonFocusGUI - INFO - Connecting to camera 2...
+2025-11-13 15:43:09,814 - camera_manager - INFO - Attempting to connect to camera 2...
+2025-11-13 15:43:09,817 - camera_manager - INFO - Disconnected from camera 1
+2025-11-13 15:43:10,664 - camera_manager - INFO - Successfully connected to camera 2 (640x480)
+2025-11-13 15:43:10,664 - BosonFocusGUI - INFO - Successfully connected to camera 2
+2025-11-13 15:43:16,063 - BosonFocusGUI - INFO - Connecting to camera 1...
+2025-11-13 15:43:16,063 - camera_manager - INFO - Attempting to connect to camera 1...
+2025-11-13 15:43:16,522 - camera_manager - INFO - Disconnected from camera 2
+2025-11-13 15:43:16,725 - camera_manager - INFO - Successfully connected to camera 1 (640x512)
+2025-11-13 15:43:16,725 - BosonFocusGUI - INFO - Successfully connected to camera 1
+2025-11-13 15:43:23,998 - BosonFocusGUI - INFO - Thermal preprocessing: enabled
+2025-11-13 15:43:24,938 - BosonFocusGUI - INFO - Thermal preprocessing: disabled
+2025-11-13 15:43:26,385 - BosonFocusGUI - INFO - Thermal preprocessing: enabled
+2025-11-13 15:43:30,849 - BosonFocusGUI - INFO - Ensemble voting: enabled
+2025-11-13 15:43:33,995 - BosonFocusGUI - INFO - Ensemble voting: disabled
+2025-11-13 15:43:39,318 - BosonFocusGUI - INFO - Created ROI 3: (199, 40, 363, 112)
+2025-11-13 15:43:48,656 - BosonFocusGUI - INFO - Adaptive edge detection: enabled
+2025-11-13 15:43:53,913 - BosonFocusGUI - INFO - Adaptive edge detection: disabled
+2025-11-13 15:43:58,349 - boson_control - INFO - Auto palette switching: enabled
+2025-11-13 15:43:58,349 - BosonFocusGUI - INFO - Auto palette switch: enabled
+2025-11-13 15:43:58,401 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:43:58,459 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:43:58,527 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:43:58,597 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:43:58,648 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:43:58,701 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:43:58,777 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:43:58,827 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:43:58,903 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:43:58,956 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:43:59,015 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:43:59,087 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:43:59,145 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:43:59,208 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:43:59,275 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:43:59,340 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:43:59,406 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:43:59,465 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:43:59,523 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:43:59,582 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:43:59,654 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:43:59,706 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:43:59,778 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:43:59,843 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:43:59,901 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:43:59,959 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:44:00,024 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:44:00,093 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:44:00,100 - boson_control - INFO - Auto palette switching: disabled
+2025-11-13 15:44:00,100 - BosonFocusGUI - INFO - Auto palette switch: disabled
+2025-11-13 15:44:11,014 - BosonFocusGUI - INFO - Zoom drawing mode activated - click and drag to define zoom area
+2025-11-13 15:44:12,838 - zoom_manager - INFO - Zoom mode set to: Manual
+2025-11-13 15:44:12,838 - BosonFocusGUI - INFO - Zoom mode changed to: Manual
+2025-11-13 15:44:12,838 - BosonFocusGUI - INFO - Zoom rectangle set: (153, 137, 392, 261)
+2025-11-13 15:44:12,838 - VideoLabel - INFO - Zoom rectangle created: [153, 137, 392, 261]
+2025-11-13 15:44:16,548 - BosonFocusGUI - INFO - Deleted ROI 3
+2025-11-13 15:44:24,564 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-13 15:44:26,212 - BosonFocusGUI - INFO - Zoom drawing mode activated - click and drag to define zoom area
+2025-11-13 15:44:27,324 - BosonFocusGUI - INFO - Zoom drawing mode deactivated
+2025-11-13 15:44:28,024 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-13 15:44:28,533 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-13 15:44:28,655 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-13 15:44:28,844 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-13 15:44:28,972 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-13 15:44:29,164 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-13 15:44:34,864 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-13 15:44:35,894 - zoom_manager - INFO - Zoom mode set to: Off
+2025-11-13 15:44:35,894 - BosonFocusGUI - INFO - Zoom mode changed to: Off
+2025-11-13 15:44:45,824 - zoom_manager - INFO - Zoom mode set to: Manual
+2025-11-13 15:44:45,824 - BosonFocusGUI - INFO - Zoom mode changed to: Manual
+2025-11-13 15:44:49,008 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-13 15:44:49,204 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-13 15:44:49,206 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-13 15:44:49,336 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-13 15:44:49,391 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-13 15:44:49,514 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-13 15:44:49,575 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-13 15:44:49,640 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-13 15:44:49,759 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-13 15:44:49,832 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-13 15:44:49,942 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-13 15:44:50,022 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-13 15:44:50,140 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-13 15:44:50,193 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-13 15:44:56,161 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-13 15:44:56,479 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-13 15:44:56,805 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-13 15:44:57,029 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-13 15:44:57,262 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-13 15:44:57,458 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-13 15:44:57,716 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-13 15:45:20,693 - zoom_manager - INFO - Zoom mode set to: Off
+2025-11-13 15:45:20,693 - BosonFocusGUI - INFO - Zoom mode changed to: Off
+2025-11-13 15:45:31,180 - BosonFocusGUI - INFO - Adaptive edge detection: enabled
+2025-11-13 15:45:34,382 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-13 15:45:35,868 - zoom_manager - INFO - Zoom mode set to: Manual
+2025-11-13 15:45:35,868 - BosonFocusGUI - INFO - Zoom mode changed to: Manual
+2025-11-13 15:45:37,040 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-13 15:45:37,232 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-13 15:45:37,376 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-13 15:45:39,043 - BosonFocusGUI - INFO - Zoom drawing mode activated - click and drag to define zoom area
+2025-11-13 15:45:40,438 - BosonFocusGUI - INFO - Zoom rectangle set: (52, 81, 574, 479)
+2025-11-13 15:45:40,438 - VideoLabel - INFO - Zoom rectangle created: [52, 81, 574, 479]
+2025-11-13 15:45:41,485 - BosonFocusGUI - INFO - Zoom rectangle set: (0, 0, 494, 413)
+2025-11-13 15:45:41,485 - VideoLabel - INFO - Zoom rectangle created: [0, 0, 494, 413]
+2025-11-13 15:45:43,259 - BosonFocusGUI - INFO - Zoom rectangle set: (361, 82, 503, 194)
+2025-11-13 15:45:43,259 - VideoLabel - INFO - Zoom rectangle created: [361, 82, 503, 194]
+2025-11-13 15:45:46,815 - BosonFocusGUI - INFO - Adaptive edge detection: disabled
+2025-11-13 15:45:55,583 - BosonFocusGUI - INFO - Multi-scale detection: disabled
+2025-11-13 15:45:57,464 - BosonFocusGUI - INFO - Stripe pattern: disabled
+2025-11-13 15:46:02,797 - BosonFocusGUI - INFO - Zoom drawing mode activated - click and drag to define zoom area
+2025-11-13 15:46:03,229 - BosonFocusGUI - INFO - Zoom drawing mode deactivated
+2025-11-13 15:46:03,386 - BosonFocusGUI - INFO - Zoom drawing mode activated - click and drag to define zoom area
+2025-11-13 15:46:03,697 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-13 15:46:03,948 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-13 15:46:05,127 - zoom_manager - INFO - Zoom mode set to: Off
+2025-11-13 15:46:05,127 - BosonFocusGUI - INFO - Zoom mode changed to: Off
+2025-11-13 15:46:10,774 - BosonFocusGUI - INFO - Stripe pattern: enabled
+2025-11-13 15:46:12,646 - BosonFocusGUI - INFO - Stripe pattern: disabled
+2025-11-13 15:46:13,749 - BosonFocusGUI - INFO - Stripe pattern: enabled
+2025-11-13 15:46:15,152 - BosonFocusGUI - INFO - Stripe pattern: disabled
+2025-11-13 15:46:16,399 - BosonFocusGUI - INFO - Stripe pattern: enabled
+2025-11-13 15:46:21,047 - BosonFocusGUI - INFO - Focus algorithm changed to: Tenengrad
+2025-11-13 15:46:30,696 - boson_control - ERROR - Failed to set gain mode: 3
+2025-11-13 15:46:30,696 - BosonControlPanel - ERROR - Failed to set gain mode to Auto
+2025-11-13 15:46:35,038 - boson_control - INFO - Palette set to Rainbow (software)
+2025-11-13 15:46:37,042 - BosonControlPanel - INFO - Palette set to Rainbow
+2025-11-13 15:46:45,923 - boson_control - INFO - Palette set to Gradedfire (software)
+2025-11-13 15:46:47,924 - BosonControlPanel - INFO - Palette set to Gradedfire
+2025-11-13 15:46:49,634 - boson_control - INFO - Palette set to Hottest (software)
+2025-11-13 15:46:51,642 - BosonControlPanel - INFO - Palette set to Hottest
+2025-11-13 15:46:54,070 - boson_control - INFO - Palette set to Arctic (software)
+2025-11-13 15:46:56,078 - BosonControlPanel - INFO - Palette set to Arctic
+2025-11-13 15:46:57,514 - boson_control - INFO - Palette set to Lava (software)
+2025-11-13 15:46:59,515 - BosonControlPanel - INFO - Palette set to Lava
+2025-11-13 15:47:27,813 - boson_control - ERROR - Failed to set AGC mode: 3
+2025-11-13 15:47:27,813 - BosonControlPanel - ERROR - Failed to set AGC mode to Linear
+2025-11-13 15:47:32,303 - boson_control - ERROR - Failed to set AGC mode: 3
+2025-11-13 15:47:32,303 - BosonControlPanel - ERROR - Failed to set AGC mode to Auto
+2025-11-13 15:47:34,760 - boson_control - ERROR - Failed to perform FFC: 3
+2025-11-13 15:47:34,760 - BosonControlPanel - ERROR - FFC failed
+2025-11-13 15:48:32,096 - boson_control - INFO - Palette set to RainbowHC (software)
+2025-11-13 15:48:34,115 - BosonControlPanel - INFO - Palette set to RainbowHC
+2025-11-13 15:48:36,286 - boson_control - INFO - Palette set to BlackHot (software)
+2025-11-13 15:48:38,288 - BosonControlPanel - INFO - Palette set to BlackHot
+2025-11-13 15:48:40,192 - boson_control - INFO - Palette set to Rainbow (software)
+2025-11-13 15:48:42,209 - BosonControlPanel - INFO - Palette set to Rainbow
+2025-11-13 15:48:43,611 - boson_control - INFO - Palette set to RainbowHC (software)
+2025-11-13 15:48:45,625 - BosonControlPanel - INFO - Palette set to RainbowHC
+2025-11-13 15:48:47,707 - boson_control - INFO - Palette set to Arctic (software)
+2025-11-13 15:48:49,718 - BosonControlPanel - INFO - Palette set to Arctic
+2025-11-13 15:48:53,889 - zoom_manager - INFO - Zoom mode set to: Auto-ROI
+2025-11-13 15:48:53,889 - BosonFocusGUI - INFO - Zoom mode changed to: Auto-ROI
+2025-11-13 15:48:57,499 - BosonFocusGUI - INFO - Created ROI 4: (124, 72, 436, 275)
+2025-11-13 15:49:08,063 - boson_control - INFO - Auto palette switching: enabled
+2025-11-13 15:49:08,063 - BosonFocusGUI - INFO - Auto palette switch: enabled
+2025-11-13 15:49:08,118 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:08,181 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:08,240 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:08,307 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:08,373 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:08,438 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:08,502 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:08,555 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:08,615 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:08,691 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:08,741 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:08,816 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:08,875 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:08,935 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:08,992 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:09,059 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:09,121 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:09,183 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:09,238 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:09,306 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:09,366 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:09,438 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:09,495 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:09,559 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:09,619 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:09,679 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:09,745 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:09,809 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:09,869 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:09,941 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:09,997 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:10,056 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:10,118 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:10,192 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:10,247 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:10,300 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:10,366 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:10,441 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:10,495 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:10,552 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:10,617 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:10,679 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:10,751 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:10,811 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:10,865 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:10,929 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:11,002 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:11,060 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:11,117 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:11,187 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:11,249 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:11,312 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:11,369 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:11,439 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:11,495 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:11,558 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:11,624 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:11,681 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:11,743 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:11,805 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:11,865 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:11,929 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:12,005 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:12,064 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:12,107 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:12,177 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:12,191 - boson_control - INFO - Palette set to WhiteHot (software)
+2025-11-13 15:49:14,209 - BosonControlPanel - INFO - Palette set to WhiteHot
+2025-11-13 15:49:14,246 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:14,293 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:14,360 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:14,419 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:14,472 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:14,546 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:14,606 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:14,654 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:14,720 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:14,790 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:14,849 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:14,902 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:14,970 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:15,041 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:15,101 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:15,161 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:15,218 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:15,287 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:15,345 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:15,416 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:15,473 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:15,540 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:15,598 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:15,662 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:15,734 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:15,817 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:15,864 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:15,941 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:15,994 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:16,058 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:16,121 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:16,182 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:16,238 - boson_control - ERROR - Error in focus detection: name 'np' is not defined
+2025-11-13 15:49:16,486 - BosonFocusGUI - INFO - Application closing...
+2025-11-13 15:49:16,773 - camera_manager - INFO - Disconnected from camera 1
+2025-11-13 15:49:16,773 - boson_control - INFO - Disconnected from Boson camera
