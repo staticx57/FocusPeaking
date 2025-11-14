@@ -1,6 +1,8 @@
 # FLIR Boson Focus Peaking Utility
 
-**Version 3.0.0** - Professional focus peaking utility for FLIR Boson thermal cameras with advanced algorithms, ROI management, real-time focus metrics, and intelligent scene analysis.
+**Version 3.0.1** - Professional focus peaking utility for FLIR Boson thermal cameras with advanced algorithms, ROI management, real-time focus metrics, and intelligent scene analysis.
+
+**📋 [View Detailed Changelog](CHANGELOG.md)** - Complete change history with technical details
 
 ## 🎯 Overview
 
