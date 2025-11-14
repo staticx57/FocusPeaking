@@ -1297,20 +1297,17 @@ class BosonFocusGUI(QtWidgets.QWidget):
             self.logger.debug(f"Zoom target set to ROI {roi_id}")
 
     def _zoom_reset_pan(self):
-        """Reset zoom pan to center."""
-        self.zoom_manager.reset_pan()
-        # Also clear any zoom drawing in progress
-        if self.zoom_draw_btn.isChecked():
-            self.zoom_draw_btn.setChecked(False)  # This will trigger _toggle_zoom_drawing(False)
-        else:
-            # If button not checked, still clear any lingering zoom rect
-            self.video_label.set_zoom_drawing_mode(False)
-        self.logger.debug("Zoom pan reset")
+        """Reset zoom pan to center (legacy - use _reset_zoom_and_pan instead)."""
+        # Just call the full reset function
+        self._reset_zoom_and_pan()
 
     def _reset_zoom_and_pan(self):
         """Reset both zoom level and pan to defaults (R key)."""
         # Reset pan
         self.zoom_manager.reset_pan()
+
+        # Clear any manual zoom rectangle
+        self.zoom_manager.set_manual_zoom_rect(None)
 
         # Reset zoom level to 1.0x
         self.zoom_level_slider.setValue(10)  # 10 = 1.0x

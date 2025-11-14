@@ -11,6 +11,7 @@ module will operate in compatibility mode with limited functionality.
 import sys
 import os
 import logging
+import numpy as np
 from typing import Optional, Dict, Any, List
 from enum import IntEnum
 from pathlib import Path
@@ -580,7 +581,6 @@ def apply_palette_software(frame, palette_name: str):
         BGR color frame with palette applied
     """
     import cv2
-    import numpy as np
 
     # Convert to grayscale if needed
     if len(frame.shape) == 3:
