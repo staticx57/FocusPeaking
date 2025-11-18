@@ -1552,16 +1552,66 @@ Overlap:
             )
             return
 
-        QtWidgets.QMessageBox.information(
-            self, "Add Landmark Pair",
-            "Manual landmark matching workflow:\n\n"
-            "1. Click 'OK' to continue\n"
-            "2. Select corresponding camera\n"
-            "3. Enter coordinates for matching points\n\n"
-            "Note: For now, use 'Match Natural Features' for automatic\n"
-            "feature detection. Manual landmark selection will be added\n"
-            "in a future update with an interactive point picker."
+        # Select second camera
+        camera_names = [str(cam) for cam in available_cameras]
+        camera2_name, ok = QtWidgets.QInputDialog.getItem(
+            self, "Select Second Camera",
+            "Choose the second camera for landmark matching:",
+            camera_names,
+            0,
+            False
         )
+
+        if not ok:
+            return
+
+        camera2_index = camera_names.index(camera2_name)
+        camera2_device = available_cameras[camera2_index]
+
+        # Capture from second camera
+        temp_camera_manager = CameraManager()
+        if not temp_camera_manager.connect(device=camera2_device):
+            QtWidgets.QMessageBox.critical(
+                self, "Connection Failed",
+                f"Failed to connect to {camera2_device.name}"
+            )
+            return
+
+        ret, frame2 = temp_camera_manager.read_frame()
+        temp_camera_manager.disconnect()
+
+        if not ret or frame2 is None:
+            QtWidgets.QMessageBox.critical(self, "Error", "Failed to capture from second camera")
+            return
+
+        # Show landmark picker dialog
+        dialog = LandmarkPickerDialog(self.current_frame, frame2, self)
+        if dialog.exec_() == QtWidgets.QDialog.Accepted:
+            landmarks = dialog.get_landmarks()
+
+            if len(landmarks) > 0:
+                # Add landmarks to our list
+                for pt1, pt2 in landmarks:
+                    self.landmark_pairs.append((pt1, pt2))
+
+                # Update UI
+                total_pairs = len(self.landmark_pairs)
+                self.landmark_count_label.setText(f"Landmarks: {total_pairs} pairs")
+
+                QtWidgets.QMessageBox.information(
+                    self, "Landmarks Added",
+                    f"Added {len(landmarks)} landmark pair(s).\n"
+                    f"Total: {total_pairs} pairs\n\n"
+                    "These can be used for manual alignment and\n"
+                    "homography estimation."
+                )
+
+                self.logger.info(f"Added {len(landmarks)} landmark pairs, total: {total_pairs}")
+            else:
+                QtWidgets.QMessageBox.information(
+                    self, "No Landmarks",
+                    "No landmark pairs were selected."
+                )
 
     def _clear_landmarks(self):
         """Clear all manual landmarks."""
@@ -1599,3 +1649,203 @@ Overlap:
             self.pattern_status_label.setText("✗ No Pattern")
             self.pattern_status_label.setStyleSheet("font-size: 10pt; font-weight: bold; color: #ff6b6b;")
             self.corners_count_label.setText("Corners: 0")
+
+
+class ClickableLabel(QtWidgets.QLabel):
+    """QLabel that emits click signals with pixel coordinates."""
+    clicked = QtCore.pyqtSignal(int, int)
+
+    def mousePressEvent(self, event):
+        """Handle mouse click events."""
+        if event.button() == QtCore.Qt.LeftButton:
+            self.clicked.emit(event.x(), event.y())
+
+
+class LandmarkPickerDialog(QtWidgets.QDialog):
+    """Dialog for manually selecting corresponding landmark points in two images."""
+
+    def __init__(self, image1: np.ndarray, image2: np.ndarray, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Manual Landmark Selection")
+        self.image1 = image1.copy()
+        self.image2 = image2.copy()
+
+        self.landmarks = []  # List of (pt1, pt2) tuples
+        self.temp_pt1 = None  # Temporary storage for first point
+
+        self._create_ui()
+        self._update_displays()
+
+    def _create_ui(self):
+        """Create the dialog UI."""
+        layout = QtWidgets.QVBoxLayout(self)
+
+        # Instructions
+        instructions = QtWidgets.QLabel(
+            "Click corresponding points in both images:\n"
+            "1. Click a point in Image 1 (left)\n"
+            "2. Click the SAME physical point in Image 2 (right)\n"
+            "3. Repeat to add more landmark pairs\n\n"
+            "The points will be connected and numbered."
+        )
+        instructions.setStyleSheet("background-color: #e7f5ff; padding: 10px; border-radius: 5px;")
+        layout.addWidget(instructions)
+
+        # Image display area
+        images_layout = QtWidgets.QHBoxLayout()
+
+        # Image 1 panel
+        img1_panel = QtWidgets.QVBoxLayout()
+        img1_panel.addWidget(QtWidgets.QLabel("<b>Image 1 (Source)</b>"))
+        self.img1_label = ClickableLabel()
+        self.img1_label.setScaledContents(True)
+        self.img1_label.setMinimumSize(400, 300)
+        self.img1_label.clicked.connect(self._on_image1_clicked)
+        img1_panel.addWidget(self.img1_label)
+        images_layout.addLayout(img1_panel)
+
+        # Image 2 panel
+        img2_panel = QtWidgets.QVBoxLayout()
+        img2_panel.addWidget(QtWidgets.QLabel("<b>Image 2 (Target)</b>"))
+        self.img2_label = ClickableLabel()
+        self.img2_label.setScaledContents(True)
+        self.img2_label.setMinimumSize(400, 300)
+        self.img2_label.clicked.connect(self._on_image2_clicked)
+        img2_panel.addWidget(self.img2_label)
+        images_layout.addLayout(img2_panel)
+
+        layout.addLayout(images_layout)
+
+        # Status label
+        self.status_label = QtWidgets.QLabel("Click a point in Image 1 to start")
+        self.status_label.setStyleSheet("font-weight: bold; color: #228be6;")
+        layout.addWidget(self.status_label)
+
+        # Landmark list
+        list_layout = QtWidgets.QHBoxLayout()
+        list_layout.addWidget(QtWidgets.QLabel("Landmark Pairs:"))
+        self.landmark_list = QtWidgets.QListWidget()
+        self.landmark_list.setMaximumHeight(100)
+        list_layout.addWidget(self.landmark_list)
+        layout.addLayout(list_layout)
+
+        # Buttons
+        button_layout = QtWidgets.QHBoxLayout()
+
+        self.clear_btn = QtWidgets.QPushButton("Clear All")
+        self.clear_btn.clicked.connect(self._clear_landmarks)
+        button_layout.addWidget(self.clear_btn)
+
+        self.undo_btn = QtWidgets.QPushButton("Undo Last")
+        self.undo_btn.clicked.connect(self._undo_last)
+        self.undo_btn.setEnabled(False)
+        button_layout.addWidget(self.undo_btn)
+
+        button_layout.addStretch()
+
+        self.done_btn = QtWidgets.QPushButton("Done")
+        self.done_btn.clicked.connect(self.accept)
+        self.done_btn.setStyleSheet("background-color: #51cf66; color: white; font-weight: bold; padding: 8px;")
+        button_layout.addWidget(self.done_btn)
+
+        self.cancel_btn = QtWidgets.QPushButton("Cancel")
+        self.cancel_btn.clicked.connect(self.reject)
+        button_layout.addWidget(self.cancel_btn)
+
+        layout.addLayout(button_layout)
+
+    def _on_image1_clicked(self, x: int, y: int):
+        """Handle click on image 1."""
+        if self.temp_pt1 is not None:
+            self.status_label.setText("⚠ Please click Image 2 to complete the pair")
+            return
+
+        # Store the first point
+        self.temp_pt1 = (x, y)
+        self.status_label.setText(f"Point selected in Image 1: ({x}, {y}). Now click corresponding point in Image 2")
+        self._update_displays()
+
+    def _on_image2_clicked(self, x: int, y: int):
+        """Handle click on image 2."""
+        if self.temp_pt1 is None:
+            self.status_label.setText("⚠ Please click Image 1 first")
+            return
+
+        # Complete the landmark pair
+        pt2 = (x, y)
+        self.landmarks.append((self.temp_pt1, pt2))
+
+        # Update UI
+        pair_num = len(self.landmarks)
+        self.landmark_list.addItem(f"Pair {pair_num}: {self.temp_pt1} ↔ {pt2}")
+        self.status_label.setText(f"✓ Landmark pair {pair_num} added! Click Image 1 for next pair")
+
+        self.temp_pt1 = None
+        self.undo_btn.setEnabled(True)
+        self._update_displays()
+
+    def _clear_landmarks(self):
+        """Clear all landmarks."""
+        reply = QtWidgets.QMessageBox.question(
+            self, "Confirm Clear",
+            "Clear all landmark pairs?",
+            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No
+        )
+
+        if reply == QtWidgets.QMessageBox.Yes:
+            self.landmarks = []
+            self.temp_pt1 = None
+            self.landmark_list.clear()
+            self.undo_btn.setEnabled(False)
+            self.status_label.setText("Click a point in Image 1 to start")
+            self._update_displays()
+
+    def _undo_last(self):
+        """Undo the last landmark pair."""
+        if len(self.landmarks) > 0:
+            self.landmarks.pop()
+            self.landmark_list.takeItem(len(self.landmarks))
+            self.status_label.setText(f"Undone. {len(self.landmarks)} pairs remaining")
+
+            if len(self.landmarks) == 0:
+                self.undo_btn.setEnabled(False)
+
+            self._update_displays()
+
+    def _update_displays(self):
+        """Update both image displays with landmarks."""
+        # Draw on image 1
+        img1_display = self.image1.copy()
+        for i, (pt1, pt2) in enumerate(self.landmarks):
+            cv2.circle(img1_display, pt1, 5, (0, 255, 0), -1)
+            cv2.putText(img1_display, str(i+1), (pt1[0]+8, pt1[1]+8),
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+
+        # Draw temp point if exists
+        if self.temp_pt1 is not None:
+            cv2.circle(img1_display, self.temp_pt1, 7, (255, 255, 0), 2)
+            cv2.putText(img1_display, "?", (self.temp_pt1[0]+8, self.temp_pt1[1]+8),
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 0), 2)
+
+        # Draw on image 2
+        img2_display = self.image2.copy()
+        for i, (pt1, pt2) in enumerate(self.landmarks):
+            cv2.circle(img2_display, pt2, 5, (0, 255, 0), -1)
+            cv2.putText(img2_display, str(i+1), (pt2[0]+8, pt2[1]+8),
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+
+        # Convert to QPixmap and display
+        self.img1_label.setPixmap(self._cv_to_pixmap(img1_display))
+        self.img2_label.setPixmap(self._cv_to_pixmap(img2_display))
+
+    def _cv_to_pixmap(self, cv_img: np.ndarray) -> QtGui.QPixmap:
+        """Convert OpenCV image to QPixmap."""
+        height, width, channel = cv_img.shape
+        bytes_per_line = 3 * width
+        rgb_image = cv2.cvtColor(cv_img, cv2.COLOR_BGR2RGB)
+        q_img = QtGui.QImage(rgb_image.data, width, height, bytes_per_line, QtGui.QImage.Format_RGB888)
+        return QtGui.QPixmap.fromImage(q_img)
+
+    def get_landmarks(self):
+        """Get the selected landmark pairs."""
+        return self.landmarks

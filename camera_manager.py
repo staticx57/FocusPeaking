@@ -9,8 +9,15 @@ import cv2
 import numpy as np
 import logging
 import platform
+import warnings
 from typing import Optional, List, Tuple, Dict
 from pathlib import Path
+
+# Suppress OpenCV warnings globally
+import os
+os.environ['OPENCV_LOG_LEVEL'] = 'ERROR'
+cv2.setLogLevel(0)  # 0 = silent, 1 = fatal, 2 = error, 3 = warning
+warnings.filterwarnings('ignore', category=UserWarning, module='cv2')
 
 from config import (
     FRAME_WIDTH,
