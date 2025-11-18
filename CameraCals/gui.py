@@ -21,6 +21,7 @@ from CameraCals.calibration_tool import (
     CalibrationDataManager,
     undistort_image
 )
+from CameraCals.custom_camera_dialog import CustomCameraDialog
 
 from logger_setup import get_logger
 
@@ -57,6 +58,12 @@ class CalibrationGUI(QtWidgets.QWidget):
         # UI state
         self.calibration_mode = "single"  # "single" or "stereo"
         self.current_camera_index = 0  # For stereo mode
+
+        # Custom camera specifications and flange distances
+        self.custom_source_spec = None
+        self.custom_source_flange_distance = None
+        self.custom_target_spec = None
+        self.custom_target_flange_distance = None
 
         self._create_ui()
 
@@ -914,30 +921,62 @@ Alignment Quality:
 
     def _on_field_source_changed(self, camera_name: str):
         """Handle source camera selection change."""
-        if camera_name in ["Custom..."]:
-            # TODO: Open custom camera spec dialog
-            pass
+        if camera_name == "Custom...":
+            # Open custom camera spec dialog
+            result = CustomCameraDialog.get_custom_camera(
+                parent=self,
+                initial_spec=self.custom_source_spec
+            )
+
+            if result:
+                self.custom_source_spec = result['spec']
+                self.custom_source_flange_distance = result['flange_distance_mm']
+                self.field_source_focal_spin.setValue(self.custom_source_spec.focal_length_mm)
+                self.logger.info(f"Custom source camera configured: {self.custom_source_spec.name}")
+            else:
+                # User cancelled - revert to previous selection
+                if self.field_source_combo.count() > 1:
+                    self.field_source_combo.setCurrentIndex(0)  # Default to first non-custom option
+                return
         else:
             # Update UI with known specs
             from CameraCals.field_calibration import CAMERA_SPECS_DB
+            self.custom_source_spec = None  # Clear custom spec
             if camera_name in CAMERA_SPECS_DB:
                 spec = CAMERA_SPECS_DB[camera_name]
                 if spec.focal_length_mm:
                     self.field_source_focal_spin.setValue(spec.focal_length_mm)
+
         self._update_fov_analysis()
 
     def _on_field_target_changed(self, camera_name: str):
         """Handle target camera selection change."""
-        if camera_name in ["Custom..."]:
-            # TODO: Open custom camera spec dialog
-            pass
+        if camera_name == "Custom...":
+            # Open custom camera spec dialog
+            result = CustomCameraDialog.get_custom_camera(
+                parent=self,
+                initial_spec=self.custom_target_spec
+            )
+
+            if result:
+                self.custom_target_spec = result['spec']
+                self.custom_target_flange_distance = result['flange_distance_mm']
+                self.field_target_focal_spin.setValue(self.custom_target_spec.focal_length_mm)
+                self.logger.info(f"Custom target camera configured: {self.custom_target_spec.name}")
+            else:
+                # User cancelled - revert to previous selection
+                if self.field_target_combo.count() > 2:
+                    self.field_target_combo.setCurrentIndex(2)  # Default to Firefly
+                return
         else:
             # Update UI with known specs
             from CameraCals.field_calibration import CAMERA_SPECS_DB
+            self.custom_target_spec = None  # Clear custom spec
             if camera_name in CAMERA_SPECS_DB:
                 spec = CAMERA_SPECS_DB[camera_name]
                 if spec.focal_length_mm:
                     self.field_target_focal_spin.setValue(spec.focal_length_mm)
+
         self._update_fov_analysis()
 
     def _on_focal_length_changed(self):
@@ -952,12 +991,23 @@ Alignment Quality:
             source_name = self.field_source_combo.currentText()
             target_name = self.field_target_combo.currentText()
 
-            if source_name not in CAMERA_SPECS_DB or target_name not in CAMERA_SPECS_DB:
-                self.fov_analysis_text.setPlainText("Custom camera specs not yet implemented")
+            # Get source spec (custom or predefined)
+            if source_name == "Custom..." and self.custom_source_spec:
+                source_spec = self.custom_source_spec
+            elif source_name in CAMERA_SPECS_DB:
+                source_spec = CAMERA_SPECS_DB[source_name]
+            else:
+                self.fov_analysis_text.setPlainText("Please select or configure source camera")
                 return
 
-            source_spec = CAMERA_SPECS_DB[source_name]
-            target_spec = CAMERA_SPECS_DB[target_name]
+            # Get target spec (custom or predefined)
+            if target_name == "Custom..." and self.custom_target_spec:
+                target_spec = self.custom_target_spec
+            elif target_name in CAMERA_SPECS_DB:
+                target_spec = CAMERA_SPECS_DB[target_name]
+            else:
+                self.fov_analysis_text.setPlainText("Please select or configure target camera")
+                return
 
             source_focal = self.field_source_focal_spin.value()
             target_focal = self.field_target_focal_spin.value()
@@ -1004,12 +1054,24 @@ Magnification Ratio: {source_focal / target_focal:.3f}x
             source_name = self.field_source_combo.currentText()
             target_name = self.field_target_combo.currentText()
 
-            if source_name not in CAMERA_SPECS_DB or target_name not in CAMERA_SPECS_DB:
-                QtWidgets.QMessageBox.warning(self, "Error", "Custom camera specs not yet supported")
+            # Get source spec (custom or predefined)
+            if source_name == "Custom..." and self.custom_source_spec:
+                source_spec = self.custom_source_spec
+            elif source_name in CAMERA_SPECS_DB:
+                source_spec = CAMERA_SPECS_DB[source_name]
+            else:
+                QtWidgets.QMessageBox.warning(self, "Error", "Please configure source camera first")
                 return
 
-            source_spec = CAMERA_SPECS_DB[source_name]
-            target_spec = CAMERA_SPECS_DB[target_name]
+            # Get target spec (custom or predefined)
+            if target_name == "Custom..." and self.custom_target_spec:
+                target_spec = self.custom_target_spec
+            elif target_name in CAMERA_SPECS_DB:
+                target_spec = CAMERA_SPECS_DB[target_name]
+            else:
+                QtWidgets.QMessageBox.warning(self, "Error", "Please configure target camera first")
+                return
+
             source_focal = self.field_source_focal_spin.value()
 
             # Get recommendation
