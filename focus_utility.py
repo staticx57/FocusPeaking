@@ -659,8 +659,9 @@ class BosonFocusGUI(QtWidgets.QWidget):
         self.device_combo = QtWidgets.QComboBox()
         self.device_combo.currentIndexChanged.connect(self._on_device_changed)
         device_layout.addWidget(self.device_combo)
-        self.refresh_btn = QtWidgets.QPushButton("🔄")
-        self.refresh_btn.setMaximumWidth(40)
+        self.refresh_btn = QtWidgets.QPushButton("🔄 Detect")
+        self.refresh_btn.setToolTip("Detect and refresh all connected cameras (Boson, Spinnaker, UVC)")
+        self.refresh_btn.setStyleSheet("padding: 4px 8px; font-weight: bold;")
         self.refresh_btn.clicked.connect(self._refresh_cameras)
         device_layout.addWidget(self.refresh_btn)
         group_layout.addLayout(device_layout)
@@ -1160,7 +1161,19 @@ class BosonFocusGUI(QtWidgets.QWidget):
 
         if self.camera_manager.connect(device=camera_device):
             info = self.camera_manager.get_camera_info()
-            info_text = f"Connected: {info['width']}x{info['height']} @ {info['backend']}"
+
+            # Determine camera type icon and description
+            if camera_device.camera_type == "spinnaker":
+                type_icon = "🎥"
+                type_desc = "Spinnaker SDK"
+            elif "Boson" in camera_device.name or "FLIR" in camera_device.name:
+                type_icon = "🌡️"
+                type_desc = "Thermal"
+            else:
+                type_icon = "📹"
+                type_desc = "UVC Webcam"
+
+            info_text = f"{type_icon} {type_desc} | {info['width']}x{info['height']} @ {info['backend']}"
             self.camera_info_label.setText(info_text)
             self.status_label.setText(f"{camera_device.name} connected")
             self.logger.info(f"Successfully connected to {camera_device}")
