@@ -1340,3 +1340,59 @@
 2025-11-18 11:02:43,961 - BosonFocusGUI - INFO - Deleted ROI 2
 2025-11-18 11:02:51,269 - BosonFocusGUI - INFO - Application closing...
 2025-11-18 11:02:51,644 - camera_manager - INFO - Disconnected from OpenCV camera Camera 0 (MSMF) (Device 0)
+2025-11-18 11:12:39,823 - root - INFO - ============================================================
+2025-11-18 11:12:39,823 - root - INFO - FLIR Boson Focus Peaking - Logging initialized
+2025-11-18 11:12:39,823 - root - INFO - Log level: INFO
+2025-11-18 11:12:39,823 - root - INFO - Log file: C:\Users\stati\Desktop\Projects\FocusPeaking\flir_focus.log
+2025-11-18 11:12:39,823 - root - INFO - ============================================================
+2025-11-18 11:12:39,837 - theme_manager - INFO - Applied theme: Dark
+2025-11-18 11:12:39,837 - BosonFocusGUI - INFO - Initializing Boson Focus GUI v2.0
+2025-11-18 11:12:39,850 - boson_control - ERROR - Cannot connect: No COM port specified
+2025-11-18 11:12:39,850 - focus_utils - INFO - FocusEnsemble initialized with 5 algorithms
+2025-11-18 11:12:39,855 - BosonControlPanel - INFO - Boson controller connected
+2025-11-18 11:12:40,313 - BosonFocusGUI - INFO - Screen size: 3840x2304
+2025-11-18 11:12:40,313 - BosonFocusGUI - INFO - Window auto-scaled to 3264x2073
+2025-11-18 11:12:40,314 - BosonFocusGUI - INFO - Refreshing camera list...
+2025-11-18 11:12:40,314 - camera_manager - INFO - Detecting available cameras...
+2025-11-18 11:12:41,483 - camera_manager - INFO - Found OpenCV camera: Camera 0 (DSHOW) (Device 0)
+2025-11-18 11:12:42,069 - camera_manager - INFO - Detected 1 camera(s) total
+2025-11-18 11:12:42,074 - BosonFocusGUI - INFO - Connecting to Camera 0 (DSHOW) (Device 0)...
+2025-11-18 11:12:42,076 - camera_manager - INFO - Attempting to connect to Camera 0 (DSHOW) (Device 0)...
+2025-11-18 11:12:43,552 - camera_manager - INFO - Successfully connected to camera Camera 0 (DSHOW) (Device 0) (640x480)
+2025-11-18 11:12:43,552 - BosonFocusGUI - INFO - Successfully connected to Camera 0 (DSHOW) (Device 0)
+2025-11-18 11:12:43,553 - BosonFocusGUI - INFO - Connecting to Camera 0 (DSHOW) (Device 0)...
+2025-11-18 11:12:43,925 - camera_manager - INFO - Disconnected from OpenCV camera Camera 0 (DSHOW) (Device 0)
+2025-11-18 11:12:43,926 - camera_manager - INFO - Attempting to connect to Camera 0 (DSHOW) (Device 0)...
+2025-11-18 11:12:45,410 - camera_manager - INFO - Successfully connected to camera Camera 0 (DSHOW) (Device 0) (640x480)
+2025-11-18 11:12:45,410 - BosonFocusGUI - INFO - Successfully connected to Camera 0 (DSHOW) (Device 0)
+2025-11-18 11:12:45,411 - BosonFocusGUI - INFO - GUI initialization complete
+2025-11-18 11:12:45,555 - __main__ - INFO - FLIR Boson Focus Utility v3.0.1 started
+2025-11-18 11:12:45,600 - camera_manager - INFO - Detecting available cameras...
+2025-11-18 11:12:45,609 - camera_manager - INFO - Found OpenCV camera: Camera 0 (DSHOW) (Device 0)
+2025-11-18 11:12:46,245 - camera_manager - INFO - Detected 1 camera(s) total
+2025-11-18 11:12:46,256 - CalibrationGUI - INFO - Detected 1 cameras in calibration mode
+2025-11-18 11:12:46,256 - camera_manager - WARNING - Failed to read frame from OpenCV camera
+2025-11-18 11:12:50,541 - BosonFocusGUI - INFO - Refreshing camera list...
+2025-11-18 11:12:50,541 - camera_manager - INFO - Detecting available cameras...
+2025-11-18 11:12:51,303 - camera_manager - INFO - Found OpenCV camera: Camera 0 (DSHOW) (Device 0)
+2025-11-18 11:12:51,907 - camera_manager - INFO - Detected 1 camera(s) total
+2025-11-18 11:12:51,907 - BosonFocusGUI - INFO - Connecting to Camera 0 (DSHOW) (Device 0)...
+2025-11-18 11:12:51,909 - camera_manager - INFO - Disconnected from OpenCV camera Camera 0 (DSHOW) (Device 0)
+2025-11-18 11:12:51,909 - camera_manager - INFO - Attempting to connect to Camera 0 (DSHOW) (Device 0)...
+2025-11-18 11:12:53,323 - camera_manager - INFO - Successfully connected to camera Camera 0 (DSHOW) (Device 0) (640x480)
+2025-11-18 11:12:53,323 - BosonFocusGUI - INFO - Successfully connected to Camera 0 (DSHOW) (Device 0)
+2025-11-18 11:12:53,324 - BosonFocusGUI - INFO - Connecting to Camera 0 (DSHOW) (Device 0)...
+2025-11-18 11:12:53,713 - camera_manager - INFO - Disconnected from OpenCV camera Camera 0 (DSHOW) (Device 0)
+2025-11-18 11:12:53,714 - camera_manager - INFO - Attempting to connect to Camera 0 (DSHOW) (Device 0)...
+2025-11-18 11:12:55,075 - camera_manager - INFO - Successfully connected to camera Camera 0 (DSHOW) (Device 0) (640x480)
+2025-11-18 11:12:55,076 - BosonFocusGUI - INFO - Successfully connected to Camera 0 (DSHOW) (Device 0)
+2025-11-18 11:12:55,097 - BosonFocusGUI - INFO - Created ROI 1: (470, 176, 577, 207)
+2025-11-18 11:12:59,625 - BosonFocusGUI - INFO - Deleted ROI 1
+2025-11-18 11:13:16,227 - BosonFocusGUI - INFO - Thermal preprocessing: enabled
+2025-11-18 11:13:17,502 - BosonFocusGUI - INFO - Thermal preprocessing: disabled
+2025-11-18 11:13:18,619 - BosonFocusGUI - INFO - Ensemble voting: enabled
+2025-11-18 11:13:20,063 - BosonFocusGUI - INFO - Ensemble voting: disabled
+2025-11-18 11:13:45,711 - BosonFocusGUI - INFO - Switched to Calibration Mode
+2025-11-18 11:13:48,518 - BosonFocusGUI - INFO - Switched to Focus Mode
+2025-11-18 11:13:54,123 - BosonFocusGUI - INFO - Application closing...
+2025-11-18 11:13:54,582 - camera_manager - INFO - Disconnected from OpenCV camera Camera 0 (DSHOW) (Device 0)
