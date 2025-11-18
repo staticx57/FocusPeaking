@@ -158,16 +158,19 @@ class CameraManager:
                         # Open camera with timeout protection
                         cap = cv2.VideoCapture(i, backend_id)
                         if cap.isOpened():
-                            # Quick sanity check - just verify we can get properties
-                            # Skip slow frame reading during detection for speed
+                            # Verify camera properties exist
                             width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
                             height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
 
                             if width > 0 and height > 0:
-                                backend_name = cap.getBackendName()
-                                camera_opened = True
-                                logger.debug(f"Camera {i} detected with {backend_name} ({int(width)}x{int(height)})")
-                                break
+                                # Quick frame read to verify camera actually works
+                                # Single attempt only - keeps detection fast
+                                ret, frame = cap.read()
+                                if ret and frame is not None:
+                                    backend_name = cap.getBackendName()
+                                    camera_opened = True
+                                    logger.debug(f"Camera {i} verified with {backend_name} ({int(width)}x{int(height)})")
+                                    break
                             cap.release()
                     except Exception as e:
                         if cap is not None:
