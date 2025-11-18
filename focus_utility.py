@@ -1136,11 +1136,17 @@ class BosonFocusGUI(QtWidgets.QWidget):
             self.logger.warning("No cameras detected")
             return
 
+        # Block signals to prevent double-connection during population
+        self.device_combo.blockSignals(True)
+
         # Store camera objects with their combo box index
         for i, camera in enumerate(self.available_cameras):
             self.device_combo.addItem(str(camera), i)
 
-        # Auto-connect to first camera
+        # Re-enable signals
+        self.device_combo.blockSignals(False)
+
+        # Auto-connect to first camera (will only trigger once now)
         if len(self.available_cameras) > 0:
             self._on_device_changed(0)
 

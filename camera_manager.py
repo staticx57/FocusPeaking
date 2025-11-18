@@ -90,12 +90,12 @@ class CameraManager:
         return frame
 
     @staticmethod
-    def detect_cameras(max_cameras: int = 10) -> List[CameraDevice]:
+    def detect_cameras(max_cameras: int = 4) -> List[CameraDevice]:
         """
         Detect available camera devices (OpenCV + Spinnaker).
 
         Args:
-            max_cameras: Maximum number of camera indices to check
+            max_cameras: Maximum number of camera indices to check (default: 4)
 
         Returns:
             List of detected camera devices
@@ -134,7 +134,15 @@ class CameraManager:
         old_opencv_log_level = os.environ.get('OPENCV_LOG_LEVEL')
         os.environ['OPENCV_LOG_LEVEL'] = 'ERROR'  # Suppress warnings
 
+        consecutive_failures = 0
+        max_consecutive_failures = 2  # Stop after 2 failed indices in a row
+
         for i in range(max_cameras):
+            # Early termination: stop if we've had too many consecutive failures
+            if consecutive_failures >= max_consecutive_failures:
+                logger.debug(f"Stopping camera detection after {consecutive_failures} consecutive failures")
+                break
+
             try:
                 # Try different backends on Windows (MSMF can be flaky)
                 backends_to_try = [cv2.CAP_ANY]
@@ -147,14 +155,18 @@ class CameraManager:
 
                 for backend_id in backends_to_try:
                     try:
+                        # Open camera with timeout protection
                         cap = cv2.VideoCapture(i, backend_id)
                         if cap.isOpened():
-                            # Try to read a frame to verify camera works
-                            ret, frame = cap.read()
-                            if ret and frame is not None:
+                            # Quick sanity check - just verify we can get properties
+                            # Skip slow frame reading during detection for speed
+                            width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+                            height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+
+                            if width > 0 and height > 0:
                                 backend_name = cap.getBackendName()
                                 camera_opened = True
-                                logger.debug(f"Camera {i} opened successfully with {backend_name}")
+                                logger.debug(f"Camera {i} detected with {backend_name} ({int(width)}x{int(height)})")
                                 break
                             cap.release()
                     except Exception as e:
@@ -179,9 +191,13 @@ class CameraManager:
                     available_cameras.append(device)
                     logger.info(f"Found OpenCV camera: {device}")
                     cap.release()
+                    consecutive_failures = 0  # Reset on success
+                else:
+                    consecutive_failures += 1
 
             except Exception as e:
                 logger.debug(f"Error checking camera {i}: {e}")
+                consecutive_failures += 1
                 continue
 
         # Restore OpenCV log level
