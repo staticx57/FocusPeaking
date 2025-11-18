@@ -659,8 +659,9 @@ class BosonFocusGUI(QtWidgets.QWidget):
         self.device_combo = QtWidgets.QComboBox()
         self.device_combo.currentIndexChanged.connect(self._on_device_changed)
         device_layout.addWidget(self.device_combo)
-        self.refresh_btn = QtWidgets.QPushButton("🔄")
-        self.refresh_btn.setMaximumWidth(40)
+        self.refresh_btn = QtWidgets.QPushButton("🔄 Detect")
+        self.refresh_btn.setToolTip("Detect and refresh all connected cameras (Boson, Spinnaker, UVC)")
+        self.refresh_btn.setStyleSheet("padding: 4px 8px; font-weight: bold;")
         self.refresh_btn.clicked.connect(self._refresh_cameras)
         device_layout.addWidget(self.refresh_btn)
         group_layout.addLayout(device_layout)
@@ -1127,40 +1128,59 @@ class BosonFocusGUI(QtWidgets.QWidget):
         self.logger.info("Refreshing camera list...")
         self.device_combo.clear()
 
-        cameras = CameraManager.detect_cameras()
+        self.available_cameras = CameraManager.detect_cameras()
 
-        if not cameras:
-            self.device_combo.addItem("No cameras found", -1)
+        if not self.available_cameras:
+            self.device_combo.addItem("No cameras found", None)
             self.camera_info_label.setText("No cameras detected")
             self.logger.warning("No cameras detected")
             return
 
-        for camera in cameras:
-            self.device_combo.addItem(str(camera), camera.index)
+        # Store camera objects with their combo box index
+        for i, camera in enumerate(self.available_cameras):
+            self.device_combo.addItem(str(camera), i)
 
         # Auto-connect to first camera
-        if len(cameras) > 0:
+        if len(self.available_cameras) > 0:
             self._on_device_changed(0)
 
-    def _on_device_changed(self, index):
+    def _on_device_changed(self, combo_index):
         """Handle camera device selection change."""
-        device_index = self.device_combo.itemData(index)
+        camera_list_index = self.device_combo.itemData(combo_index)
 
-        if device_index is None or device_index == -1:
+        if camera_list_index is None:
             return
 
-        self.logger.info(f"Connecting to camera {device_index}...")
+        # Get the CameraDevice object from our stored list
+        if not hasattr(self, 'available_cameras') or camera_list_index >= len(self.available_cameras):
+            self.logger.error("Invalid camera index")
+            return
 
-        if self.camera_manager.connect(device_index):
+        camera_device = self.available_cameras[camera_list_index]
+        self.logger.info(f"Connecting to {camera_device}...")
+
+        if self.camera_manager.connect(device=camera_device):
             info = self.camera_manager.get_camera_info()
-            info_text = f"Connected: {info['width']}x{info['height']} @ {info['backend']}"
+
+            # Determine camera type icon and description
+            if camera_device.camera_type == "spinnaker":
+                type_icon = "🎥"
+                type_desc = "Spinnaker SDK"
+            elif "Boson" in camera_device.name or "FLIR" in camera_device.name:
+                type_icon = "🌡️"
+                type_desc = "Thermal"
+            else:
+                type_icon = "📹"
+                type_desc = "UVC Webcam"
+
+            info_text = f"{type_icon} {type_desc} | {info['width']}x{info['height']} @ {info['backend']}"
             self.camera_info_label.setText(info_text)
-            self.status_label.setText(f"Camera {device_index} connected")
-            self.logger.info(f"Successfully connected to camera {device_index}")
+            self.status_label.setText(f"{camera_device.name} connected")
+            self.logger.info(f"Successfully connected to {camera_device}")
         else:
             self.camera_info_label.setText("Connection failed")
             self.status_label.setText("Camera connection failed")
-            self.logger.error(f"Failed to connect to camera {device_index}")
+            self.logger.error(f"Failed to connect to {camera_device}")
 
     # ========================================================================
     # ROI Management

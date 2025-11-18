@@ -71,6 +71,9 @@ class CalibrationGUI(QtWidgets.QWidget):
         """Create the calibration UI with tabs."""
         main_layout = QtWidgets.QVBoxLayout(self)
 
+        # Camera detection panel
+        self._create_camera_detection_panel(main_layout)
+
         # Create tabbed interface for calibration workflows
         self.cal_tabs = QtWidgets.QTabWidget()
 
@@ -95,6 +98,75 @@ class CalibrationGUI(QtWidgets.QWidget):
         self.cal_tabs.addTab(field_tab, "Field Calibration")
 
         main_layout.addWidget(self.cal_tabs)
+
+    def _create_camera_detection_panel(self, layout):
+        """Create camera detection and status panel."""
+        detection_group = QtWidgets.QGroupBox("Connected Cameras")
+        detection_layout = QtWidgets.QVBoxLayout(detection_group)
+
+        # Header with refresh button
+        header_layout = QtWidgets.QHBoxLayout()
+
+        refresh_btn = QtWidgets.QPushButton("🔄 Detect Cameras")
+        refresh_btn.setToolTip("Scan for all connected cameras (Boson, Spinnaker, UVC)")
+        refresh_btn.setStyleSheet("padding: 6px 12px; font-weight: bold; background-color: #0078d4; color: white;")
+        refresh_btn.clicked.connect(self._detect_cameras)
+        header_layout.addWidget(refresh_btn)
+
+        header_layout.addStretch()
+        detection_layout.addLayout(header_layout)
+
+        # Camera list display
+        self.camera_list_text = QtWidgets.QTextEdit()
+        self.camera_list_text.setReadOnly(True)
+        self.camera_list_text.setMaximumHeight(80)
+        self.camera_list_text.setPlainText("Click 'Detect Cameras' to scan for connected cameras...")
+        detection_layout.addWidget(self.camera_list_text)
+
+        layout.addWidget(detection_group)
+
+        # Auto-detect on startup
+        QtCore.QTimer.singleShot(500, self._detect_cameras)
+
+    def _detect_cameras(self):
+        """Detect all connected cameras and update display."""
+        try:
+            from camera_manager import CameraManager
+
+            self.camera_list_text.setPlainText("Scanning for cameras...")
+            QtWidgets.QApplication.processEvents()  # Update UI immediately
+
+            cameras = CameraManager.detect_cameras()
+
+            if not cameras:
+                self.camera_list_text.setPlainText("❌ No cameras detected\n\nTroubleshooting:\n- Check USB connections\n- Verify camera drivers installed\n- Try unplugging and reconnecting cameras")
+                self.logger.warning("No cameras detected during calibration scan")
+                return
+
+            # Build camera list text with icons
+            camera_text = f"✓ Found {len(cameras)} camera(s):\n\n"
+
+            for i, cam in enumerate(cameras):
+                # Determine camera type icon
+                if cam.camera_type == "spinnaker":
+                    icon = "🎥"
+                    cam_type = "Spinnaker SDK"
+                elif "Boson" in cam.name or "FLIR" in cam.name:
+                    icon = "🌡️"
+                    cam_type = "Thermal"
+                else:
+                    icon = "📹"
+                    cam_type = "UVC Webcam"
+
+                camera_text += f"{icon} {cam.name} ({cam_type})\n"
+                camera_text += f"   Backend: {cam.backend}\n"
+
+            self.camera_list_text.setPlainText(camera_text)
+            self.logger.info(f"Detected {len(cameras)} cameras in calibration mode")
+
+        except Exception as e:
+            self.logger.error(f"Camera detection failed: {e}")
+            self.camera_list_text.setPlainText(f"❌ Detection error: {str(e)}")
 
     def _create_pattern_tab(self) -> QtWidgets.QWidget:
         """Create pattern detection configuration tab."""
@@ -459,6 +531,9 @@ class CalibrationGUI(QtWidgets.QWidget):
             "FLIR Boson 320",
             "FLIR Boson 640",
             "FLIR Firefly",
+            "UVC Webcam 1080p",
+            "UVC Webcam 720p",
+            "Logitech C920",
             "Generic C-Mount",
             "Custom..."
         ])
@@ -485,6 +560,9 @@ class CalibrationGUI(QtWidgets.QWidget):
             "FLIR Boson 320",
             "FLIR Boson 640",
             "FLIR Firefly",
+            "UVC Webcam 1080p",
+            "UVC Webcam 720p",
+            "Logitech C920",
             "Generic C-Mount",
             "Custom..."
         ])
@@ -935,8 +1013,8 @@ Alignment Quality:
                 self.logger.info(f"Custom source camera configured: {self.custom_source_spec.name}")
             else:
                 # User cancelled - revert to previous selection
-                if self.field_source_combo.count() > 1:
-                    self.field_source_combo.setCurrentIndex(0)  # Default to first non-custom option
+                # Default to FLIR Boson 320 (index 0)
+                self.field_source_combo.setCurrentIndex(0)
                 return
         else:
             # Update UI with known specs
@@ -965,8 +1043,8 @@ Alignment Quality:
                 self.logger.info(f"Custom target camera configured: {self.custom_target_spec.name}")
             else:
                 # User cancelled - revert to previous selection
-                if self.field_target_combo.count() > 2:
-                    self.field_target_combo.setCurrentIndex(2)  # Default to Firefly
+                # Default to FLIR Firefly (index 2)
+                self.field_target_combo.setCurrentIndex(2)
                 return
         else:
             # Update UI with known specs

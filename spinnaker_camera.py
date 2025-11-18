@@ -78,8 +78,20 @@ class SpinnakerCamera:
 
             cam_list.Clear()
 
+            # Release system instance to free resources for other camera backends
+            if self.system is not None:
+                self.system.ReleaseInstance()
+                self.system = None
+
         except Exception as e:
             self.logger.error(f"Failed to detect Spinnaker cameras: {e}")
+            # Ensure system is released even on error
+            if self.system is not None:
+                try:
+                    self.system.ReleaseInstance()
+                    self.system = None
+                except:
+                    pass
 
         return cameras_found
 
@@ -146,7 +158,7 @@ class SpinnakerCamera:
             nodemap = self.camera.GetNodeMap()
 
             # Set acquisition mode to continuous
-            node_acquisition_mode = PySpin.CEnumerationPtr(nodemap.GetNode('AcquisationMode'))
+            node_acquisition_mode = PySpin.CEnumerationPtr(nodemap.GetNode('AcquisitionMode'))
             if PySpin.IsAvailable(node_acquisition_mode) and PySpin.IsWritable(node_acquisition_mode):
                 node_acquisition_mode_continuous = node_acquisition_mode.GetEntryByName('Continuous')
                 acquisition_mode_continuous = node_acquisition_mode_continuous.GetValue()
