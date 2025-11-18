@@ -459,6 +459,9 @@ class CalibrationGUI(QtWidgets.QWidget):
             "FLIR Boson 320",
             "FLIR Boson 640",
             "FLIR Firefly",
+            "UVC Webcam 1080p",
+            "UVC Webcam 720p",
+            "Logitech C920",
             "Generic C-Mount",
             "Custom..."
         ])
@@ -485,6 +488,9 @@ class CalibrationGUI(QtWidgets.QWidget):
             "FLIR Boson 320",
             "FLIR Boson 640",
             "FLIR Firefly",
+            "UVC Webcam 1080p",
+            "UVC Webcam 720p",
+            "Logitech C920",
             "Generic C-Mount",
             "Custom..."
         ])
@@ -935,8 +941,8 @@ Alignment Quality:
                 self.logger.info(f"Custom source camera configured: {self.custom_source_spec.name}")
             else:
                 # User cancelled - revert to previous selection
-                if self.field_source_combo.count() > 1:
-                    self.field_source_combo.setCurrentIndex(0)  # Default to first non-custom option
+                # Default to FLIR Boson 320 (index 0)
+                self.field_source_combo.setCurrentIndex(0)
                 return
         else:
             # Update UI with known specs
@@ -965,8 +971,8 @@ Alignment Quality:
                 self.logger.info(f"Custom target camera configured: {self.custom_target_spec.name}")
             else:
                 # User cancelled - revert to previous selection
-                if self.field_target_combo.count() > 2:
-                    self.field_target_combo.setCurrentIndex(2)  # Default to Firefly
+                # Default to FLIR Firefly (index 2)
+                self.field_target_combo.setCurrentIndex(2)
                 return
         else:
             # Update UI with known specs

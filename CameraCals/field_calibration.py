@@ -109,6 +109,30 @@ CAMERA_SPECS_DB = {
         image_height_px=1080,
         focal_length_mm=None  # Variable
     ),
+    "UVC Webcam 1080p": CameraSpec(
+        name="Generic UVC Webcam (1080p)",
+        sensor_width_mm=5.70,  # Typical 1/2.9" sensor (common in webcams)
+        sensor_height_mm=3.21,
+        image_width_px=1920,
+        image_height_px=1080,
+        focal_length_mm=3.6  # Typical webcam focal length
+    ),
+    "UVC Webcam 720p": CameraSpec(
+        name="Generic UVC Webcam (720p)",
+        sensor_width_mm=5.70,  # Typical 1/2.9" sensor
+        sensor_height_mm=3.21,
+        image_width_px=1280,
+        image_height_px=720,
+        focal_length_mm=3.6  # Typical webcam focal length
+    ),
+    "Logitech C920": CameraSpec(
+        name="Logitech C920 (Popular UVC Webcam)",
+        sensor_width_mm=4.8,  # Approximate for typical webcam sensor
+        sensor_height_mm=2.7,
+        image_width_px=1920,
+        image_height_px=1080,
+        focal_length_mm=3.67  # Approximate for C920
+    ),
 }
 
 
