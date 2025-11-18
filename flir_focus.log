@@ -1265,3 +1265,32 @@
 2025-11-18 10:41:08,440 - BosonFocusGUI - INFO - Switched to Focus Mode
 2025-11-18 10:41:08,829 - BosonFocusGUI - INFO - Switched to Calibration Mode
 2025-11-18 10:41:13,246 - BosonFocusGUI - INFO - Application closing...
+2025-11-18 10:41:59,146 - root - INFO - ============================================================
+2025-11-18 10:41:59,146 - root - INFO - FLIR Boson Focus Peaking - Logging initialized
+2025-11-18 10:41:59,146 - root - INFO - Log level: INFO
+2025-11-18 10:41:59,146 - root - INFO - Log file: C:\Users\stati\Desktop\Projects\FocusPeaking\flir_focus.log
+2025-11-18 10:41:59,146 - root - INFO - ============================================================
+2025-11-18 10:41:59,162 - theme_manager - INFO - Applied theme: Dark
+2025-11-18 10:41:59,162 - BosonFocusGUI - INFO - Initializing Boson Focus GUI v2.0
+2025-11-18 10:41:59,174 - boson_control - ERROR - Cannot connect: No COM port specified
+2025-11-18 10:41:59,174 - focus_utils - INFO - FocusEnsemble initialized with 5 algorithms
+2025-11-18 10:41:59,181 - BosonControlPanel - INFO - Boson controller connected
+2025-11-18 10:41:59,638 - BosonFocusGUI - INFO - Screen size: 3840x2304
+2025-11-18 10:41:59,638 - BosonFocusGUI - INFO - Window auto-scaled to 3264x2073
+2025-11-18 10:41:59,640 - BosonFocusGUI - INFO - Refreshing camera list...
+2025-11-18 10:41:59,640 - camera_manager - INFO - Detecting available cameras...
+2025-11-18 10:42:00,918 - camera_manager - INFO - Found OpenCV camera: Camera 0 (MSMF) (Device 0)
+2025-11-18 10:42:01,473 - camera_manager - INFO - Detected 1 camera(s) total
+2025-11-18 10:42:01,474 - BosonFocusGUI - INFO - Connecting to camera 0...
+2025-11-18 10:42:01,474 - camera_manager - INFO - Attempting to connect to 0...
+2025-11-18 10:42:01,474 - camera_manager - ERROR - Exception while connecting to camera 0: 'int' object has no attribute 'camera_type'
+2025-11-18 10:42:01,474 - BosonFocusGUI - ERROR - Failed to connect to camera 0
+2025-11-18 10:42:01,475 - BosonFocusGUI - INFO - Connecting to camera 0...
+2025-11-18 10:42:01,475 - camera_manager - INFO - Attempting to connect to 0...
+2025-11-18 10:42:01,475 - camera_manager - ERROR - Exception while connecting to camera 0: 'int' object has no attribute 'camera_type'
+2025-11-18 10:42:01,475 - BosonFocusGUI - ERROR - Failed to connect to camera 0
+2025-11-18 10:42:01,475 - BosonFocusGUI - INFO - GUI initialization complete
+2025-11-18 10:42:01,606 - __main__ - INFO - FLIR Boson Focus Utility v3.0.1 started
+2025-11-18 10:42:20,209 - BosonFocusGUI - INFO - Switched to Calibration Mode
+2025-11-18 10:42:47,561 - BosonFocusGUI - INFO - Switched to Focus Mode
+2025-11-18 10:42:48,910 - BosonFocusGUI - INFO - Application closing...
