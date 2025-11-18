@@ -1133,3 +1133,38 @@
 2025-11-14 20:44:50,739 - BosonFocusGUI - INFO - Application closing...
 2025-11-14 20:44:51,009 - camera_manager - INFO - Disconnected from camera 0
 2025-11-14 20:44:51,014 - boson_control - INFO - Disconnected from Boson camera
+2025-11-18 10:11:02,315 - root - INFO - ============================================================
+2025-11-18 10:11:02,315 - root - INFO - FLIR Boson Focus Peaking - Logging initialized
+2025-11-18 10:11:02,315 - root - INFO - Log level: INFO
+2025-11-18 10:11:02,315 - root - INFO - Log file: C:\Users\stati\Desktop\Projects\FocusPeaking\flir_focus.log
+2025-11-18 10:11:02,315 - root - INFO - ============================================================
+2025-11-18 10:11:02,332 - theme_manager - INFO - Applied theme: Dark
+2025-11-18 10:11:02,333 - BosonFocusGUI - INFO - Initializing Boson Focus GUI v2.0
+2025-11-18 10:11:02,367 - boson_control - ERROR - Cannot connect: No COM port specified
+2025-11-18 10:11:02,367 - focus_utils - INFO - FocusEnsemble initialized with 5 algorithms
+2025-11-18 10:11:02,386 - BosonControlPanel - INFO - Boson controller connected
+2025-11-18 10:11:02,979 - BosonFocusGUI - INFO - Screen size: 3840x2304
+2025-11-18 10:11:02,980 - BosonFocusGUI - INFO - Window auto-scaled to 3264x2073
+2025-11-18 10:11:02,982 - BosonFocusGUI - INFO - Refreshing camera list...
+2025-11-18 10:11:02,982 - camera_manager - INFO - Detecting available cameras...
+2025-11-18 10:11:04,106 - camera_manager - INFO - Found: Camera 0 (MSMF) (Device 0)
+2025-11-18 10:11:04,702 - camera_manager - INFO - Detected 1 camera(s)
+2025-11-18 10:11:04,702 - BosonFocusGUI - INFO - Connecting to camera 0...
+2025-11-18 10:11:04,703 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-18 10:11:05,484 - camera_manager - INFO - Successfully connected to camera 0 (640x480)
+2025-11-18 10:11:05,485 - BosonFocusGUI - INFO - Successfully connected to camera 0
+2025-11-18 10:11:05,485 - BosonFocusGUI - INFO - Connecting to camera 0...
+2025-11-18 10:11:05,485 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-18 10:11:05,836 - camera_manager - INFO - Disconnected from camera 0
+2025-11-18 10:11:06,632 - camera_manager - INFO - Successfully connected to camera 0 (640x480)
+2025-11-18 10:11:06,632 - BosonFocusGUI - INFO - Successfully connected to camera 0
+2025-11-18 10:11:06,632 - BosonFocusGUI - INFO - GUI initialization complete
+2025-11-18 10:11:06,774 - __main__ - INFO - FLIR Boson Focus Utility v3.0.1 started
+2025-11-18 10:11:10,439 - BosonFocusGUI - INFO - Switched to Calibration Mode
+2025-11-18 10:11:15,197 - CalibrationGUI - INFO - Pattern type changed to: Asymmetric Circles
+2025-11-18 10:12:16,814 - BosonFocusGUI - INFO - Switched to Focus Mode
+2025-11-18 10:12:18,405 - BosonFocusGUI - INFO - Switched to Calibration Mode
+2025-11-18 10:12:20,215 - BosonFocusGUI - INFO - Switched to Focus Mode
+2025-11-18 10:13:38,687 - BosonFocusGUI - INFO - Switched to Calibration Mode
+2025-11-18 10:16:45,025 - BosonFocusGUI - INFO - Application closing...
+2025-11-18 10:16:45,520 - camera_manager - INFO - Disconnected from camera 0
