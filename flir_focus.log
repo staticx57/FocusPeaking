@@ -1012,3 +1012,124 @@
 2025-11-13 15:49:16,486 - BosonFocusGUI - INFO - Application closing...
 2025-11-13 15:49:16,773 - camera_manager - INFO - Disconnected from camera 1
 2025-11-13 15:49:16,773 - boson_control - INFO - Disconnected from Boson camera
+2025-11-14 17:50:40,783 - root - INFO - ============================================================
+2025-11-14 17:50:40,783 - root - INFO - FLIR Boson Focus Peaking - Logging initialized
+2025-11-14 17:50:40,783 - root - INFO - Log level: INFO
+2025-11-14 17:50:40,783 - root - INFO - Log file: C:\Users\stati\Desktop\Projects\FocusPeaking\flir_focus.log
+2025-11-14 17:50:40,785 - root - INFO - ============================================================
+2025-11-14 17:50:40,798 - theme_manager - INFO - Applied theme: Dark
+2025-11-14 17:50:40,799 - BosonFocusGUI - INFO - Initializing Boson Focus GUI v2.0
+2025-11-14 17:50:40,831 - boson_control - INFO - Found FLIR device: COM6 - FLIR Control (COM6)
+2025-11-14 17:50:40,834 - boson_control - INFO - Auto-detected FLIR Boson on COM6
+2025-11-14 17:50:40,835 - boson_control - INFO - Attempting to connect to Boson on COM6...
+2025-11-14 17:50:41,489 - boson_control - INFO - Connected to Boson camera. Serial: 30149
+2025-11-14 17:50:41,489 - focus_utils - INFO - FocusEnsemble initialized with 5 algorithms
+2025-11-14 17:50:41,510 - BosonControlPanel - INFO - Boson controller connected
+2025-11-14 17:50:41,512 - boson_control - ERROR - Failed to set AGC mode: 353
+2025-11-14 17:50:41,512 - BosonControlPanel - ERROR - Failed to set AGC mode to Auto
+2025-11-14 17:50:41,512 - BosonControlPanel - INFO - Loaded current settings from Boson camera
+2025-11-14 17:50:42,494 - BosonFocusGUI - INFO - Screen size: 3840x1540
+2025-11-14 17:50:42,494 - BosonFocusGUI - INFO - Window auto-scaled to 3264x1386
+2025-11-14 17:50:42,494 - BosonFocusGUI - INFO - Refreshing camera list...
+2025-11-14 17:50:42,494 - camera_manager - INFO - Detecting available cameras...
+2025-11-14 17:50:43,087 - camera_manager - INFO - Found: Camera 0 (MSMF) (Device 0)
+2025-11-14 17:50:44,510 - camera_manager - INFO - Found: Camera 1 (MSMF) (Device 1)
+2025-11-14 17:50:45,772 - camera_manager - INFO - Detected 2 camera(s)
+2025-11-14 17:50:45,772 - BosonFocusGUI - INFO - Connecting to camera 0...
+2025-11-14 17:50:45,772 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-14 17:50:46,119 - camera_manager - INFO - Successfully connected to camera 0 (640x512)
+2025-11-14 17:50:46,120 - BosonFocusGUI - INFO - Successfully connected to camera 0
+2025-11-14 17:50:46,120 - BosonFocusGUI - INFO - Connecting to camera 0...
+2025-11-14 17:50:46,120 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-14 17:50:46,386 - camera_manager - INFO - Disconnected from camera 0
+2025-11-14 17:50:46,580 - camera_manager - INFO - Successfully connected to camera 0 (640x512)
+2025-11-14 17:50:46,580 - BosonFocusGUI - INFO - Successfully connected to camera 0
+2025-11-14 17:50:46,580 - BosonFocusGUI - INFO - GUI initialization complete
+2025-11-14 17:50:46,686 - __main__ - INFO - FLIR Boson Focus Utility v3.0.1 started
+2025-11-14 17:50:59,883 - BosonFocusGUI - INFO - Stripe pattern: enabled
+2025-11-14 17:51:05,497 - BosonFocusGUI - INFO - Adaptive edge detection: enabled
+2025-11-14 17:51:06,184 - BosonFocusGUI - INFO - Adaptive edge detection: disabled
+2025-11-14 17:51:12,454 - BosonFocusGUI - INFO - Application closing...
+2025-11-14 17:51:12,727 - camera_manager - INFO - Disconnected from camera 0
+2025-11-14 17:51:12,729 - boson_control - INFO - Disconnected from Boson camera
+2025-11-14 20:41:24,039 - root - INFO - ============================================================
+2025-11-14 20:41:24,039 - root - INFO - FLIR Boson Focus Peaking - Logging initialized
+2025-11-14 20:41:24,039 - root - INFO - Log level: INFO
+2025-11-14 20:41:24,039 - root - INFO - Log file: C:\Users\stati\Desktop\Projects\FocusPeaking\flir_focus.log
+2025-11-14 20:41:24,039 - root - INFO - ============================================================
+2025-11-14 20:41:24,066 - theme_manager - INFO - Applied theme: Dark
+2025-11-14 20:41:24,066 - BosonFocusGUI - INFO - Initializing Boson Focus GUI v2.0
+2025-11-14 20:41:24,081 - boson_control - INFO - Found FLIR device: COM6 - FLIR Control (COM6)
+2025-11-14 20:41:24,081 - boson_control - INFO - Auto-detected FLIR Boson on COM6
+2025-11-14 20:41:24,081 - boson_control - INFO - Attempting to connect to Boson on COM6...
+2025-11-14 20:41:24,081 - boson_control - INFO - Connected to Boson camera. Serial: 30149
+2025-11-14 20:41:24,081 - focus_utils - INFO - FocusEnsemble initialized with 5 algorithms
+2025-11-14 20:41:24,096 - BosonControlPanel - INFO - Boson controller connected
+2025-11-14 20:41:24,098 - boson_control - ERROR - Failed to set AGC mode: 353
+2025-11-14 20:41:24,098 - BosonControlPanel - ERROR - Failed to set AGC mode to Auto
+2025-11-14 20:41:24,098 - BosonControlPanel - INFO - Loaded current settings from Boson camera
+2025-11-14 20:41:24,714 - BosonFocusGUI - INFO - Screen size: 3840x1540
+2025-11-14 20:41:24,715 - BosonFocusGUI - INFO - Window auto-scaled to 3264x1386
+2025-11-14 20:41:24,715 - BosonFocusGUI - INFO - Refreshing camera list...
+2025-11-14 20:41:24,716 - camera_manager - INFO - Detecting available cameras...
+2025-11-14 20:41:25,245 - camera_manager - INFO - Found: Camera 0 (MSMF) (Device 0)
+2025-11-14 20:41:26,315 - camera_manager - INFO - Found: Camera 1 (MSMF) (Device 1)
+2025-11-14 20:41:27,450 - camera_manager - INFO - Detected 2 camera(s)
+2025-11-14 20:41:27,451 - BosonFocusGUI - INFO - Connecting to camera 0...
+2025-11-14 20:41:27,452 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-14 20:41:27,695 - camera_manager - INFO - Successfully connected to camera 0 (640x512)
+2025-11-14 20:41:27,695 - BosonFocusGUI - INFO - Successfully connected to camera 0
+2025-11-14 20:41:27,695 - BosonFocusGUI - INFO - Connecting to camera 0...
+2025-11-14 20:41:27,696 - camera_manager - INFO - Attempting to connect to camera 0...
+2025-11-14 20:41:27,969 - camera_manager - INFO - Disconnected from camera 0
+2025-11-14 20:41:28,162 - camera_manager - INFO - Successfully connected to camera 0 (640x512)
+2025-11-14 20:41:28,162 - BosonFocusGUI - INFO - Successfully connected to camera 0
+2025-11-14 20:41:28,162 - BosonFocusGUI - INFO - GUI initialization complete
+2025-11-14 20:41:28,256 - __main__ - INFO - FLIR Boson Focus Utility v3.0.1 started
+2025-11-14 20:41:41,332 - BosonFocusGUI - INFO - Stripe pattern: enabled
+2025-11-14 20:41:42,798 - BosonFocusGUI - INFO - Stripe pattern: disabled
+2025-11-14 20:41:46,547 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-14 20:41:50,276 - boson_control - INFO - Palette set to Rainbow (software)
+2025-11-14 20:41:50,276 - BosonControlPanel - INFO - Palette set to Rainbow
+2025-11-14 20:41:55,944 - boson_control - INFO - Palette set to RainbowHC (software)
+2025-11-14 20:41:55,944 - BosonControlPanel - INFO - Palette set to RainbowHC
+2025-11-14 20:41:58,168 - boson_control - INFO - Palette set to Lava (software)
+2025-11-14 20:41:58,168 - BosonControlPanel - INFO - Palette set to Lava
+2025-11-14 20:42:02,546 - BosonFocusGUI - INFO - Multi-scale detection: disabled
+2025-11-14 20:42:03,994 - BosonFocusGUI - INFO - Stripe pattern: enabled
+2025-11-14 20:42:04,656 - BosonFocusGUI - INFO - Stripe pattern: disabled
+2025-11-14 20:42:08,517 - BosonFocusGUI - INFO - Peaking color changed to (0, 255, 38)
+2025-11-14 20:42:16,598 - boson_control - INFO - Palette set to Globow (software)
+2025-11-14 20:42:16,598 - BosonControlPanel - INFO - Palette set to Globow
+2025-11-14 20:42:19,012 - boson_control - INFO - Palette set to Arctic (software)
+2025-11-14 20:42:19,012 - BosonControlPanel - INFO - Palette set to Arctic
+2025-11-14 20:42:25,970 - BosonFocusGUI - INFO - Peaking color changed to (4, 0, 255)
+2025-11-14 20:42:34,702 - BosonFocusGUI - INFO - Stripe pattern: enabled
+2025-11-14 20:42:46,901 - boson_control - INFO - FFC triggered
+2025-11-14 20:42:46,901 - BosonControlPanel - INFO - FFC triggered successfully
+2025-11-14 20:42:50,020 - boson_control - ERROR - Failed to set TLinear: 'pyClient' object has no attribute 'bosonSetTLinearEnableState'
+2025-11-14 20:42:50,020 - BosonControlPanel - ERROR - Failed to set TLinear mode
+2025-11-14 20:42:51,080 - boson_control - ERROR - Failed to set TLinear: 'pyClient' object has no attribute 'bosonSetTLinearEnableState'
+2025-11-14 20:42:51,080 - BosonControlPanel - ERROR - Failed to set TLinear mode
+2025-11-14 20:43:02,868 - BosonFocusGUI - INFO - Focus algorithm changed to: Tenengrad
+2025-11-14 20:43:10,274 - BosonFocusGUI - INFO - Ensemble voting: enabled
+2025-11-14 20:43:11,640 - BosonFocusGUI - INFO - Ensemble voting: disabled
+2025-11-14 20:43:16,088 - BosonFocusGUI - INFO - Adaptive edge detection: enabled
+2025-11-14 20:43:17,641 - BosonFocusGUI - INFO - Adaptive edge detection: disabled
+2025-11-14 20:43:21,674 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-14 20:43:24,892 - zoom_manager - INFO - Zoom mode set to: Manual
+2025-11-14 20:43:24,892 - BosonFocusGUI - INFO - Zoom mode changed to: Manual
+2025-11-14 20:43:26,645 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-14 20:43:36,113 - BosonFocusGUI - INFO - Zoom drawing mode activated - click and drag to define zoom area
+2025-11-14 20:43:37,429 - BosonFocusGUI - INFO - Zoom rectangle set: (266, 124, 457, 217)
+2025-11-14 20:43:37,430 - VideoLabel - INFO - Zoom rectangle created: [266, 124, 457, 217]
+2025-11-14 20:43:38,735 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-14 20:43:41,261 - zoom_manager - INFO - Zoom mode set to: Off
+2025-11-14 20:43:41,261 - BosonFocusGUI - INFO - Zoom mode changed to: Off
+2025-11-14 20:43:54,527 - theme_manager - INFO - Applied theme: Monokai
+2025-11-14 20:43:59,095 - theme_manager - INFO - Applied theme: Dracula
+2025-11-14 20:44:06,021 - theme_manager - INFO - Applied theme: Solarized Light
+2025-11-14 20:44:08,653 - theme_manager - INFO - Applied theme: Solarized Dark
+2025-11-14 20:44:50,739 - BosonFocusGUI - INFO - Application closing...
+2025-11-14 20:44:51,009 - camera_manager - INFO - Disconnected from camera 0
+2025-11-14 20:44:51,014 - boson_control - INFO - Disconnected from Boson camera
