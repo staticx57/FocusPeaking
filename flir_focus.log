@@ -1294,3 +1294,49 @@
 2025-11-18 10:42:20,209 - BosonFocusGUI - INFO - Switched to Calibration Mode
 2025-11-18 10:42:47,561 - BosonFocusGUI - INFO - Switched to Focus Mode
 2025-11-18 10:42:48,910 - BosonFocusGUI - INFO - Application closing...
+2025-11-18 11:01:39,496 - root - INFO - ============================================================
+2025-11-18 11:01:39,496 - root - INFO - FLIR Boson Focus Peaking - Logging initialized
+2025-11-18 11:01:39,496 - root - INFO - Log level: INFO
+2025-11-18 11:01:39,496 - root - INFO - Log file: C:\Users\stati\Desktop\Projects\FocusPeaking\flir_focus.log
+2025-11-18 11:01:39,496 - root - INFO - ============================================================
+2025-11-18 11:01:39,507 - theme_manager - INFO - Applied theme: Dark
+2025-11-18 11:01:39,507 - BosonFocusGUI - INFO - Initializing Boson Focus GUI v2.0
+2025-11-18 11:01:39,520 - boson_control - ERROR - Cannot connect: No COM port specified
+2025-11-18 11:01:39,520 - focus_utils - INFO - FocusEnsemble initialized with 5 algorithms
+2025-11-18 11:01:39,525 - BosonControlPanel - INFO - Boson controller connected
+2025-11-18 11:01:39,987 - BosonFocusGUI - INFO - Screen size: 3840x2304
+2025-11-18 11:01:39,987 - BosonFocusGUI - INFO - Window auto-scaled to 3264x2073
+2025-11-18 11:01:39,988 - BosonFocusGUI - INFO - Refreshing camera list...
+2025-11-18 11:01:39,988 - camera_manager - INFO - Detecting available cameras...
+2025-11-18 11:01:41,212 - camera_manager - INFO - Found OpenCV camera: Camera 0 (MSMF) (Device 0)
+2025-11-18 11:01:41,792 - camera_manager - INFO - Detected 1 camera(s) total
+2025-11-18 11:01:41,792 - BosonFocusGUI - INFO - Connecting to Camera 0 (MSMF) (Device 0)...
+2025-11-18 11:01:41,792 - camera_manager - INFO - Attempting to connect to Camera 0 (MSMF) (Device 0)...
+2025-11-18 11:01:42,469 - camera_manager - INFO - Successfully connected to camera Camera 0 (MSMF) (Device 0) (640x480)
+2025-11-18 11:01:42,469 - BosonFocusGUI - INFO - Successfully connected to Camera 0 (MSMF) (Device 0)
+2025-11-18 11:01:42,469 - BosonFocusGUI - INFO - Connecting to Camera 0 (MSMF) (Device 0)...
+2025-11-18 11:01:42,828 - camera_manager - INFO - Disconnected from OpenCV camera Camera 0 (MSMF) (Device 0)
+2025-11-18 11:01:42,828 - camera_manager - INFO - Attempting to connect to Camera 0 (MSMF) (Device 0)...
+2025-11-18 11:01:43,441 - camera_manager - INFO - Successfully connected to camera Camera 0 (MSMF) (Device 0) (640x480)
+2025-11-18 11:01:43,442 - BosonFocusGUI - INFO - Successfully connected to Camera 0 (MSMF) (Device 0)
+2025-11-18 11:01:43,442 - BosonFocusGUI - INFO - GUI initialization complete
+2025-11-18 11:01:43,571 - __main__ - INFO - FLIR Boson Focus Utility v3.0.1 started
+2025-11-18 11:01:43,620 - camera_manager - INFO - Detecting available cameras...
+2025-11-18 11:01:43,724 - camera_manager - INFO - Found OpenCV camera: Camera 0 (MSMF) (Device 0)
+2025-11-18 11:01:43,881 - camera_manager - INFO - Detected 1 camera(s) total
+2025-11-18 11:01:43,882 - CalibrationGUI - INFO - Detected 1 cameras in calibration mode
+2025-11-18 11:01:43,941 - camera_manager - WARNING - Failed to read frame from OpenCV camera
+2025-11-18 11:01:45,815 - BosonFocusGUI - INFO - Switched to Calibration Mode
+2025-11-18 11:01:46,852 - BosonFocusGUI - INFO - Switched to Focus Mode
+2025-11-18 11:01:50,694 - BosonFocusGUI - INFO - Created ROI 1: (305, 253, 430, 282)
+2025-11-18 11:01:54,406 - BosonFocusGUI - INFO - Deleted ROI 1
+2025-11-18 11:02:06,422 - BosonFocusGUI - INFO - Switched to Calibration Mode
+2025-11-18 11:02:08,826 - camera_manager - INFO - Detecting available cameras...
+2025-11-18 11:02:08,911 - camera_manager - INFO - Found OpenCV camera: Camera 0 (MSMF) (Device 0)
+2025-11-18 11:02:09,039 - camera_manager - INFO - Detected 1 camera(s) total
+2025-11-18 11:02:09,041 - CalibrationGUI - INFO - Detected 1 cameras in calibration mode
+2025-11-18 11:02:40,728 - BosonFocusGUI - INFO - Switched to Focus Mode
+2025-11-18 11:02:41,648 - BosonFocusGUI - INFO - Created ROI 2: (395, 117, 426, 323)
+2025-11-18 11:02:43,961 - BosonFocusGUI - INFO - Deleted ROI 2
+2025-11-18 11:02:51,269 - BosonFocusGUI - INFO - Application closing...
+2025-11-18 11:02:51,644 - camera_manager - INFO - Disconnected from OpenCV camera Camera 0 (MSMF) (Device 0)
