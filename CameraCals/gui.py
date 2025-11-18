@@ -49,6 +49,7 @@ class CalibrationGUI(QtWidgets.QWidget):
         self.captured_images = []
         self.captured_corners = []
         self.stereo_pairs = []  # List of (img1, corners1, img2, corners2) tuples
+        self.landmark_pairs = []  # List of (pt1, pt2) tuples for manual correspondence
 
         # Current frame for display
         self.current_frame = None
@@ -859,12 +860,145 @@ Field of View:
 
     def _capture_stereo_pair(self):
         """Capture synchronized stereo pair."""
-        # This is a placeholder - actual implementation would need dual camera support
-        QtWidgets.QMessageBox.information(
-            self, "Stereo Capture",
-            "Stereo pair capture requires two camera sources.\n"
-            "This feature will capture from both cameras simultaneously."
+        # Check if we have current frame (from primary camera)
+        if self.current_frame is None:
+            QtWidgets.QMessageBox.warning(
+                self, "Error",
+                "No camera frame available.\nPlease ensure camera is connected."
+            )
+            return
+
+        # Check if pattern is detected in current frame
+        if not self.pattern_detected or self.detected_corners is None:
+            QtWidgets.QMessageBox.warning(
+                self, "Pattern Not Detected",
+                "Calibration pattern must be visible in BOTH cameras.\n\n"
+                "Current frame (Camera 1): Pattern NOT detected\n\n"
+                "Please position the calibration pattern so it's clearly visible\n"
+                "in both camera views before capturing."
+            )
+            return
+
+        # Detect available cameras
+        from camera_manager import CameraManager
+        available_cameras = CameraManager.detect_cameras()
+
+        if len(available_cameras) < 2:
+            QtWidgets.QMessageBox.warning(
+                self, "Insufficient Cameras",
+                f"Stereo calibration requires 2 cameras.\n"
+                f"Currently detected: {len(available_cameras)} camera(s)\n\n"
+                "Please connect a second camera and click 'Detect Cameras' to refresh."
+            )
+            return
+
+        # Show dialog to select second camera
+        camera_names = [str(cam) for cam in available_cameras]
+        camera2_name, ok = QtWidgets.QInputDialog.getItem(
+            self, "Select Second Camera",
+            "Choose the second camera for stereo pair:",
+            camera_names,
+            0,
+            False
         )
+
+        if not ok:
+            return
+
+        # Get selected camera index
+        camera2_index = camera_names.index(camera2_name)
+        camera2_device = available_cameras[camera2_index]
+
+        # Temporarily connect to second camera and capture
+        temp_camera_manager = CameraManager()
+        if not temp_camera_manager.connect(device=camera2_device):
+            QtWidgets.QMessageBox.critical(
+                self, "Connection Failed",
+                f"Failed to connect to {camera2_device.name}\n\n"
+                "The camera may be in use by another application."
+            )
+            return
+
+        # Capture frame from second camera
+        ret, frame2 = temp_camera_manager.read_frame()
+        temp_camera_manager.disconnect()
+
+        if not ret or frame2 is None:
+            QtWidgets.QMessageBox.critical(
+                self, "Capture Failed",
+                "Failed to capture frame from second camera."
+            )
+            return
+
+        # Detect pattern in second camera frame
+        success2, corners2 = self.pattern_detector.detect(frame2)
+
+        if not success2 or corners2 is None:
+            QtWidgets.QMessageBox.warning(
+                self, "Pattern Not Detected in Camera 2",
+                "Calibration pattern detected in Camera 1, but NOT in Camera 2.\n\n"
+                "Both cameras must see the pattern clearly.\n\n"
+                "Tips:\n"
+                "- Ensure pattern is in view of both cameras\n"
+                "- Check lighting conditions\n"
+                "- Make sure pattern is flat and not distorted"
+            )
+            return
+
+        # Check if patterns have same number of corners (sanity check)
+        if len(self.detected_corners) != len(corners2):
+            QtWidgets.QMessageBox.warning(
+                self, "Pattern Mismatch",
+                f"Pattern detection mismatch:\n"
+                f"Camera 1: {len(self.detected_corners)} corners\n"
+                f"Camera 2: {len(corners2)} corners\n\n"
+                "Both cameras must detect the same pattern."
+            )
+            return
+
+        # Estimate alignment quality (basic check)
+        # Compare corner positions to detect if cameras are grossly misaligned
+        import numpy as np
+        corners1_mean = np.mean(self.detected_corners, axis=0)
+        corners2_mean = np.mean(corners2, axis=0)
+        corner_offset = np.linalg.norm(corners1_mean - corners2_mean)
+
+        # Frame diagonal for reference
+        frame_diag = np.sqrt(self.current_frame.shape[0]**2 + self.current_frame.shape[1]**2)
+        offset_ratio = corner_offset / frame_diag
+
+        alignment_status = "Good"
+        if offset_ratio > 0.5:
+            alignment_status = "Poor - cameras may be very misaligned"
+        elif offset_ratio > 0.3:
+            alignment_status = "Fair - significant offset detected"
+
+        # Store the stereo pair
+        self.stereo_pairs.append((
+            self.current_frame.copy(),
+            self.detected_corners.copy(),
+            frame2.copy(),
+            corners2.copy()
+        ))
+
+        # Update UI
+        count = len(self.stereo_pairs)
+        self.stereo_count_label.setText(f"Captured: {count} stereo pairs (minimum 10 recommended)")
+        self.stereo_progress.setValue(min(100, (count * 100) // 10))
+
+        if count >= 10:
+            self.run_stereo_cal_btn.setEnabled(True)
+
+        # Show success message with alignment info
+        QtWidgets.QMessageBox.information(
+            self, "Stereo Pair Captured",
+            f"Successfully captured stereo pair #{count}\n\n"
+            f"Alignment Status: {alignment_status}\n"
+            f"Pattern Offset: {corner_offset:.1f} pixels ({offset_ratio*100:.1f}% of frame)\n\n"
+            f"{'Ready to calibrate!' if count >= 10 else f'Capture {10-count} more pairs for calibration'}"
+        )
+
+        self.logger.info(f"Captured stereo pair {count}, alignment status: {alignment_status}")
 
     def _clear_stereo_pairs(self):
         """Clear all captured stereo pairs."""
@@ -883,10 +1017,106 @@ Field of View:
 
     def _run_stereo_calibration(self):
         """Run stereo calibration."""
-        QtWidgets.QMessageBox.information(
-            self, "Stereo Calibration",
-            "Stereo calibration will be performed using the captured stereo pairs."
+        if len(self.stereo_pairs) < 10:
+            QtWidgets.QMessageBox.warning(
+                self, "Insufficient Data",
+                f"Need at least 10 stereo pairs for calibration.\n"
+                f"Currently have: {len(self.stereo_pairs)} pairs\n\n"
+                "Capture more stereo pairs before running calibration."
+            )
+            return
+
+        # Confirm calibration
+        reply = QtWidgets.QMessageBox.question(
+            self, "Run Stereo Calibration",
+            f"Run stereo calibration with {len(self.stereo_pairs)} pairs?\n\n"
+            "This may take a moment...",
+            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No
         )
+
+        if reply != QtWidgets.QMessageBox.Yes:
+            return
+
+        try:
+            # Extract images and corners from stereo pairs
+            images1 = [pair[0] for pair in self.stereo_pairs]
+            corners1_list = [pair[1] for pair in self.stereo_pairs]
+            images2 = [pair[2] for pair in self.stereo_pairs]
+            corners2_list = [pair[3] for pair in self.stereo_pairs]
+
+            # Add pairs to stereo calibrator
+            for img1, corners1, img2, corners2 in zip(images1, corners1_list, images2, corners2_list):
+                self.stereo_calibrator.add_stereo_pair(
+                    img1, corners1,
+                    img2, corners2,
+                    self.pattern_detector.object_points
+                )
+
+            # Run calibration
+            self.logger.info(f"Starting stereo calibration with {len(self.stereo_pairs)} pairs...")
+            self.stereo_calibration = self.stereo_calibrator.calibrate_stereo(
+                image_size=(images1[0].shape[1], images1[0].shape[0])
+            )
+
+            # Create camera merger
+            self.camera_merger = CameraMerger(self.stereo_calibration)
+
+            # Enable export buttons
+            self.save_stereo_btn.setEnabled(True)
+            self.compute_fov_btn.setEnabled(True)
+            self.export_alignment_btn.setEnabled(True)
+
+            # Show results
+            result_text = f"""Stereo Calibration Complete!
+{'=' * 50}
+
+Reprojection Error: {self.stereo_calibration.reprojection_error:.3f} pixels
+
+Camera 1:
+  RMS Error: {self.stereo_calibration.camera1.reprojection_error:.3f} pixels
+
+Camera 2:
+  RMS Error: {self.stereo_calibration.camera2.reprojection_error:.3f} pixels
+
+Baseline Distance: {self.stereo_calibration.baseline_distance:.2f} units
+
+Quality Assessment:
+{self._assess_calibration_quality(self.stereo_calibration.reprojection_error)}
+
+You can now:
+- Compute FOV alignment
+- Export calibration data
+- Use for camera merging
+"""
+
+            QtWidgets.QMessageBox.information(
+                self, "Calibration Success", result_text
+            )
+
+            self.logger.info(f"Stereo calibration completed with RMS error: {self.stereo_calibration.reprojection_error:.3f}")
+
+        except Exception as e:
+            self.logger.error(f"Stereo calibration failed: {e}", exc_info=True)
+            QtWidgets.QMessageBox.critical(
+                self, "Calibration Failed",
+                f"Stereo calibration failed:\n\n{str(e)}\n\n"
+                "Tips:\n"
+                "- Ensure pattern was visible in both cameras\n"
+                "- Check that cameras were stable during capture\n"
+                "- Try recapturing with better lighting\n"
+                "- Ensure pattern is flat and not distorted"
+            )
+
+    def _assess_calibration_quality(self, rms_error: float) -> str:
+        """Assess calibration quality based on RMS error."""
+        if rms_error < 0.3:
+            return "✓ Excellent (RMS < 0.3)"
+        elif rms_error < 0.5:
+            return "✓ Good (RMS < 0.5)"
+        elif rms_error < 1.0:
+            return "⚠ Fair (RMS < 1.0) - Consider recapturing"
+        else:
+            return "✗ Poor (RMS ≥ 1.0) - Recapture recommended"
 
     def _save_stereo_calibration(self):
         """Save stereo calibration."""
@@ -1196,20 +1426,192 @@ Overlap:
 
     def _match_natural_features(self):
         """Match natural features between cameras."""
-        QtWidgets.QMessageBox.information(
-            self, "Feature Matching",
-            "Natural feature matching requires live camera feeds from both cameras.\n"
-            "This will detect and match features like corners, edges, and textures\n"
-            "to compute alignment without calibration patterns."
+        # Check if we have current frame
+        if self.current_frame is None:
+            QtWidgets.QMessageBox.warning(
+                self, "Error",
+                "No camera frame available.\nPlease ensure camera is connected."
+            )
+            return
+
+        # Detect available cameras
+        from camera_manager import CameraManager
+        available_cameras = CameraManager.detect_cameras()
+
+        if len(available_cameras) < 2:
+            QtWidgets.QMessageBox.warning(
+                self, "Insufficient Cameras",
+                f"Feature matching requires 2 cameras.\n"
+                f"Currently detected: {len(available_cameras)} camera(s)\n\n"
+                "Please connect a second camera."
+            )
+            return
+
+        # Select second camera
+        camera_names = [str(cam) for cam in available_cameras]
+        camera2_name, ok = QtWidgets.QInputDialog.getItem(
+            self, "Select Second Camera",
+            "Choose the second camera for feature matching:",
+            camera_names,
+            0,
+            False
         )
+
+        if not ok:
+            return
+
+        camera2_index = camera_names.index(camera2_name)
+        camera2_device = available_cameras[camera2_index]
+
+        # Capture from second camera
+        temp_camera_manager = CameraManager()
+        if not temp_camera_manager.connect(device=camera2_device):
+            QtWidgets.QMessageBox.critical(
+                self, "Connection Failed",
+                f"Failed to connect to {camera2_device.name}"
+            )
+            return
+
+        ret, frame2 = temp_camera_manager.read_frame()
+        temp_camera_manager.disconnect()
+
+        if not ret or frame2 is None:
+            QtWidgets.QMessageBox.critical(self, "Error", "Failed to capture from second camera")
+            return
+
+        # Perform feature matching
+        try:
+            from CameraCals.field_calibration import NaturalFeatureMatcher, FeatureDetectorType
+            import numpy as np
+
+            matcher = NaturalFeatureMatcher(FeatureDetectorType.SIFT)
+            pts1, pts2, matches = matcher.match_features(self.current_frame, frame2)
+
+            if len(matches) < 10:
+                QtWidgets.QMessageBox.warning(
+                    self, "Insufficient Matches",
+                    f"Only found {len(matches)} feature matches.\n\n"
+                    "Need at least 10 matches for reliable alignment.\n\n"
+                    "Tips:\n"
+                    "- Ensure both cameras see the same scene\n"
+                    "- Add more visual texture/features to the scene\n"
+                    "- Improve lighting conditions"
+                )
+                return
+
+            # Compute homography
+            H, mask = matcher.compute_homography(pts1, pts2)
+            inliers = np.sum(mask)
+            inlier_ratio = inliers / len(matches)
+
+            # Assess quality
+            quality = "Good"
+            if inlier_ratio < 0.5:
+                quality = "Poor - cameras may be too misaligned"
+            elif inlier_ratio < 0.7:
+                quality = "Fair - some outliers detected"
+
+            QtWidgets.QMessageBox.information(
+                self, "Feature Matching Results",
+                f"Feature Matching Complete!\n\n"
+                f"Total Matches: {len(matches)}\n"
+                f"Inliers: {inliers}\n"
+                f"Inlier Ratio: {inlier_ratio*100:.1f}%\n\n"
+                f"Quality: {quality}\n\n"
+                f"Homography computed successfully.\n"
+                f"You can use this for image alignment and FOV analysis."
+            )
+
+        except Exception as e:
+            self.logger.error(f"Feature matching failed: {e}", exc_info=True)
+            QtWidgets.QMessageBox.critical(
+                self, "Error",
+                f"Feature matching failed:\n\n{str(e)}"
+            )
 
     def _add_landmark_pair(self):
         """Add a manual landmark pair."""
-        QtWidgets.QMessageBox.information(
-            self, "Add Landmark",
-            "Click corresponding points in source and target camera views.\n"
-            "Points should represent the same physical location in the scene."
+        # Check if we have current frame
+        if self.current_frame is None:
+            QtWidgets.QMessageBox.warning(
+                self, "Error",
+                "No camera frame available.\nPlease ensure camera is connected."
+            )
+            return
+
+        # Detect available cameras
+        from camera_manager import CameraManager
+        available_cameras = CameraManager.detect_cameras()
+
+        if len(available_cameras) < 2:
+            QtWidgets.QMessageBox.warning(
+                self, "Insufficient Cameras",
+                f"Landmark matching requires 2 cameras.\n"
+                f"Currently detected: {len(available_cameras)} camera(s)\n\n"
+                "Please connect a second camera."
+            )
+            return
+
+        # Select second camera
+        camera_names = [str(cam) for cam in available_cameras]
+        camera2_name, ok = QtWidgets.QInputDialog.getItem(
+            self, "Select Second Camera",
+            "Choose the second camera for landmark matching:",
+            camera_names,
+            0,
+            False
         )
+
+        if not ok:
+            return
+
+        camera2_index = camera_names.index(camera2_name)
+        camera2_device = available_cameras[camera2_index]
+
+        # Capture from second camera
+        temp_camera_manager = CameraManager()
+        if not temp_camera_manager.connect(device=camera2_device):
+            QtWidgets.QMessageBox.critical(
+                self, "Connection Failed",
+                f"Failed to connect to {camera2_device.name}"
+            )
+            return
+
+        ret, frame2 = temp_camera_manager.read_frame()
+        temp_camera_manager.disconnect()
+
+        if not ret or frame2 is None:
+            QtWidgets.QMessageBox.critical(self, "Error", "Failed to capture from second camera")
+            return
+
+        # Show landmark picker dialog
+        dialog = LandmarkPickerDialog(self.current_frame, frame2, self)
+        if dialog.exec_() == QtWidgets.QDialog.Accepted:
+            landmarks = dialog.get_landmarks()
+
+            if len(landmarks) > 0:
+                # Add landmarks to our list
+                for pt1, pt2 in landmarks:
+                    self.landmark_pairs.append((pt1, pt2))
+
+                # Update UI
+                total_pairs = len(self.landmark_pairs)
+                self.landmark_count_label.setText(f"Landmarks: {total_pairs} pairs")
+
+                QtWidgets.QMessageBox.information(
+                    self, "Landmarks Added",
+                    f"Added {len(landmarks)} landmark pair(s).\n"
+                    f"Total: {total_pairs} pairs\n\n"
+                    "These can be used for manual alignment and\n"
+                    "homography estimation."
+                )
+
+                self.logger.info(f"Added {len(landmarks)} landmark pairs, total: {total_pairs}")
+            else:
+                QtWidgets.QMessageBox.information(
+                    self, "No Landmarks",
+                    "No landmark pairs were selected."
+                )
 
     def _clear_landmarks(self):
         """Clear all manual landmarks."""
@@ -1220,7 +1622,9 @@ Overlap:
         )
 
         if reply == QtWidgets.QMessageBox.Yes:
+            self.landmark_pairs = []
             self.landmark_count_label.setText("Landmarks: 0 pairs")
+            self.logger.info("Cleared all landmark pairs")
 
     # ========================================================================
     # Frame Update (called from main application)
@@ -1245,3 +1649,203 @@ Overlap:
             self.pattern_status_label.setText("✗ No Pattern")
             self.pattern_status_label.setStyleSheet("font-size: 10pt; font-weight: bold; color: #ff6b6b;")
             self.corners_count_label.setText("Corners: 0")
+
+
+class ClickableLabel(QtWidgets.QLabel):
+    """QLabel that emits click signals with pixel coordinates."""
+    clicked = QtCore.pyqtSignal(int, int)
+
+    def mousePressEvent(self, event):
+        """Handle mouse click events."""
+        if event.button() == QtCore.Qt.LeftButton:
+            self.clicked.emit(event.x(), event.y())
+
+
+class LandmarkPickerDialog(QtWidgets.QDialog):
+    """Dialog for manually selecting corresponding landmark points in two images."""
+
+    def __init__(self, image1: np.ndarray, image2: np.ndarray, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Manual Landmark Selection")
+        self.image1 = image1.copy()
+        self.image2 = image2.copy()
+
+        self.landmarks = []  # List of (pt1, pt2) tuples
+        self.temp_pt1 = None  # Temporary storage for first point
+
+        self._create_ui()
+        self._update_displays()
+
+    def _create_ui(self):
+        """Create the dialog UI."""
+        layout = QtWidgets.QVBoxLayout(self)
+
+        # Instructions
+        instructions = QtWidgets.QLabel(
+            "Click corresponding points in both images:\n"
+            "1. Click a point in Image 1 (left)\n"
+            "2. Click the SAME physical point in Image 2 (right)\n"
+            "3. Repeat to add more landmark pairs\n\n"
+            "The points will be connected and numbered."
+        )
+        instructions.setStyleSheet("background-color: #e7f5ff; padding: 10px; border-radius: 5px;")
+        layout.addWidget(instructions)
+
+        # Image display area
+        images_layout = QtWidgets.QHBoxLayout()
+
+        # Image 1 panel
+        img1_panel = QtWidgets.QVBoxLayout()
+        img1_panel.addWidget(QtWidgets.QLabel("<b>Image 1 (Source)</b>"))
+        self.img1_label = ClickableLabel()
+        self.img1_label.setScaledContents(True)
+        self.img1_label.setMinimumSize(400, 300)
+        self.img1_label.clicked.connect(self._on_image1_clicked)
+        img1_panel.addWidget(self.img1_label)
+        images_layout.addLayout(img1_panel)
+
+        # Image 2 panel
+        img2_panel = QtWidgets.QVBoxLayout()
+        img2_panel.addWidget(QtWidgets.QLabel("<b>Image 2 (Target)</b>"))
+        self.img2_label = ClickableLabel()
+        self.img2_label.setScaledContents(True)
+        self.img2_label.setMinimumSize(400, 300)
+        self.img2_label.clicked.connect(self._on_image2_clicked)
+        img2_panel.addWidget(self.img2_label)
+        images_layout.addLayout(img2_panel)
+
+        layout.addLayout(images_layout)
+
+        # Status label
+        self.status_label = QtWidgets.QLabel("Click a point in Image 1 to start")
+        self.status_label.setStyleSheet("font-weight: bold; color: #228be6;")
+        layout.addWidget(self.status_label)
+
+        # Landmark list
+        list_layout = QtWidgets.QHBoxLayout()
+        list_layout.addWidget(QtWidgets.QLabel("Landmark Pairs:"))
+        self.landmark_list = QtWidgets.QListWidget()
+        self.landmark_list.setMaximumHeight(100)
+        list_layout.addWidget(self.landmark_list)
+        layout.addLayout(list_layout)
+
+        # Buttons
+        button_layout = QtWidgets.QHBoxLayout()
+
+        self.clear_btn = QtWidgets.QPushButton("Clear All")
+        self.clear_btn.clicked.connect(self._clear_landmarks)
+        button_layout.addWidget(self.clear_btn)
+
+        self.undo_btn = QtWidgets.QPushButton("Undo Last")
+        self.undo_btn.clicked.connect(self._undo_last)
+        self.undo_btn.setEnabled(False)
+        button_layout.addWidget(self.undo_btn)
+
+        button_layout.addStretch()
+
+        self.done_btn = QtWidgets.QPushButton("Done")
+        self.done_btn.clicked.connect(self.accept)
+        self.done_btn.setStyleSheet("background-color: #51cf66; color: white; font-weight: bold; padding: 8px;")
+        button_layout.addWidget(self.done_btn)
+
+        self.cancel_btn = QtWidgets.QPushButton("Cancel")
+        self.cancel_btn.clicked.connect(self.reject)
+        button_layout.addWidget(self.cancel_btn)
+
+        layout.addLayout(button_layout)
+
+    def _on_image1_clicked(self, x: int, y: int):
+        """Handle click on image 1."""
+        if self.temp_pt1 is not None:
+            self.status_label.setText("⚠ Please click Image 2 to complete the pair")
+            return
+
+        # Store the first point
+        self.temp_pt1 = (x, y)
+        self.status_label.setText(f"Point selected in Image 1: ({x}, {y}). Now click corresponding point in Image 2")
+        self._update_displays()
+
+    def _on_image2_clicked(self, x: int, y: int):
+        """Handle click on image 2."""
+        if self.temp_pt1 is None:
+            self.status_label.setText("⚠ Please click Image 1 first")
+            return
+
+        # Complete the landmark pair
+        pt2 = (x, y)
+        self.landmarks.append((self.temp_pt1, pt2))
+
+        # Update UI
+        pair_num = len(self.landmarks)
+        self.landmark_list.addItem(f"Pair {pair_num}: {self.temp_pt1} ↔ {pt2}")
+        self.status_label.setText(f"✓ Landmark pair {pair_num} added! Click Image 1 for next pair")
+
+        self.temp_pt1 = None
+        self.undo_btn.setEnabled(True)
+        self._update_displays()
+
+    def _clear_landmarks(self):
+        """Clear all landmarks."""
+        reply = QtWidgets.QMessageBox.question(
+            self, "Confirm Clear",
+            "Clear all landmark pairs?",
+            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No
+        )
+
+        if reply == QtWidgets.QMessageBox.Yes:
+            self.landmarks = []
+            self.temp_pt1 = None
+            self.landmark_list.clear()
+            self.undo_btn.setEnabled(False)
+            self.status_label.setText("Click a point in Image 1 to start")
+            self._update_displays()
+
+    def _undo_last(self):
+        """Undo the last landmark pair."""
+        if len(self.landmarks) > 0:
+            self.landmarks.pop()
+            self.landmark_list.takeItem(len(self.landmarks))
+            self.status_label.setText(f"Undone. {len(self.landmarks)} pairs remaining")
+
+            if len(self.landmarks) == 0:
+                self.undo_btn.setEnabled(False)
+
+            self._update_displays()
+
+    def _update_displays(self):
+        """Update both image displays with landmarks."""
+        # Draw on image 1
+        img1_display = self.image1.copy()
+        for i, (pt1, pt2) in enumerate(self.landmarks):
+            cv2.circle(img1_display, pt1, 5, (0, 255, 0), -1)
+            cv2.putText(img1_display, str(i+1), (pt1[0]+8, pt1[1]+8),
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+
+        # Draw temp point if exists
+        if self.temp_pt1 is not None:
+            cv2.circle(img1_display, self.temp_pt1, 7, (255, 255, 0), 2)
+            cv2.putText(img1_display, "?", (self.temp_pt1[0]+8, self.temp_pt1[1]+8),
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 0), 2)
+
+        # Draw on image 2
+        img2_display = self.image2.copy()
+        for i, (pt1, pt2) in enumerate(self.landmarks):
+            cv2.circle(img2_display, pt2, 5, (0, 255, 0), -1)
+            cv2.putText(img2_display, str(i+1), (pt2[0]+8, pt2[1]+8),
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+
+        # Convert to QPixmap and display
+        self.img1_label.setPixmap(self._cv_to_pixmap(img1_display))
+        self.img2_label.setPixmap(self._cv_to_pixmap(img2_display))
+
+    def _cv_to_pixmap(self, cv_img: np.ndarray) -> QtGui.QPixmap:
+        """Convert OpenCV image to QPixmap."""
+        height, width, channel = cv_img.shape
+        bytes_per_line = 3 * width
+        rgb_image = cv2.cvtColor(cv_img, cv2.COLOR_BGR2RGB)
+        q_img = QtGui.QImage(rgb_image.data, width, height, bytes_per_line, QtGui.QImage.Format_RGB888)
+        return QtGui.QPixmap.fromImage(q_img)
+
+    def get_landmarks(self):
+        """Get the selected landmark pairs."""
+        return self.landmarks
