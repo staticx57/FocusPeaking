@@ -129,43 +129,66 @@ class CameraManager:
         # Then detect OpenCV cameras
         opencv_base_index = len(available_cameras)  # Offset to avoid conflicts
 
+        # Suppress OpenCV warnings during detection (obsensor, DSHOW errors)
+        import os
+        old_opencv_log_level = os.environ.get('OPENCV_LOG_LEVEL')
+        os.environ['OPENCV_LOG_LEVEL'] = 'ERROR'  # Suppress warnings
+
         for i in range(max_cameras):
             try:
-                # Try to open camera
-                cap = cv2.VideoCapture(i)
+                # Try different backends on Windows (MSMF can be flaky)
+                backends_to_try = [cv2.CAP_ANY]
+                if system == "Windows":
+                    backends_to_try = [cv2.CAP_DSHOW, cv2.CAP_MSMF]  # DSHOW more reliable
 
-                if cap.isOpened():
-                    # Try to read a frame to verify camera works
-                    ret, _ = cap.read()
+                camera_opened = False
+                backend_name = None
+                cap = None
 
-                    if ret:
-                        # Get camera backend name
-                        backend = cap.getBackendName()
+                for backend_id in backends_to_try:
+                    try:
+                        cap = cv2.VideoCapture(i, backend_id)
+                        if cap.isOpened():
+                            # Try to read a frame to verify camera works
+                            ret, frame = cap.read()
+                            if ret and frame is not None:
+                                backend_name = cap.getBackendName()
+                                camera_opened = True
+                                logger.debug(f"Camera {i} opened successfully with {backend_name}")
+                                break
+                            cap.release()
+                    except Exception as e:
+                        if cap is not None:
+                            cap.release()
+                        continue
 
-                        # Try to get camera name (not always available)
-                        name = f"Camera {i}"
+                if camera_opened and cap is not None:
+                    # Get camera name
+                    name = f"Camera {i}"
+                    if system == "Windows":
+                        name = f"Camera {i} ({backend_name})"
+                    elif system == "Linux":
+                        name = f"/dev/video{i}"
 
-                        # On Windows with DirectShow, we might get device name
-                        if system == "Windows":
-                            name = f"Camera {i} ({backend})"
-                        elif system == "Linux":
-                            # On Linux, cameras are typically /dev/videoX
-                            name = f"/dev/video{i}"
-
-                        device = CameraDevice(
-                            index=i,
-                            name=name,
-                            backend=backend,
-                            camera_type="opencv"
-                        )
-                        available_cameras.append(device)
-                        logger.info(f"Found OpenCV camera: {device}")
-
+                    device = CameraDevice(
+                        index=i,
+                        name=name,
+                        backend=backend_name,
+                        camera_type="opencv"
+                    )
+                    available_cameras.append(device)
+                    logger.info(f"Found OpenCV camera: {device}")
                     cap.release()
 
             except Exception as e:
                 logger.debug(f"Error checking camera {i}: {e}")
                 continue
+
+        # Restore OpenCV log level
+        if old_opencv_log_level is not None:
+            os.environ['OPENCV_LOG_LEVEL'] = old_opencv_log_level
+        elif 'OPENCV_LOG_LEVEL' in os.environ:
+            del os.environ['OPENCV_LOG_LEVEL']
 
         logger.info(f"Detected {len(available_cameras)} camera(s) total")
         return available_cameras
@@ -213,7 +236,23 @@ class CameraManager:
 
             else:
                 # Connect to OpenCV camera
-                self.cap = cv2.VideoCapture(device.index)
+                # Use backend preference: DSHOW on Windows for better reliability
+                import os
+                system = platform.system()
+
+                if system == "Windows" and device.backend in ["DSHOW", "MSMF"]:
+                    # Try preferred backend first (from detection)
+                    backend_map = {"DSHOW": cv2.CAP_DSHOW, "MSMF": cv2.CAP_MSMF}
+                    backend_id = backend_map.get(device.backend, cv2.CAP_ANY)
+                    self.cap = cv2.VideoCapture(device.index, backend_id)
+
+                    # Fallback to other backend if preferred fails
+                    if not self.cap.isOpened():
+                        fallback = cv2.CAP_DSHOW if device.backend == "MSMF" else cv2.CAP_MSMF
+                        logger.debug(f"Trying fallback backend for camera {device.index}")
+                        self.cap = cv2.VideoCapture(device.index, fallback)
+                else:
+                    self.cap = cv2.VideoCapture(device.index)
 
                 if not self.cap.isOpened():
                     logger.error(f"Failed to open OpenCV camera {device.index}")
@@ -224,9 +263,16 @@ class CameraManager:
                 self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.frame_width)
                 self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.frame_height)
 
-                # Try to read a test frame
-                ret, frame = self.cap.read()
-                if not ret:
+                # Try to read a test frame (with retry for flaky backends)
+                ret, frame = None, None
+                for attempt in range(3):
+                    ret, frame = self.cap.read()
+                    if ret and frame is not None:
+                        break
+                    import time
+                    time.sleep(0.1)  # Brief delay before retry
+
+                if not ret or frame is None:
                     logger.error(f"Camera {device.index} opened but cannot read frames")
                     self.cap.release()
                     self.cap = None
@@ -303,9 +349,14 @@ class CameraManager:
 
             # Read from OpenCV camera
             elif self.camera_type == "opencv" and self.cap is not None:
-                ret, frame = self.cap.read()
+                # Try to read with brief retry for flaky backends (MSMF can drop frames)
+                ret, frame = False, None
+                for attempt in range(2):
+                    ret, frame = self.cap.read()
+                    if ret and frame is not None:
+                        break
 
-                if not ret:
+                if not ret or frame is None:
                     logger.warning("Failed to read frame from OpenCV camera")
                     self.is_connected = False
                     return False, self._blank_frame.copy()
