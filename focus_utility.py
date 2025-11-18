@@ -399,8 +399,92 @@ class BosonFocusGUI(QtWidgets.QWidget):
         self.logger.info("GUI initialization complete")
 
     def _create_ui(self):
-        """Create the user interface with tabbed settings."""
-        main_layout = QtWidgets.QHBoxLayout(self)
+        """Create the user interface with tabbed settings and mode selector."""
+        # Main vertical layout for entire application
+        app_main_layout = QtWidgets.QVBoxLayout(self)
+
+        # ====================================================================
+        # TOP: Mode Selector Bar
+        # ====================================================================
+        mode_bar = QtWidgets.QWidget()
+        mode_bar_layout = QtWidgets.QHBoxLayout(mode_bar)
+        mode_bar_layout.setContentsMargins(10, 5, 10, 5)
+        mode_bar.setStyleSheet("background-color: palette(dark); border-bottom: 2px solid palette(mid);")
+
+        mode_label = QtWidgets.QLabel("Application Mode:")
+        mode_label.setStyleSheet("font-size: 11pt; font-weight: bold;")
+        mode_bar_layout.addWidget(mode_label)
+
+        # Mode selector buttons (radio button style)
+        self.mode_button_group = QtWidgets.QButtonGroup()
+
+        self.mode_focus_btn = QtWidgets.QPushButton("🎯 Focus Peaking")
+        self.mode_focus_btn.setCheckable(True)
+        self.mode_focus_btn.setChecked(True)
+        self.mode_focus_btn.setStyleSheet("""
+            QPushButton {
+                padding: 8px 20px;
+                font-size: 11pt;
+                font-weight: bold;
+                border: 2px solid palette(mid);
+                border-radius: 5px;
+            }
+            QPushButton:checked {
+                background-color: #0078d4;
+                color: white;
+                border-color: #0078d4;
+            }
+        """)
+        self.mode_button_group.addButton(self.mode_focus_btn, 0)
+        mode_bar_layout.addWidget(self.mode_focus_btn)
+
+        self.mode_calibration_btn = QtWidgets.QPushButton("📐 Camera Calibration")
+        self.mode_calibration_btn.setCheckable(True)
+        self.mode_calibration_btn.setStyleSheet("""
+            QPushButton {
+                padding: 8px 20px;
+                font-size: 11pt;
+                font-weight: bold;
+                border: 2px solid palette(mid);
+                border-radius: 5px;
+            }
+            QPushButton:checked {
+                background-color: #0078d4;
+                color: white;
+                border-color: #0078d4;
+            }
+        """)
+        self.mode_button_group.addButton(self.mode_calibration_btn, 1)
+        mode_bar_layout.addWidget(self.mode_calibration_btn)
+
+        mode_bar_layout.addStretch()
+
+        app_main_layout.addWidget(mode_bar)
+
+        # ====================================================================
+        # MIDDLE: Stacked Widget for Different Modes
+        # ====================================================================
+        self.mode_stack = QtWidgets.QStackedWidget()
+
+        # Create Focus Mode Widget
+        self.focus_mode_widget = QtWidgets.QWidget()
+        self._create_focus_mode_ui(self.focus_mode_widget)
+        self.mode_stack.addWidget(self.focus_mode_widget)
+
+        # Create Calibration Mode Widget
+        self.calibration_mode_widget = QtWidgets.QWidget()
+        self._create_calibration_mode_ui(self.calibration_mode_widget)
+        self.mode_stack.addWidget(self.calibration_mode_widget)
+
+        app_main_layout.addWidget(self.mode_stack, 1)
+
+        # Connect mode switching
+        self.mode_focus_btn.clicked.connect(lambda: self._switch_mode(0))
+        self.mode_calibration_btn.clicked.connect(lambda: self._switch_mode(1))
+
+    def _create_focus_mode_ui(self, parent_widget):
+        """Create the original focus peaking UI."""
+        main_layout = QtWidgets.QHBoxLayout(parent_widget)
 
         # Left panel - Video (increased from 3 to 5 for more screen real estate)
         left_layout = QtWidgets.QVBoxLayout()
@@ -505,6 +589,64 @@ class BosonFocusGUI(QtWidgets.QWidget):
         self.video_label.roiSelected.connect(self._on_roi_selected)
         self.video_label.roiMoved.connect(self._on_roi_moved)
         self.video_label.zoomRectCreated.connect(self._on_zoom_rect_created)
+
+    def _create_calibration_mode_ui(self, parent_widget):
+        """Create the camera calibration UI."""
+        main_layout = QtWidgets.QHBoxLayout(parent_widget)
+
+        # Left panel - Video display for calibration (shared with focus mode visually)
+        left_layout = QtWidgets.QVBoxLayout()
+        main_layout.addLayout(left_layout, 5)
+
+        # Create a separate video label for calibration mode (to show pattern detection)
+        self.cal_video_label = QtWidgets.QLabel()
+        self.cal_video_label.setMinimumSize(640, 480)
+        self.cal_video_label.setStyleSheet("border: 2px solid palette(mid);")
+        self.cal_video_label.setScaledContents(False)
+        self.cal_video_label.setSizePolicy(
+            QtWidgets.QSizePolicy.Expanding,
+            QtWidgets.QSizePolicy.Expanding
+        )
+        self.cal_video_label.setAlignment(QtCore.Qt.AlignCenter)
+        left_layout.addWidget(self.cal_video_label, 1)
+
+        # Status bar for calibration mode
+        self.cal_status_label = QtWidgets.QLabel("Calibration Mode - Ready")
+        self.cal_status_label.setStyleSheet("padding: 5px; background-color: palette(dark);")
+        left_layout.addWidget(self.cal_status_label)
+
+        # Right panel - Calibration controls
+        right_layout = QtWidgets.QVBoxLayout()
+        main_layout.addLayout(right_layout, 2)
+
+        # Import and create calibration GUI
+        try:
+            from CameraCals.gui import CalibrationGUI
+            self.calibration_gui = CalibrationGUI(self.camera_manager, parent=parent_widget)
+            right_layout.addWidget(self.calibration_gui)
+        except Exception as e:
+            self.logger.error(f"Failed to load calibration GUI: {e}")
+            error_label = QtWidgets.QLabel(
+                f"Failed to load calibration module:\n{str(e)}\n\n"
+                "Please ensure CameraCals module is properly installed."
+            )
+            error_label.setWordWrap(True)
+            error_label.setStyleSheet("color: #ff6b6b; padding: 20px;")
+            right_layout.addWidget(error_label)
+            self.calibration_gui = None
+
+    def _switch_mode(self, mode_index: int):
+        """Switch between Focus Mode and Calibration Mode."""
+        self.mode_stack.setCurrentIndex(mode_index)
+
+        if mode_index == 0:
+            # Focus Mode
+            self.logger.info("Switched to Focus Mode")
+            self.setWindowTitle(f"{APP_NAME} v{APP_VERSION} - Focus Peaking")
+        elif mode_index == 1:
+            # Calibration Mode
+            self.logger.info("Switched to Calibration Mode")
+            self.setWindowTitle(f"{APP_NAME} v{APP_VERSION} - Camera Calibration")
 
     def _create_camera_controls(self, layout):
         """Create camera control section."""
@@ -1542,6 +1684,16 @@ class BosonFocusGUI(QtWidgets.QWidget):
                 palette = self.boson_controller.current_palette or "WhiteHot"
                 frame = apply_palette_software(frame, palette)
 
+        # Handle different modes
+        current_mode = self.mode_stack.currentIndex()
+
+        if current_mode == 1:
+            # Calibration Mode
+            self._update_calibration_mode(frame)
+            return
+
+        # Focus Mode (original behavior) - currentIndex == 0
+
         # Apply focus peaking
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
@@ -1711,6 +1863,58 @@ class BosonFocusGUI(QtWidgets.QWidget):
 
         # Update graph
         self._update_graph()
+
+    def _update_calibration_mode(self, frame: np.ndarray):
+        """Update calibration mode display and processing."""
+        # Update calibration GUI with current frame
+        if hasattr(self, 'calibration_gui') and self.calibration_gui is not None:
+            self.calibration_gui.update_frame(frame)
+
+            # Display frame with pattern detection overlay
+            displayed = frame.copy()
+
+            # If pattern is detected, draw it
+            if self.calibration_gui.pattern_detected and self.calibration_gui.detected_corners is not None:
+                displayed = self.calibration_gui.pattern_detector.draw_pattern(
+                    displayed,
+                    self.calibration_gui.detected_corners,
+                    True
+                )
+
+                # Add status text
+                cv2.putText(
+                    displayed,
+                    "Pattern Detected - Ready to Capture",
+                    (10, 30),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.8,
+                    (0, 255, 0),
+                    2
+                )
+            else:
+                cv2.putText(
+                    displayed,
+                    "No Pattern Detected",
+                    (10, 30),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.8,
+                    (0, 0, 255),
+                    2
+                )
+
+            # Update calibration video display
+            rgb = cv2.cvtColor(displayed, cv2.COLOR_BGR2RGB)
+            h, w, ch = rgb.shape
+            qimg = QtGui.QImage(rgb.data, w, h, ch * w, QtGui.QImage.Format_RGB888)
+
+            # Scale to fit label
+            pixmap = QtGui.QPixmap.fromImage(qimg)
+            scaled_pixmap = pixmap.scaled(
+                self.cal_video_label.size(),
+                QtCore.Qt.KeepAspectRatio,
+                QtCore.Qt.SmoothTransformation
+            )
+            self.cal_video_label.setPixmap(scaled_pixmap)
 
     def _update_graph(self):
         """Update focus trend graph with auto-scaling."""
