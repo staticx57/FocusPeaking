@@ -78,8 +78,20 @@ class SpinnakerCamera:
 
             cam_list.Clear()
 
+            # Release system instance to free resources for other camera backends
+            if self.system is not None:
+                self.system.ReleaseInstance()
+                self.system = None
+
         except Exception as e:
             self.logger.error(f"Failed to detect Spinnaker cameras: {e}")
+            # Ensure system is released even on error
+            if self.system is not None:
+                try:
+                    self.system.ReleaseInstance()
+                    self.system = None
+                except:
+                    pass
 
         return cameras_found
 
