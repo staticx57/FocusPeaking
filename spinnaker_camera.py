@@ -146,7 +146,7 @@ class SpinnakerCamera:
             nodemap = self.camera.GetNodeMap()
 
             # Set acquisition mode to continuous
-            node_acquisition_mode = PySpin.CEnumerationPtr(nodemap.GetNode('AcquisationMode'))
+            node_acquisition_mode = PySpin.CEnumerationPtr(nodemap.GetNode('AcquisitionMode'))
             if PySpin.IsAvailable(node_acquisition_mode) and PySpin.IsWritable(node_acquisition_mode):
                 node_acquisition_mode_continuous = node_acquisition_mode.GetEntryByName('Continuous')
                 acquisition_mode_continuous = node_acquisition_mode_continuous.GetValue()
