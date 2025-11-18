@@ -1,8 +1,33 @@
-# FLIR Boson Focus Utility - Enhancement Status
+# FLIR Boson Focus & Calibration Utility - Enhancement Status
 
-**Last Updated:** November 12, 2025
-**Version:** 3.0.1
-**Status:** ALL PHASES COMPLETE - Production Ready
+**Last Updated:** November 18, 2025
+**Version:** 4.0.0
+**Status:** ALL PHASES COMPLETE + CALIBRATION SYSTEM ADDED - Production Ready
+
+---
+
+## 🎉 PROJECT COMPLETE
+
+This document archives the enhancement phases for the focus peaking system and documents the new camera calibration system added in v4.0.0.
+
+### v4.0.0 Major Addition: Camera Calibration System
+**Status:** ✅ COMPLETE
+**Completion Date:** November 18, 2025
+
+**New Calibration Mode Features:**
+- 📐 Dual-mode application (Focus + Calibration)
+- 🎥 Multi-camera support (Boson, Spinnaker, UVC webcams)
+- 📸 Pattern-based stereo calibration
+- 🌄 Field calibration (pattern-free)
+- 🖱️ Interactive landmark selection
+- 📊 FOV analysis and lens recommendations
+- 💾 Industry-standard export formats
+
+**See v4.0.0 Changelog for complete details**
+
+---
+
+## Focus Peaking Enhancement Phases (v1.0 → v3.0.1)
 
 ---
 

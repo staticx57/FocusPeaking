@@ -1,12 +1,23 @@
-# FLIR Boson Focus Peaking Utility
+# FLIR Boson Focus Peaking & Camera Calibration Utility
 
-**Version 3.0.1** - Professional focus peaking utility for FLIR Boson thermal cameras with advanced algorithms, ROI management, real-time focus metrics, and intelligent scene analysis.
+**Version 4.0.0** - Professional dual-mode application: Advanced focus peaking for FLIR Boson thermal cameras PLUS comprehensive camera calibration and alignment for multi-camera systems.
 
 **📋 [View Detailed Changelog](CHANGELOG.md)** - Complete change history with technical details
 
 ## 🎯 Overview
 
-A production-ready focus peaking tool designed specifically for FLIR Boson thermal cameras. Features research-backed multi-algorithm focus detection, scene-aware edge detection, automatic palette optimization, and comprehensive camera control through the Boson SDK.
+A production-ready application with **two powerful modes**:
+
+### 🎯 **Focus Peaking Mode**
+Professional focus assistance for FLIR Boson thermal cameras with research-backed multi-algorithm focus detection, scene-aware edge detection, automatic palette optimization, and comprehensive camera control through the Boson SDK.
+
+### 📐 **Camera Calibration Mode**
+Complete camera calibration and alignment system for multi-camera setups. Supports:
+- FLIR Boson thermal cameras (UVC)
+- FLIR Spinnaker cameras (Firefly, BlackFly via PySpin SDK)
+- Standard UVC webcams (any USB camera)
+
+Enables thermal-to-visible camera fusion, stereo calibration, FOV alignment, and optical merging of camera systems.
 
 ## ✨ Features
 
@@ -64,7 +75,7 @@ A production-ready focus peaking tool designed specifically for FLIR Boson therm
 - 10 thermal palettes (WhiteHot, BlackHot, Rainbow, Ironbow, etc.)
 - Auto-detection of FLIR Control port
 
-### 🔍 Additional Features
+### 🔍 Additional Focus Features
 - **ROI Zoom/Inspector**: Manual and automatic zooming (4 modes)
 - **Interactive ROI Editor**: Click-and-drag creation, drag to move
 - **Per-ROI Weighting**: Assign importance to different regions
@@ -75,12 +86,72 @@ A production-ready focus peaking tool designed specifically for FLIR Boson therm
 - **Responsive UI**: Dynamic resizing, modern themes
 - **Keyboard Shortcuts**: Fast workflow
 
+## 📐 Camera Calibration & Alignment Features
+
+### 🎥 Multi-Camera Support
+- **FLIR Boson**: Thermal cameras via UVC (USB Video Class)
+- **FLIR Spinnaker**: Firefly, BlackFly, Oryx via PySpin SDK
+- **UVC Webcams**: Any standard USB camera (Logitech, generic, etc.)
+- **Auto-Detection**: Automatic camera discovery with type indicators
+- **Backend Optimization**: DSHOW/MSMF handling for Windows reliability
+
+### 📸 Pattern-Based Calibration
+- **Single Camera Calibration**: Intrinsic camera parameters
+  - Camera matrix (focal length, principal point)
+  - Distortion coefficients (radial, tangential)
+  - Reprojection error metrics
+- **Stereo Calibration**: Dual-camera system alignment
+  - Rotation and translation matrices
+  - Baseline distance measurement
+  - Synchronized pattern capture with alignment validation
+  - Real-time alignment quality assessment (Good/Fair/Poor)
+- **Pattern Support**: Chessboard, circles grid, asymmetric circles
+- **Configurable**: Pattern size, square dimensions, corner refinement
+
+### 🌄 Field Calibration (Pattern-Free)
+- **Natural Feature Matching**: SIFT/ORB/AKAZE/BRISK algorithms
+- **Automatic Correspondence**: Feature detection and matching
+- **Homography Computation**: Image alignment without patterns
+- **Quality Metrics**: Inlier ratio, match count, alignment assessment
+- **Manual Landmark Selection**: Interactive point-picking dialog
+  - Side-by-side image display
+  - Click corresponding points in both cameras
+  - Visual feedback with numbered markers
+  - Undo/clear functionality
+
+### 📊 FOV Analysis & Alignment
+- **Field of View Calculation**: Precise FOV from camera specs
+- **Camera Specifications Database**:
+  - FLIR Boson 320/640 with multiple focal lengths
+  - FLIR Firefly with variable C-mount lenses
+  - Generic UVC webcams (720p, 1080p)
+  - Logitech C920 and other popular models
+- **Custom Camera Support**: Full intrinsic parameter input
+  - Focal length, flange distance (C-mount/CS-mount/F-mount)
+  - Sensor dimensions (mm), image resolution (pixels)
+  - Real-time FOV calculation and crop factor
+- **Focal Length Recommendations**: Optimal lens selection for FOV matching
+- **Magnification Analysis**: Camera ratio and overlap calculations
+
+### 🔄 Camera Merge & Export
+- **Optical Alignment**: Merge two cameras with different FOVs
+- **Rectification Maps**: Stereo image rectification for parallel views
+- **Industry-Standard Formats**:
+  - OpenCV YAML (camera matrix, distortion coefficients)
+  - JSON metadata (human-readable calibration data)
+  - Binary NPZ (fast-loading rectification maps)
+  - ROS camera_info (robotics integration)
+- **Calibration Package Export**: Complete calibration data bundles
+
 ## 📋 Requirements
 
 - Python 3.8+
-- FLIR Boson thermal camera (640×512) via USB
+- **For Focus Mode**: FLIR Boson thermal camera (640×512) via USB
+- **For Calibration Mode**: Any combination of:
+  - FLIR Boson thermal cameras
+  - FLIR Spinnaker cameras (Firefly, BlackFly, Oryx, etc.)
+  - Standard UVC webcams (USB cameras)
 - Windows, Linux, or macOS
-- Optional: FLIR Boson SDK for camera control
 
 ### Python Dependencies
 ```
@@ -89,6 +160,18 @@ numpy >= 1.19.0
 PyQt5 >= 5.15.0
 pyserial >= 3.5  (for Boson SDK control)
 ```
+
+### Optional Dependencies
+```
+PySpin >= 2.0.0  (for FLIR Spinnaker cameras - Firefly, BlackFly, etc.)
+```
+- Without PySpin: Boson and UVC webcams work via OpenCV
+- With PySpin: Full support for FLIR machine vision cameras
+
+### Optional: FLIR Boson SDK
+- Place SDK in `3.0 IDD & SDK/SDK_USER_PERMISSIONS/SDK_USER_PERMISSIONS/`
+- Enables advanced camera control (gain, AGC, FFC, palettes)
+- Application works without SDK in video-only mode
 
 ## 🚀 Installation
 
@@ -291,6 +374,123 @@ The edge threshold slider controls the sensitivity of focus peaking edge detecti
 - `+` / `-`: Zoom in/out (0.2x increments)
 - `R`: Reset zoom and pan to defaults
 
+## 📐 Camera Calibration Mode Usage
+
+### Mode Switching
+
+At the top of the application, use the mode selector to switch between:
+- **🎯 Focus Peaking**: Thermal camera focus assistance
+- **📐 Camera Calibration**: Multi-camera calibration and alignment
+
+### Camera Detection
+
+1. Click **"🔄 Detect Cameras"** to scan for all connected cameras
+2. Camera types are identified with icons:
+   - 🎥 **Spinnaker SDK** (Firefly, BlackFly, Oryx)
+   - 🌡️ **Thermal** (FLIR Boson)
+   - 📹 **UVC Webcam** (standard USB cameras)
+
+### Calibration Workflows
+
+#### Pattern-Based Stereo Calibration
+
+**Use Case**: Aligning two cameras (e.g., Boson thermal + Firefly visible)
+
+1. **Prepare**: Print a calibration pattern (chessboard or circles)
+2. **Pattern Detection Tab**:
+   - Position pattern in view of primary camera
+   - Pattern status shows "✓ Pattern Detected" when found
+   - Corner count updates in real-time
+
+3. **Stereo Calibration Tab**:
+   - Click **"Capture Stereo Pair"**
+   - Select second camera from dropdown
+   - Both cameras capture simultaneously
+   - **Alignment Validation**:
+     - ✅ Good: <30% offset (ready for calibration)
+     - ⚠️ Fair: 30-50% offset (significant offset detected)
+     - ❌ Poor: >50% offset (cameras may be very misaligned)
+   - Capture 10+ pairs from different angles
+
+4. **Run Calibration**:
+   - Click **"Run Stereo Calibration"** after 10+ pairs
+   - View reprojection error and quality:
+     - Excellent: <0.3 pixels
+     - Good: 0.3-0.5 pixels
+     - Fair: 0.5-1.0 pixels
+     - Poor: ≥1.0 pixels
+
+5. **Export**: Save calibration in OpenCV YAML, JSON, NPZ, or ROS formats
+
+#### Field Calibration (No Pattern Required)
+
+**Use Case**: Outdoor/field alignment without calibration patterns
+
+1. **Natural Feature Matching**:
+   - Ensure both cameras see the same scene with visual texture
+   - Click **"Match Natural Features"**
+   - Select second camera
+   - System automatically detects and matches features (SIFT)
+   - View match quality (inlier ratio, homography)
+
+2. **Manual Landmark Selection**:
+   - Click **"Add Landmark Pair"**
+   - Interactive dialog shows both camera views side-by-side
+   - Click corresponding points in both images
+   - Points are numbered and connected visually
+   - Use **"Undo Last"** or **"Clear All"** as needed
+   - Click **"Done"** to save landmark pairs
+
+#### FOV Analysis & Lens Selection
+
+**Use Case**: Choosing lenses to match field of view between cameras
+
+1. **Field Calibration Tab**:
+   - Select source camera (e.g., "FLIR Boson 320")
+   - Select target camera (e.g., "FLIR Firefly" or "UVC Webcam 1080p")
+   - Enter focal lengths for both cameras
+
+2. **Custom Camera Support**:
+   - Select "Custom..." from dropdown
+   - Enter full intrinsic parameters:
+     - Focal length (mm)
+     - Flange distance (mm) - C-mount: 17.526, CS-mount: 12.5
+     - Sensor dimensions (mm)
+     - Image resolution (pixels)
+   - Mount presets available (C-mount, CS-mount, F-mount)
+   - Real-time FOV, pixel pitch, and crop factor calculation
+
+3. **Focal Length Recommendation**:
+   - Click **"Recommend Focal Length"**
+   - System calculates optimal target focal length for FOV matching
+   - View FOV differences and overlap percentages
+
+4. **FOV Analysis**:
+   - Real-time display of horizontal/vertical FOV for both cameras
+   - FOV mismatch calculations
+   - Magnification ratio analysis
+
+### Tips for Best Results
+
+**Stereo Calibration**:
+- Use a large, flat calibration pattern
+- Capture from many different angles and distances
+- Ensure pattern is visible in both cameras
+- Check alignment status before accepting captures
+- Aim for "Excellent" or "Good" RMS error
+
+**Feature Matching**:
+- Use scenes with rich visual texture (corners, edges, patterns)
+- Avoid uniform surfaces (blank walls, sky)
+- Ensure good lighting conditions
+- Verify inlier ratio >70% for good quality
+
+**Manual Landmarks**:
+- Select distinct, easily identifiable points
+- Use corners, intersections, or unique features
+- Distribute points across the entire image
+- Minimum 4 pairs recommended, 10+ pairs ideal
+
 ## 📊 Technical Details
 
 ### Focus Algorithms
@@ -383,21 +583,30 @@ global_score = Σ(roi_score × roi_weight) / Σ(roi_weight)
 
 ```
 FocusPeaking/
-├── focus_utility.py       # Main application (all GUI code and features)
-├── focus_utils.py         # Focus algorithms and utilities
-├── config.py              # Configuration constants
-├── camera_manager.py      # Camera detection and management
-├── boson_control.py       # FLIR Boson SDK integration
-├── boson_ui.py            # Boson control panel UI
-├── zoom_manager.py        # ROI zoom/inspector
-├── theme_manager.py       # UI theming
-├── data_export.py         # CSV export functionality
-├── logger_setup.py        # Logging configuration
-├── requirements.txt       # Python dependencies
-├── README.md              # This file
-├── ENHANCEMENT_STATUS.md  # Implementation status
-├── focus_config.json      # User configuration (auto-created)
-└── flir_focus.log         # Application log (auto-created)
+├── focus_utility.py          # Main application (dual-mode GUI)
+├── focus_utils.py            # Focus algorithms and utilities
+├── config.py                 # Configuration constants
+├── camera_manager.py         # Multi-backend camera detection and management
+├── spinnaker_camera.py       # FLIR Spinnaker SDK wrapper (PySpin)
+├── boson_control.py          # FLIR Boson SDK integration
+├── boson_ui.py               # Boson control panel UI
+├── zoom_manager.py           # ROI zoom/inspector
+├── theme_manager.py          # UI theming
+├── data_export.py            # CSV export functionality
+├── logger_setup.py           # Logging configuration
+├── CameraCals/               # Camera calibration module
+│   ├── __init__.py
+│   ├── gui.py                # Calibration GUI (5 tabs)
+│   ├── calibration_tool.py   # Core calibration algorithms
+│   ├── field_calibration.py  # Pattern-free calibration
+│   ├── calibration_package.py # Export formats (YAML, JSON, NPZ, ROS)
+│   └── custom_camera_dialog.py # Camera specification editor
+├── requirements.txt          # Python dependencies
+├── README.md                 # This file
+├── CHANGELOG.md              # Version history
+├── ENHANCEMENT_STATUS.md     # Implementation status
+├── focus_config.json         # User configuration (auto-created)
+└── flir_focus.log            # Application log (auto-created)
 ```
 
 ## 🔧 Configuration
@@ -484,7 +693,50 @@ Settings saved to `focus_config.json`:
 
 ## 🚦 Version History
 
-### v3.0.1 (Current - November 12-13, 2025)
+### v4.0.0 (Current - November 18, 2025)
+**Major Feature Addition: Camera Calibration & Alignment System**
+
+**New Calibration Mode**:
+- 📐 **Dual-Mode Application**: Focus Peaking + Camera Calibration
+- 🎥 **Multi-Camera Support**: Boson, Spinnaker (Firefly/BlackFly), UVC webcams
+- 📸 **Pattern-Based Calibration**: Single camera and stereo calibration workflows
+- 🌄 **Field Calibration**: Natural feature matching without patterns
+- 🖱️ **Interactive Landmark Selection**: Manual point correspondence picker
+- 📊 **FOV Analysis**: Field of view matching and lens recommendations
+- 💾 **Industry Formats**: OpenCV YAML, JSON, NPZ, ROS camera_info export
+
+**Calibration Features**:
+- Intrinsic calibration (camera matrix, distortion coefficients)
+- Stereo calibration (rotation, translation, baseline)
+- Alignment validation (Good/Fair/Poor assessment)
+- SIFT/ORB/AKAZE feature matching
+- Custom camera specification editor with mount presets
+- Homography computation and rectification maps
+- Real-time quality metrics (RMS error, inlier ratio)
+
+**Camera System Improvements**:
+- PySpin/Spinnaker SDK integration for FLIR machine vision cameras
+- Dual backend architecture (OpenCV + Spinnaker)
+- Optimized camera detection (3-5x faster, <1 second)
+- Early termination logic (stops after 2 consecutive failures)
+- DSHOW backend prioritization on Windows
+- OpenCV warning suppression (cv2.setLogLevel)
+- Camera type indicators (🎥 Spinnaker, 🌡️ Thermal, 📹 Webcam)
+- Fixed double-connection bug on startup
+
+**New Files**:
+- `CameraCals/gui.py` - 5-tab calibration interface (1900+ lines)
+- `CameraCals/calibration_tool.py` - Core algorithms (563 lines)
+- `CameraCals/field_calibration.py` - Pattern-free methods (600+ lines)
+- `CameraCals/calibration_package.py` - Export formats (400+ lines)
+- `CameraCals/custom_camera_dialog.py` - Specs editor (257 lines)
+- `spinnaker_camera.py` - PySpin wrapper (456 lines)
+
+**Breaking Changes**:
+- Requires numpy for calibration mode (already a dependency)
+- PySpin optional for Spinnaker camera support
+
+### v3.0.1 (November 12-13, 2025)
 **Bug Fixes and Enhanced Keyboard Controls**
 
 **Updates**:
@@ -620,4 +872,5 @@ For issues, feature requests, or questions:
 
 ---
 
-**Version 3.0.0** | **Last Updated**: November 12, 2025 | **Status**: Production Ready ✅
+**Version 4.0.0** | **Last Updated**: November 18, 2025 | **Status**: Production Ready ✅
+**Dual-Mode**: Focus Peaking + Camera Calibration
