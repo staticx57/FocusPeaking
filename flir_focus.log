@@ -1555,3 +1555,157 @@
 2025-11-18 11:31:29,341 - BosonFocusGUI - INFO - Application closing...
 2025-11-18 11:31:29,620 - camera_manager - INFO - Disconnected from OpenCV camera Camera 0 (DSHOW) (Device 0)
 2025-11-18 11:31:29,621 - boson_control - INFO - Disconnected from Boson camera
+2025-11-18 14:55:41,141 - root - INFO - ============================================================
+2025-11-18 14:55:41,141 - root - INFO - FLIR Boson Focus Peaking - Logging initialized
+2025-11-18 14:55:41,141 - root - INFO - Log level: INFO
+2025-11-18 14:55:41,141 - root - INFO - Log file: C:\Users\stati\Desktop\Projects\FocusPeaking\flir_focus.log
+2025-11-18 14:55:41,141 - root - INFO - ============================================================
+2025-11-18 14:55:41,158 - theme_manager - INFO - Applied theme: Dark
+2025-11-18 14:55:41,158 - BosonFocusGUI - INFO - Initializing Boson Focus GUI v2.0
+2025-11-18 14:55:41,166 - boson_control - ERROR - Cannot connect: No COM port specified
+2025-11-18 14:55:41,166 - focus_utils - INFO - FocusEnsemble initialized with 5 algorithms
+2025-11-18 14:55:41,175 - BosonControlPanel - INFO - Boson controller connected
+2025-11-18 14:55:41,759 - BosonFocusGUI - INFO - Screen size: 3840x2304
+2025-11-18 14:55:41,760 - BosonFocusGUI - INFO - Window auto-scaled to 3264x2073
+2025-11-18 14:55:41,760 - BosonFocusGUI - INFO - Refreshing camera list...
+2025-11-18 14:55:41,761 - camera_manager - INFO - Detecting available cameras...
+2025-11-18 14:55:42,614 - camera_manager - INFO - Found OpenCV camera: Camera 0 (DSHOW) (Device 0)
+2025-11-18 14:55:43,052 - camera_manager - INFO - Detected 1 camera(s) total
+2025-11-18 14:55:43,052 - BosonFocusGUI - INFO - Connecting to Camera 0 (DSHOW) (Device 0)...
+2025-11-18 14:55:43,052 - camera_manager - INFO - Attempting to connect to Camera 0 (DSHOW) (Device 0)...
+2025-11-18 14:55:44,423 - camera_manager - INFO - Successfully connected to camera Camera 0 (DSHOW) (Device 0) (640x480)
+2025-11-18 14:55:44,424 - BosonFocusGUI - INFO - Successfully connected to Camera 0 (DSHOW) (Device 0)
+2025-11-18 14:55:44,424 - BosonFocusGUI - INFO - GUI initialization complete
+2025-11-18 14:55:44,558 - __main__ - INFO - FLIR Boson Focus Utility v3.0.1 started
+2025-11-18 14:55:44,594 - camera_manager - INFO - Detecting available cameras...
+2025-11-18 14:55:44,595 - camera_manager - INFO - Found OpenCV camera: Camera 0 (DSHOW) (Device 0)
+2025-11-18 14:55:45,059 - camera_manager - INFO - Detected 1 camera(s) total
+2025-11-18 14:55:45,059 - CalibrationGUI - INFO - Detected 1 cameras in calibration mode
+2025-11-18 14:55:45,059 - camera_manager - WARNING - Failed to read frame from OpenCV camera
+2025-11-18 14:55:47,056 - BosonFocusGUI - INFO - Switched to Calibration Mode
+2025-11-18 14:55:47,939 - BosonFocusGUI - INFO - Switched to Focus Mode
+2025-11-18 14:55:53,799 - BosonFocusGUI - INFO - Refreshing camera list...
+2025-11-18 14:55:53,800 - camera_manager - INFO - Detecting available cameras...
+2025-11-18 14:55:54,564 - camera_manager - INFO - Found OpenCV camera: Camera 0 (DSHOW) (Device 0)
+2025-11-18 14:55:54,994 - camera_manager - INFO - Detected 1 camera(s) total
+2025-11-18 14:55:54,996 - BosonFocusGUI - INFO - Connecting to Camera 0 (DSHOW) (Device 0)...
+2025-11-18 14:55:54,996 - camera_manager - INFO - Disconnected from OpenCV camera Camera 0 (DSHOW) (Device 0)
+2025-11-18 14:55:54,996 - camera_manager - INFO - Attempting to connect to Camera 0 (DSHOW) (Device 0)...
+2025-11-18 14:55:56,404 - camera_manager - INFO - Successfully connected to camera Camera 0 (DSHOW) (Device 0) (640x480)
+2025-11-18 14:55:56,404 - BosonFocusGUI - INFO - Successfully connected to Camera 0 (DSHOW) (Device 0)
+2025-11-18 14:56:05,021 - BosonFocusGUI - INFO - Thermal preprocessing: enabled
+2025-11-18 14:56:07,972 - BosonFocusGUI - INFO - Thermal preprocessing: disabled
+2025-11-18 14:56:22,526 - BosonFocusGUI - INFO - Focus algorithm changed to: Tenengrad
+2025-11-18 14:56:31,802 - BosonFocusGUI - INFO - Focus algorithm changed to: Brenner Gradient
+2025-11-18 14:56:40,542 - BosonFocusGUI - INFO - Focus algorithm changed to: Variance of Laplacian
+2025-11-18 14:56:43,296 - BosonFocusGUI - INFO - Ensemble voting: enabled
+2025-11-18 14:56:52,053 - BosonFocusGUI - INFO - Focus algorithm changed to: Normalized Variance
+2025-11-18 14:56:55,624 - BosonFocusGUI - INFO - Ensemble voting: disabled
+2025-11-18 14:56:59,502 - BosonFocusGUI - INFO - Ensemble voting: enabled
+2025-11-18 14:57:05,933 - BosonFocusGUI - INFO - Ensemble voting: disabled
+2025-11-18 14:57:07,226 - BosonFocusGUI - INFO - Ensemble voting: enabled
+2025-11-18 14:57:16,086 - BosonFocusGUI - INFO - Focus algorithm changed to: Laplacian Variance
+2025-11-18 14:57:17,138 - BosonFocusGUI - INFO - Thermal preprocessing: enabled
+2025-11-18 14:57:18,643 - BosonFocusGUI - INFO - Thermal preprocessing: disabled
+2025-11-18 14:57:19,659 - BosonFocusGUI - INFO - Ensemble voting: disabled
+2025-11-18 14:57:26,662 - BosonFocusGUI - INFO - Peaking color changed to (255, 255, 255)
+2025-11-18 14:57:35,389 - BosonFocusGUI - INFO - Peaking color changed to (28, 255, 213)
+2025-11-18 14:57:39,303 - BosonFocusGUI - INFO - Stripe pattern: enabled
+2025-11-18 14:57:41,468 - BosonFocusGUI - INFO - Adaptive edge detection: enabled
+2025-11-18 14:57:42,794 - BosonFocusGUI - INFO - Adaptive edge detection: disabled
+2025-11-18 14:57:43,843 - BosonFocusGUI - INFO - Adaptive edge detection: enabled
+2025-11-18 14:57:44,906 - BosonFocusGUI - INFO - Adaptive edge detection: disabled
+2025-11-18 14:57:45,761 - BosonFocusGUI - INFO - Adaptive edge detection: enabled
+2025-11-18 14:57:57,726 - BosonFocusGUI - INFO - Created ROI 1: (419, 240, 540, 366)
+2025-11-18 14:58:34,753 - BosonFocusGUI - INFO - Created ROI 2: (147, 61, 512, 365)
+2025-11-18 14:58:37,792 - BosonFocusGUI - INFO - Deleted ROI 2
+2025-11-18 14:58:39,446 - BosonFocusGUI - INFO - Deleted ROI 1
+2025-11-18 14:58:42,432 - BosonFocusGUI - INFO - Created ROI 3: (188, 165, 553, 474)
+2025-11-18 14:58:49,243 - BosonFocusGUI - INFO - Deleted ROI 3
+2025-11-18 14:58:51,681 - BosonFocusGUI - INFO - Created ROI 4: (251, 174, 524, 463)
+2025-11-18 14:59:51,299 - BosonFocusGUI - INFO - Focus algorithm changed to: Tenengrad
+2025-11-18 14:59:54,552 - BosonFocusGUI - INFO - Focus algorithm changed to: Variance of Laplacian
+2025-11-18 15:00:00,917 - BosonFocusGUI - INFO - Focus algorithm changed to: Normalized Variance
+2025-11-18 15:00:03,721 - BosonFocusGUI - INFO - Focus algorithm changed to: Brenner Gradient
+2025-11-18 15:00:08,098 - BosonFocusGUI - INFO - Deleted ROI 4
+2025-11-18 15:00:23,908 - BosonFocusGUI - INFO - Adaptive edge detection: disabled
+2025-11-18 15:00:24,655 - BosonFocusGUI - INFO - Multi-scale detection: disabled
+2025-11-18 15:00:25,596 - BosonFocusGUI - INFO - Stripe pattern: disabled
+2025-11-18 15:00:28,889 - BosonFocusGUI - INFO - Stripe pattern: enabled
+2025-11-18 15:00:31,112 - BosonFocusGUI - INFO - Adaptive edge detection: enabled
+2025-11-18 15:00:31,813 - BosonFocusGUI - INFO - Adaptive edge detection: disabled
+2025-11-18 15:00:38,067 - BosonFocusGUI - INFO - Stripe pattern: disabled
+2025-11-18 15:00:57,806 - boson_control - INFO - Auto palette switching: enabled
+2025-11-18 15:00:57,806 - BosonFocusGUI - INFO - Auto palette switch: enabled
+2025-11-18 15:00:58,492 - boson_control - INFO - Auto palette switching: disabled
+2025-11-18 15:00:58,495 - BosonFocusGUI - INFO - Auto palette switch: disabled
+2025-11-18 15:01:02,558 - zoom_manager - INFO - Zoom mode set to: Auto-ROI
+2025-11-18 15:01:02,558 - BosonFocusGUI - INFO - Zoom mode changed to: Auto-ROI
+2025-11-18 15:01:05,065 - BosonFocusGUI - INFO - Created ROI 5: (234, 186, 550, 412)
+2025-11-18 15:01:13,456 - theme_manager - INFO - Applied theme: Solarized Dark
+2025-11-18 15:01:31,440 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-18 15:01:31,990 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-18 15:01:32,130 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-18 15:01:34,499 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-18 15:01:36,812 - BosonFocusGUI - INFO - Deleted ROI 5
+2025-11-18 15:01:40,560 - zoom_manager - INFO - Zoom mode set to: Manual
+2025-11-18 15:01:40,562 - BosonFocusGUI - INFO - Zoom mode changed to: Manual
+2025-11-18 15:01:41,647 - BosonFocusGUI - INFO - Created ROI 6: (339, 182, 519, 302)
+2025-11-18 15:01:49,109 - BosonFocusGUI - INFO - Deleted ROI 6
+2025-11-18 15:01:52,078 - BosonFocusGUI - INFO - Zoom drawing mode activated - click and drag to define zoom area
+2025-11-18 15:01:52,852 - BosonFocusGUI - INFO - Zoom rectangle set: (162, 64, 619, 362)
+2025-11-18 15:01:52,852 - VideoLabel - INFO - Zoom rectangle created: [162, 64, 619, 362]
+2025-11-18 15:01:54,379 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-18 15:01:55,988 - BosonFocusGUI - INFO - Zoom drawing mode activated - click and drag to define zoom area
+2025-11-18 15:01:56,976 - BosonFocusGUI - INFO - Zoom drawing mode deactivated
+2025-11-18 15:01:57,758 - BosonFocusGUI - INFO - Zoom drawing mode activated - click and drag to define zoom area
+2025-11-18 15:01:59,666 - BosonFocusGUI - INFO - Zoom rectangle set: (88, 62, 160, 116)
+2025-11-18 15:01:59,666 - VideoLabel - INFO - Zoom rectangle created: [88, 62, 160, 116]
+2025-11-18 15:02:03,683 - BosonFocusGUI - INFO - Stripe pattern: enabled
+2025-11-18 15:02:04,379 - BosonFocusGUI - INFO - Stripe pattern: disabled
+2025-11-18 15:02:08,518 - BosonFocusGUI - INFO - Peaking color changed to (255, 170, 255)
+2025-11-18 15:02:11,076 - BosonFocusGUI - INFO - Zoom drawing mode activated - click and drag to define zoom area
+2025-11-18 15:02:11,662 - BosonFocusGUI - INFO - Zoom and pan reset to defaults (R key)
+2025-11-18 15:02:39,964 - BosonFocusGUI - INFO - Stripe pattern: enabled
+2025-11-18 15:02:57,646 - BosonFocusGUI - INFO - Peaking color changed to (0, 0, 0)
+2025-11-18 15:02:59,496 - BosonFocusGUI - INFO - Stripe pattern: disabled
+2025-11-18 15:03:08,330 - BosonFocusGUI - INFO - Peaking color changed to (255, 255, 85)
+2025-11-18 15:03:29,304 - BosonFocusGUI - INFO - Adaptive edge detection: enabled
+2025-11-18 15:03:30,314 - BosonFocusGUI - INFO - Adaptive edge detection: disabled
+2025-11-18 15:03:31,116 - BosonFocusGUI - INFO - Adaptive edge detection: enabled
+2025-11-18 15:03:37,291 - BosonFocusGUI - INFO - Adaptive edge detection: disabled
+2025-11-18 15:03:38,060 - BosonFocusGUI - INFO - Multi-scale detection: enabled
+2025-11-18 15:03:39,038 - BosonFocusGUI - INFO - Multi-scale detection: disabled
+2025-11-18 15:03:40,128 - BosonFocusGUI - INFO - Multi-scale detection: enabled
+2025-11-18 15:03:41,355 - focus_utils - INFO - Scene type set to: low_contrast
+2025-11-18 15:03:41,355 - BosonFocusGUI - INFO - Adaptive scene type changed to: low_contrast
+2025-11-18 15:03:42,900 - focus_utils - INFO - Scene type set to: high_detail
+2025-11-18 15:03:42,900 - BosonFocusGUI - INFO - Adaptive scene type changed to: high_detail
+2025-11-18 15:03:44,011 - BosonFocusGUI - INFO - Multi-scale detection: disabled
+2025-11-18 15:03:48,604 - BosonFocusGUI - INFO - Adaptive edge detection: enabled
+2025-11-18 15:03:49,276 - BosonFocusGUI - INFO - Adaptive edge detection: disabled
+2025-11-18 15:03:50,148 - BosonFocusGUI - INFO - Multi-scale detection: enabled
+2025-11-18 15:03:51,966 - focus_utils - INFO - Scene type set to: thermal
+2025-11-18 15:03:51,966 - BosonFocusGUI - INFO - Adaptive scene type changed to: thermal
+2025-11-18 15:03:53,678 - focus_utils - INFO - Scene type set to: high_detail
+2025-11-18 15:03:53,678 - BosonFocusGUI - INFO - Adaptive scene type changed to: high_detail
+2025-11-18 15:03:55,343 - focus_utils - INFO - Scene type set to: auto
+2025-11-18 15:03:55,343 - BosonFocusGUI - INFO - Adaptive scene type changed to: auto
+2025-11-18 15:03:57,165 - focus_utils - INFO - Scene type set to: high_detail
+2025-11-18 15:03:57,165 - BosonFocusGUI - INFO - Adaptive scene type changed to: high_detail
+2025-11-18 15:03:59,256 - focus_utils - INFO - Scene type set to: thermal
+2025-11-18 15:03:59,256 - BosonFocusGUI - INFO - Adaptive scene type changed to: thermal
+2025-11-18 15:04:03,082 - BosonFocusGUI - INFO - Adaptive edge detection: enabled
+2025-11-18 15:04:13,028 - BosonFocusGUI - INFO - Multi-scale detection: disabled
+2025-11-18 15:04:13,974 - BosonFocusGUI - INFO - Multi-scale detection: enabled
+2025-11-18 15:04:14,522 - BosonFocusGUI - INFO - Multi-scale detection: disabled
+2025-11-18 15:04:16,355 - focus_utils - INFO - Scene type set to: auto
+2025-11-18 15:04:16,356 - BosonFocusGUI - INFO - Adaptive scene type changed to: auto
+2025-11-18 15:04:17,112 - BosonFocusGUI - INFO - Multi-scale detection: enabled
+2025-11-18 15:04:18,247 - BosonFocusGUI - INFO - Multi-scale detection: disabled
+2025-11-18 15:04:19,850 - focus_utils - INFO - Scene type set to: low_contrast
+2025-11-18 15:04:19,851 - BosonFocusGUI - INFO - Adaptive scene type changed to: low_contrast
+2025-11-18 15:04:21,404 - focus_utils - INFO - Scene type set to: high_detail
+2025-11-18 15:04:21,404 - BosonFocusGUI - INFO - Adaptive scene type changed to: high_detail
+2025-11-18 15:04:31,919 - BosonFocusGUI - INFO - Application closing...
+2025-11-18 15:04:32,463 - camera_manager - INFO - Disconnected from OpenCV camera Camera 0 (DSHOW) (Device 0)
