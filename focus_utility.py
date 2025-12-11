@@ -63,7 +63,7 @@ class VideoLabel(QtWidgets.QLabel):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setMouseTracking(True)
-        self._pixmap = None
+        self._image = None  # Using QImage instead of QPixmap for performance
         self.drawing = False
         self.start = None
         self.current_rect = None
@@ -79,52 +79,64 @@ class VideoLabel(QtWidgets.QLabel):
 
         self.logger = get_logger(self.__class__.__name__)
 
-    def setPixmap(self, pixmap: QtGui.QPixmap) -> None:
-        self._pixmap = pixmap
-        # Scale pixmap to fit label while maintaining aspect ratio
-        scaled_pixmap = pixmap.scaled(
-            self.size(),
-            QtCore.Qt.KeepAspectRatio,
-            QtCore.Qt.SmoothTransformation
-        )
-        super().setPixmap(scaled_pixmap)
+    def setImage(self, image: QtGui.QImage) -> None:
+        """Set the current frame image directly from QImage."""
+        self._image = image
+        self.update()  # Trigger repaint directly
+        # No more expensive pre-scaling here; handled in paintEvent via QPainter
 
     def map_to_frame(self, x: int, y: int) -> Tuple[int, int]:
         """Map QLabel coordinates to frame coordinates."""
-        if self._pixmap is None:
+        if self._image is None:
             return 0, 0
 
         lbl_w, lbl_h = self.width(), self.height()
-        pm_w, pm_h = self._pixmap.width(), self._pixmap.height()
+        # QImage vs QPixmap confusion? QImage has width()/height() too.
+        pm_w, pm_h = self._image.width(), self._image.height()
+        
+        # Calculate aspect-ratio preserved display dimensions
         scale = min(lbl_w / pm_w, lbl_h / pm_h)
         disp_w, disp_h = int(pm_w * scale), int(pm_h * scale)
+        
+        # Calculate offsets
         x0 = (lbl_w - disp_w) // 2
         y0 = (lbl_h - disp_h) // 2
 
+        # Clip mouse coordinates to display area
         if x < x0 or x > x0 + disp_w or y < y0 or y > y0 + disp_h:
             x = max(x0, min(x, x0 + disp_w))
             y = max(y0, min(y, y0 + disp_h))
 
-        fx = int((x - x0) * (FRAME_WIDTH / disp_w))
-        fy = int((y - y0) * (FRAME_HEIGHT / disp_h))
-        fx = max(0, min(FRAME_WIDTH - 1, fx))
-        fy = max(0, min(FRAME_HEIGHT - 1, fy))
+        # Map to frame coordinates
+        frame_w = self._image.width()
+        frame_h = self._image.height()
+        
+        fx = int((x - x0) * (frame_w / disp_w))
+        fy = int((y - y0) * (frame_h / disp_h))
+        
+        fx = max(0, min(frame_w - 1, fx))
+        fy = max(0, min(frame_h - 1, fy))
         return fx, fy
 
     def map_from_frame(self, rect: List[int]) -> List[int]:
         """Map frame rect to QLabel coordinates."""
-        if self._pixmap is None:
+        if self._image is None:
             return rect
 
         x1, y1, x2, y2 = rect
         lbl_w, lbl_h = self.width(), self.height()
-        pm_w, pm_h = self._pixmap.width(), self._pixmap.height()
+        pm_w, pm_h = self._image.width(), self._image.height()
+        
         scale = min(lbl_w / pm_w, lbl_h / pm_h)
         disp_w, disp_h = int(pm_w * scale), int(pm_h * scale)
         x0 = (lbl_w - disp_w) // 2
         y0 = (lbl_h - disp_h) // 2
-        sx = disp_w / FRAME_WIDTH
-        sy = disp_h / FRAME_HEIGHT
+        
+        frame_w = self._image.width()
+        frame_h = self._image.height()
+        
+        sx = disp_w / frame_w
+        sy = disp_h / frame_h
 
         return [
             int(x0 + x1 * sx),
@@ -132,6 +144,8 @@ class VideoLabel(QtWidgets.QLabel):
             int(x0 + x2 * sx),
             int(y0 + y2 * sy),
         ]
+
+
 
     def set_zoom_drawing_mode(self, enabled: bool) -> None:
         """Enable or disable zoom rectangle drawing mode."""
@@ -197,8 +211,12 @@ class VideoLabel(QtWidgets.QLabel):
             h = y2 - y1
             cx = fx - self.move_offset[0]
             cy = fy - self.move_offset[1]
-            nx1 = max(0, min(FRAME_WIDTH - w, cx - w // 2))
-            ny1 = max(0, min(FRAME_HEIGHT - h, cy - h // 2))
+            
+            frame_w = self._image.width() if self._image else DEFAULT_FRAME_WIDTH
+            frame_h = self._image.height() if self._image else DEFAULT_FRAME_HEIGHT
+            
+            nx1 = max(0, min(frame_w - w, cx - w // 2))
+            ny1 = max(0, min(frame_h - h, cy - h // 2))
             new_rect = [int(nx1), int(ny1), int(nx1 + w), int(ny1 + h)]
             r["rect"] = new_rect
             self.roiMoved.emit(self.selected_id, tuple(new_rect))
@@ -241,11 +259,32 @@ class VideoLabel(QtWidgets.QLabel):
             self.update()
 
     def paintEvent(self, ev):
-        super().paintEvent(ev)
-        if self._pixmap is None:
+        # Override default paintEvent to avoid clearing/redrawing background unnecessarily if we cover it
+        # super().paintEvent(ev) # Optional: skip super paint if we draw full rect
+        
+        if self._image is None:
+            super().paintEvent(ev)
             return
 
         qp = QtGui.QPainter(self)
+        
+        # Draw image scaled
+        lbl_w, lbl_h = self.width(), self.height()
+        img_w, img_h = self._image.width(), self._image.height()
+        
+        # Calculate aspect-ratio preserved display dimensions
+        scale = min(lbl_w / img_w, lbl_h / img_h)
+        disp_w, disp_h = int(img_w * scale), int(img_h * scale)
+        x0 = (lbl_w - disp_w) // 2
+        y0 = (lbl_h - disp_h) // 2
+        
+        # Define target rect
+        target_rect = QtCore.QRect(x0, y0, disp_w, disp_h)
+        
+        # Draw the image
+        qp.drawImage(target_rect, self._image)
+
+        # Draw border/overlays
         pen_sel = QtGui.QPen(QtGui.QColor(*ROI_COLOR_SELECTED), 2)
         pen_reg = QtGui.QPen(QtGui.QColor(*ROI_COLOR_NORMAL), 1)
 
@@ -289,16 +328,179 @@ class VideoLabel(QtWidgets.QLabel):
         qp.end()
 
     def resizeEvent(self, event):
-        """Handle resize events to rescale pixmap."""
+        """Handle resize events."""
         super().resizeEvent(event)
-        if self._pixmap:
-            scaled_pixmap = self._pixmap.scaled(
-                self.size(),
-                QtCore.Qt.KeepAspectRatio,
-                QtCore.Qt.SmoothTransformation
-            )
-            super(VideoLabel, self).setPixmap(scaled_pixmap)
-        self.update()
+        self.update() # Just trigger repaint, scaling is handled in paintEvent
+
+
+# ============================================================================
+# Background Workers
+# ============================================================================
+
+class CameraConnectionThread(QtCore.QThread):
+    """Thread for asynchronous camera connection."""
+    finished = QtCore.pyqtSignal(bool, object, str)  # success, device, message
+
+    def __init__(self, camera_manager, device):
+        super().__init__()
+        self.camera_manager = camera_manager
+        self.device = device
+
+    def run(self):
+        try:
+            if self.device:
+                success = self.camera_manager.connect(self.device)
+                if success:
+                    self.finished.emit(True, self.device, "Connected successfully")
+                else:
+                    self.finished.emit(False, self.device, "Connection failed")
+            else:
+                self.finished.emit(False, None, "No device specified")
+        except Exception as e:
+            self.finished.emit(False, None, str(e))
+
+
+class FocusWorker(QtCore.QThread):
+    """
+    Background worker for image processing and focus calculations.
+    Detaches heavy CV2 operations from the main GUI thread.
+    """
+    frame_processed = QtCore.pyqtSignal(object, object, float, list, dict, dict) 
+    # args: (original_frame, display_frame, global_score, roi_scores, stats, debug_info)
+
+    def __init__(self, camera_manager):
+        super().__init__()
+        self.camera_manager = camera_manager
+        self.running = True
+        self.paused = False
+        self.settings = {}
+        self.mutex = QtCore.QMutex()
+        
+        # Internal state
+        self.stripe_offset = 0
+        self.focus_ensemble = FocusEnsemble()
+        self.adaptive_edge_detector = AdaptiveEdgeDetector()
+        self.focus_quality = FocusQualityIndicator()
+        
+        # Algorithm map (local to thread to avoid conflicts)
+        self.algorithm_map = {
+            "Laplacian Variance": laplacian_focus_metric,
+            "Tenengrad": tenengrad_focus_metric,
+            "Brenner Gradient": brenner_gradient_metric,
+            "Normalized Variance": normalized_variance_focus,
+            "Variance of Laplacian": variance_of_laplacian_metric,
+        }
+
+    def update_settings(self, settings):
+        """Thread-safe settings update."""
+        self.mutex.lock()
+        self.settings = settings.copy()
+        self.mutex.unlock()
+
+    def stop(self):
+        self.running = False
+        self.wait()
+
+    def run(self):
+        while self.running:
+            if self.paused or not self.camera_manager.is_connected:
+                self.msleep(50)
+                continue
+
+            # Read frame
+            ret, frame = self.camera_manager.read_frame()
+            if not ret or frame is None:
+                self.msleep(10)
+                continue
+
+            # Get current settings
+            self.mutex.lock()
+            cfg = self.settings.copy()
+            self.mutex.unlock()
+            
+            if not cfg:
+                self.msleep(50)
+                continue
+
+            try:
+                # Apply software palette if needed
+                if cfg.get('boson_connected') and cfg.get('palette'):
+                    frame = apply_palette_software(frame, cfg['palette'])
+
+                # Convert to gray
+                gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+                # Thermal preprocessing
+                if cfg.get('thermal_preprocessing'):
+                    gray = thermal_preprocess(gray, enhance_contrast=True, reduce_noise=False)
+
+                # Animate stripes
+                if cfg.get('stripes_enabled'):
+                    self.stripe_offset = (self.stripe_offset + 1) % 8
+
+                # Edge Detection & Peaking Overlay
+                if cfg.get('adaptive_edge_enabled'):
+                    scene_type = cfg.get('adaptive_scene_type', 'auto')
+                    displayed = self.adaptive_edge_detector.create_adaptive_focus_peaking(
+                        frame, gray, cfg['edge_threshold'], cfg['focus_color'], 
+                        PEAKING_ALPHA, scene_type, cfg.get('stripes_enabled'), self.stripe_offset
+                    )
+                    scene_info = self.adaptive_edge_detector.get_scene_info(gray)
+                else:
+                    displayed = create_focus_peaking_overlay(
+                        frame, cfg['edge_threshold'], cfg['focus_color'], 
+                        PEAKING_ALPHA, cfg.get('stripes_enabled'), self.stripe_offset
+                    )
+                    scene_info = {}
+
+                # Focus Calculations
+                global_score = 0.0
+                roi_scores = []
+                ensemble_details = {}
+                regions = cfg.get('regions', [])
+
+                if cfg.get('ensemble_voting_enabled'):
+                    global_score, ensemble_details = self.focus_ensemble.compute_ensemble_focus(
+                        gray, return_details=True
+                    )
+                    # ROI scores use selected algorithm as fallback or ensemble? 
+                    # Existing logic used selected algorithm for ROIs even in ensemble mode
+                    algo_name = cfg.get('current_algorithm', DEFAULT_FOCUS_ALGORITHM)
+                    metric_func = self.algorithm_map.get(algo_name, laplacian_focus_metric)
+                    if regions:
+                        roi_scores = compute_roi_scores(gray, regions, metric_func)
+                else:
+                    algo_name = cfg.get('current_algorithm', DEFAULT_FOCUS_ALGORITHM)
+                    metric_func = self.algorithm_map.get(algo_name, laplacian_focus_metric)
+                    
+                    if regions:
+                        roi_scores = compute_roi_scores(gray, regions, metric_func)
+                        global_score = compute_weighted_focus(gray, regions, metric_func)
+                    else:
+                        global_score = metric_func(gray)
+
+                # Focus Quality Update
+                self.focus_quality.update(global_score)
+                quality_level, _ = self.focus_quality.get_quality()
+                quality_pct = self.focus_quality.get_quality_percentage()
+
+                # Pack stats
+                stats = {
+                    'quality_level': quality_level,
+                    'quality_pct': quality_pct,
+                    'scene_info': scene_info,
+                    'ensemble_details': ensemble_details
+                }
+
+                # Emit results
+                self.frame_processed.emit(frame, displayed, global_score, roi_scores, stats, {})
+
+            except Exception as e:
+                # Log error but keep running
+                print(f"Worker Error: {e}")
+
+            # Cap frame rate
+            self.msleep(TIMER_INTERVAL_MS)
 
 
 # ============================================================================
@@ -385,6 +587,11 @@ class BosonFocusGUI(QtWidgets.QWidget):
         self.stripes_enabled = False
         self.stripe_offset = 0  # Animation counter (0-7)
 
+        # Background Worker for Image Processing
+        self.focus_worker = FocusWorker(self.camera_manager)
+        self.focus_worker.frame_processed.connect(self._on_frame_processed)
+        self.focus_worker.start()  # Start the thread loop (it handles pausing internally)
+
         # Setup UI
         self._create_ui()
 
@@ -392,6 +599,11 @@ class BosonFocusGUI(QtWidgets.QWidget):
         self._auto_scale_window()
 
         self._setup_timer()
+        self._setup_shortcuts()
+        self._load_config_if_exists()
+        
+        # Initial settings sync
+        self._sync_settings_to_worker()
         self._setup_shortcuts()
         self._load_config_if_exists()
         self._connect_camera()
@@ -671,6 +883,12 @@ class BosonFocusGUI(QtWidgets.QWidget):
         self.camera_info_label.setWordWrap(True)
         self.camera_info_label.setStyleSheet("font-size: 8pt; color: palette(mid);")
         group_layout.addWidget(self.camera_info_label)
+
+        # Thermal Camera Toggle
+        self.thermal_checkbox = QtWidgets.QCheckBox("Treat as Thermal Camera")
+        self.thermal_checkbox.setToolTip("Enable thermal-specific features (Palettes, Preprocessing)")
+        self.thermal_checkbox.stateChanged.connect(self._on_thermal_toggle)
+        group_layout.addWidget(self.thermal_checkbox)
 
         layout.addWidget(group)
 
@@ -1063,9 +1281,11 @@ class BosonFocusGUI(QtWidgets.QWidget):
         self.logger.info(f"Window auto-scaled to {optimal_width}x{optimal_height}")
 
     def _setup_timer(self):
-        """Setup update timer."""
+        """Setup video update timer (now used for sync)."""
         self.timer = QtCore.QTimer()
-        self.timer.timeout.connect(self._tick)
+        # Periodically sync settings to ensure thread is up to date (backup to event-driven sync)
+        self.timer.timeout.connect(self._sync_settings_to_worker)
+        # Note: Thread runs at its own rate, this timer just ensures state consistency
         self.timer.start(TIMER_INTERVAL_MS)
 
     def _setup_shortcuts(self):
@@ -1151,7 +1371,7 @@ class BosonFocusGUI(QtWidgets.QWidget):
             self._on_device_changed(0)
 
     def _on_device_changed(self, combo_index):
-        """Handle camera device selection change."""
+        """Handle camera device selection change (Async)."""
         camera_list_index = self.device_combo.itemData(combo_index)
 
         if camera_list_index is None:
@@ -1163,30 +1383,85 @@ class BosonFocusGUI(QtWidgets.QWidget):
             return
 
         camera_device = self.available_cameras[camera_list_index]
-        self.logger.info(f"Connecting to {camera_device}...")
+        self.logger.info(f"Initiating connection to {camera_device}...")
 
-        if self.camera_manager.connect(device=camera_device):
+        # Disable UI during connection
+        self.device_combo.setEnabled(False)
+        self.refresh_btn.setEnabled(False)
+        
+        # Show status
+        self.status_label.setText(f"Connecting to {camera_device.name}...")
+        
+        # Display loading in video label
+        self.video_label.setText("Connecting...\nPlease Wait")
+        self.video_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.video_label.setStyleSheet("QLabel { background-color: #202020; color: white; font-size: 16px; }")
+
+        # Stop existing connection/timer first
+        if self.timer.isActive():
+            self.timer.stop()
+        self.camera_manager.disconnect()
+
+        # Start background thread
+        self.connect_thread = CameraConnectionThread(self.camera_manager, camera_device)
+        self.connect_thread.finished.connect(self._on_camera_connected)
+        self.connect_thread.start()
+
+    def _on_camera_connected(self, success, camera_device, message):
+        """Handle camera connection completion."""
+        # Re-enable UI
+        self.device_combo.setEnabled(True)
+        self.refresh_btn.setEnabled(True)
+        self.video_label.setText("") # Clear text (will be replaced by pixmap)
+        self.video_label.setStyleSheet("") # Reset style
+        
+        if success:
             info = self.camera_manager.get_camera_info()
-
+            
             # Determine camera type icon and description
             if camera_device.camera_type == "spinnaker":
                 type_icon = "🎥"
                 type_desc = "Spinnaker SDK"
-            elif "Boson" in camera_device.name or "FLIR" in camera_device.name:
+                # Spinnaker cameras (Firefly, Blackfly) are usually visible light
+                self.thermal_checkbox.blockSignals(True)
+                self.thermal_checkbox.setChecked(False) 
+                self.thermal_checkbox.blockSignals(False)
+            elif "Boson" in camera_device.name:
                 type_icon = "🌡️"
                 type_desc = "Thermal"
+                self.thermal_checkbox.blockSignals(True)
+                self.thermal_checkbox.setChecked(True)
+                self.thermal_checkbox.blockSignals(False)
             else:
                 type_icon = "📹"
                 type_desc = "UVC Webcam"
+                self.thermal_checkbox.blockSignals(True)
+                self.thermal_checkbox.setChecked(False)
+                self.thermal_checkbox.blockSignals(False)
 
             info_text = f"{type_icon} {type_desc} | {info['width']}x{info['height']} @ {info['backend']}"
             self.camera_info_label.setText(info_text)
             self.status_label.setText(f"{camera_device.name} connected")
+            # self.status_bar.showMessage(f"Connected to {camera_device.name}", 3000)
             self.logger.info(f"Successfully connected to {camera_device}")
+            
+            # Start timer
+            self.timer.start(TIMER_INTERVAL_MS)
+            
+            # Update window title
+            self.setWindowTitle(f"{APP_NAME} v{APP_VERSION} - {camera_device.name}")
+            
+            # Try to connect Boson control if applicable (could be threaded too, but usually fast if port is known)
+            if "Boson" in camera_device.name or "FLIR" in camera_device.name:
+                # Give a brief pause for serial port to stabilize
+                QtCore.QTimer.singleShot(500, self._connect_boson)
+                
         else:
             self.camera_info_label.setText("Connection failed")
             self.status_label.setText("Camera connection failed")
-            self.logger.error(f"Failed to connect to {camera_device}")
+            # self.status_bar.showMessage(f"Connection failed: {message}", 5000)
+            self.video_label.setText(f"Connection Failed\n{message}\n\nTry selecting another camera.")
+            self.logger.error(f"Failed to connect to {camera_device}: {message}")
 
     # ========================================================================
     # ROI Management
@@ -1319,6 +1594,168 @@ class BosonFocusGUI(QtWidgets.QWidget):
     # UI Events
     # ========================================================================
 
+    def _sync_settings_to_worker(self):
+        """Sync current settings to the worker thread."""
+        if not hasattr(self, 'focus_worker'):
+            return
+            
+        settings = {
+            # Basic settings
+            'paused': self.paused,
+            'regions': [r.copy() for r in self.regions], # Send copy to avoid race
+            'edge_threshold': self.edge_threshold,
+            'focus_color': self.focus_color,
+            'current_algorithm': self.current_algorithm,
+            
+            # Feature flags
+            'thermal_preprocessing': self.thermal_preprocessing_enabled,
+            'stripes_enabled': self.stripes_enabled,
+            'ensemble_voting_enabled': self.ensemble_voting_enabled,
+            'adaptive_edge_enabled': self.adaptive_edge_enabled,
+            
+            # Adaptive / Advanced settings
+            'adaptive_scene_type': self.adaptive_scene_type,
+            'adaptive_multi_scale': self.adaptive_multi_scale,
+            
+            # Boson specific (simple flags)
+            'boson_connected': self.boson_controller.is_connected if self.boson_controller else False,
+            'palette': self.boson_controller.current_palette if (self.boson_controller and self.thermal_checkbox.isChecked()) else None,
+            'is_thermal': self.thermal_checkbox.isChecked()
+        }
+        self.focus_worker.update_settings(settings)
+
+    def _on_frame_processed(self, original_frame, displayed_frame, global_score, roi_scores, stats, debug_info):
+        """Handle processed frame from worker thread."""
+        
+        # 1. Update Focus History and Stats
+        self.focus_history.append(global_score)
+        self.stats_tracker.add_score(global_score)
+        
+        # 2. Update ROI scores (in main thread model)
+        # Note: Worker sends us scores in order of regions
+        if len(roi_scores) == len(self.regions):
+            for i, score in enumerate(roi_scores):
+                self.regions[i]['score'] = score
+        
+        # 3. Update Quality Indicator
+        if ENABLE_FOCUS_QUALITY_INDICATOR:
+            quality_level = stats.get('quality_level', 'poor')
+            quality_percentage = stats.get('quality_pct', 0)
+            
+            quality_color = QUALITY_COLORS.get(quality_level, "#868e96")
+            self.quality_status_label.setText(f"● {quality_level.title()}")
+            self.quality_status_label.setStyleSheet(f"font-size: 10pt; font-weight: bold; color: {quality_color};")
+            self.quality_score_label.setText(f"Score: {quality_percentage} / 100")
+
+        # 4. Burn ROIs into display (if not already done by worker? Worker doesn't draw ROIs)
+        # We need to draw ROIs here before Zoom
+        # Using cv2 to draw on the 'displayed_frame' (which has peaking)
+        # Make a copy if we don't want to modify the one from worker (but worker sends new object)
+        final_display = displayed_frame 
+        
+        for r in self.regions:
+            x1, y1, x2, y2 = [int(v) for v in r["rect"]]
+            color = ROI_COLOR_SELECTED if (self.selected_id and r["id"] == self.selected_id) else ROI_COLOR_NORMAL
+            cv2.rectangle(final_display, (x1, y1), (x2, y2), color, 2)
+            label = f"ID{r['id']} W{r['weight']:.2f} S{r['score']:.0f}"
+            cv2.putText(final_display, label, (x1 + 4, y1 + 18),
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+
+        # 5. Draw Global Focus Score
+        cv2.putText(
+            final_display,
+            f"Focus: {global_score:.1f}",
+            (10, 30),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.8,
+            (255, 255, 255),
+            2,
+        )
+
+        # 6. Apply Zoom (Main thread operation)
+        # ZoomManager applies zoom to the image
+        final_display = self.zoom_manager.apply_zoom(final_display, self.regions)
+
+        # 7. Update Video Label
+        # 7. Update Video Label
+        rgb = cv2.cvtColor(final_display, cv2.COLOR_BGR2RGB)
+        h, w, ch = rgb.shape
+        # Create QImage directly
+        qimg = QtGui.QImage(rgb.data, w, h, ch * w, QtGui.QImage.Format_RGB888)
+        # Copy the data to ensure it persists (optional but safer for signals/async, 
+        # though this runs in main thread so reference is fine till next frame)
+        # Using copy() here avoids issues if underlying numpy array is recycled immediately
+        self.video_label.setImage(qimg.copy())
+
+        # 8. Update Table
+        self._update_table_scores()
+
+        # 9. Update Statistics Label
+        current_stats = self.stats_tracker.get_all_stats()
+        stats_text = (
+            f"Current: {current_stats['current']:7.1f}\n"
+            f"Min:     {current_stats['min']:7.1f}\n"
+            f"Max:     {current_stats['max']:7.1f}\n"
+            f"Mean:    {current_stats['mean']:7.1f}\n"
+            f"Std:     {current_stats['std']:7.1f}"
+        )
+        self.stats_label.setText(stats_text)
+
+        # 10. Update Ensemble UI
+        if self.ensemble_voting_enabled and 'ensemble_details' in stats:
+            details = stats['ensemble_details']
+            if details:
+                # Update confidence label
+                if hasattr(self, 'ensemble_confidence_label') and SHOW_CONFIDENCE_INDICATOR:
+                    confidence = details.get('confidence', 0)
+                    quality = details.get('consensus_quality', 'unknown')
+                    self.ensemble_confidence_label.setText(
+                        f"Confidence: {confidence*100:.0f}% ({quality.title()})"
+                    )
+                    quality_color = QUALITY_COLORS.get(quality, "#868e96")
+                    self.ensemble_confidence_label.setStyleSheet(
+                        f"font-size: 9pt; font-weight: bold; color: {quality_color};"
+                    )
+
+                # Update individual scores
+                if self.show_all_algorithms and hasattr(self, 'algorithm_score_labels'):
+                    all_scores = details.get('all_scores', {})
+                    best_algo = details.get('best_algorithm', '')
+                    for algo_name, score in all_scores.items():
+                        if algo_name in self.algorithm_score_labels:
+                            marker = " ⭐" if algo_name == best_algo else ""
+                            self.algorithm_score_labels[algo_name].setText(
+                                f"{algo_name}: {score:.1f}{marker}"
+                            )
+
+        # 11. Update Graph
+        self._update_graph()
+        
+        # 12. Update Smart Palette Switcher
+        self.palette_switcher.update(self.focus_history)
+        self._update_palette_status()
+
+    def _update_table_scores(self):
+        """Helper to update scores in the table."""
+        for row in range(self.table.rowCount()):
+            rid = int(self.table.item(row, 0).text())
+            r = self._find_region(rid)
+            if r:
+                self.table.item(row, 2).setText(f"{r.get('score', 0):.0f}")
+
+    def _update_palette_status(self):
+        """Update palette status label."""
+        if self.palette_switcher.is_active() and not self.focus_mode_btn.isChecked():
+            self.palette_status_label.setText("Focus Mode: Active (Auto)")
+            self.palette_status_label.setStyleSheet("font-size: 8pt; color: #ffa94d; font-weight: bold;")
+        elif not self.palette_switcher.is_active() and not self.focus_mode_btn.isChecked():
+            self.palette_status_label.setText("Focus Mode: Inactive")
+            self.palette_status_label.setStyleSheet("font-size: 8pt; color: palette(mid);")
+
+    # ========================================================================
+    # UI Events
+    # ========================================================================
+
     def _weight_changed(self, val):
         """Handle weight slider change."""
         w = val / 100.0
@@ -1331,11 +1768,14 @@ class BosonFocusGUI(QtWidgets.QWidget):
                 r["weight"] = w
                 self._sync_rois_to_label()
                 self._refresh_table()
+        
+        self._sync_settings_to_worker()
 
     def _edge_changed(self, val):
         """Handle edge threshold change."""
         self.edge_threshold = val
         self.th_label.setText(f"Threshold: {val}")
+        self._sync_settings_to_worker()
 
     def _pick_color(self):
         """Open color picker dialog."""
@@ -1345,6 +1785,7 @@ class BosonFocusGUI(QtWidgets.QWidget):
         if qcolor.isValid():
             self.focus_color = (qcolor.blue(), qcolor.green(), qcolor.red())
             self.logger.info(f"Peaking color changed to {self.focus_color}")
+            self._sync_settings_to_worker()
 
     def _on_theme_changed(self, theme_name):
         """Handle theme change."""
@@ -1355,21 +1796,31 @@ class BosonFocusGUI(QtWidgets.QWidget):
         """Handle focus algorithm change."""
         self.current_algorithm = algorithm_name
         self.logger.info(f"Focus algorithm changed to: {algorithm_name}")
+        self._sync_settings_to_worker()
 
     def _toggle_thermal_preprocessing(self, state):
         """Toggle thermal preprocessing."""
         self.thermal_preprocessing_enabled = (state == QtCore.Qt.Checked)
         self.logger.info(f"Thermal preprocessing: {'enabled' if self.thermal_preprocessing_enabled else 'disabled'}")
+        self._sync_settings_to_worker()
 
     def _toggle_adaptive_edge(self, state):
         """Toggle adaptive edge detection."""
         self.adaptive_edge_enabled = (state == QtCore.Qt.Checked)
         self.logger.info(f"Adaptive edge detection: {'enabled' if self.adaptive_edge_enabled else 'disabled'}")
+        self._sync_settings_to_worker()
+
+    def _on_thermal_toggle(self, state):
+        """Handle thermal camera checkbox toggle."""
+        is_thermal = (state == QtCore.Qt.Checked)
+        self.logger.info(f"Thermal mode {'enabled' if is_thermal else 'disabled'}")
+        self._sync_settings_to_worker()
 
     def _toggle_stripes(self, state):
         """Toggle stripe pattern for focus peaking."""
         self.stripes_enabled = (state == QtCore.Qt.Checked)
         self.logger.info(f"Stripe pattern: {'enabled' if self.stripes_enabled else 'disabled'}")
+        self._sync_settings_to_worker()
 
     def _on_scene_type_changed(self, scene_type_text):
         """Handle scene type selection change."""
@@ -1383,21 +1834,22 @@ class BosonFocusGUI(QtWidgets.QWidget):
         self.adaptive_scene_type = scene_type_map.get(scene_type_text, "auto")
         self.adaptive_edge_detector.set_scene_type(self.adaptive_scene_type)
         self.logger.info(f"Adaptive scene type changed to: {self.adaptive_scene_type}")
+        self._sync_settings_to_worker()
 
     def _toggle_multi_scale(self, state):
         """Toggle multi-scale detection."""
         self.adaptive_multi_scale = (state == QtCore.Qt.Checked)
         self.adaptive_edge_detector.set_multi_scale(self.adaptive_multi_scale)
         self.logger.info(f"Multi-scale detection: {'enabled' if self.adaptive_multi_scale else 'disabled'}")
+        self._sync_settings_to_worker()
 
     def _toggle_ensemble_voting(self, state):
         """Toggle ensemble voting system."""
         self.ensemble_voting_enabled = (state == QtCore.Qt.Checked)
         self.logger.info(f"Ensemble voting: {'enabled' if self.ensemble_voting_enabled else 'disabled'}")
-
-        # Reset ensemble history when toggling
         if self.ensemble_voting_enabled:
             self.focus_ensemble.reset_history()
+        self._sync_settings_to_worker()
 
     def _toggle_show_algorithms(self, state):
         """Toggle display of all algorithm scores."""
@@ -1405,12 +1857,19 @@ class BosonFocusGUI(QtWidgets.QWidget):
         if hasattr(self, 'algorithm_scores_widget'):
             self.algorithm_scores_widget.setVisible(self.show_all_algorithms)
         self.logger.debug(f"Show all algorithms: {self.show_all_algorithms}")
+        # Not needed to sync to worker, purely UI
 
     def _toggle_auto_palette_switch(self, state):
         """Toggle automatic palette switching."""
         self.auto_palette_switch_enabled = (state == QtCore.Qt.Checked)
         self.palette_switcher.enable_auto_switch(self.auto_palette_switch_enabled)
         self.logger.info(f"Auto palette switch: {'enabled' if self.auto_palette_switch_enabled else 'disabled'}")
+        # Syncing might be needed if switching palette happens in worker? 
+        # Palette switching logic (SmartPaletteSwitcher) is in main thread (update called in _on_frame_processed)
+        # But applying the palette happens in worker. 
+        # The worker uses 'palette' from settings.
+        # So we should sync.
+        self._sync_settings_to_worker()
 
     def _toggle_focus_mode_manual(self, checked):
         """Manually toggle focus mode on/off."""
@@ -1431,6 +1890,7 @@ class BosonFocusGUI(QtWidgets.QWidget):
             self.focus_mode_btn.setText("Enter Focus Mode")
             self.palette_status_label.setText("Focus Mode: Inactive")
             self.palette_status_label.setStyleSheet("font-size: 8pt; color: palette(mid);")
+        self._sync_settings_to_worker()
 
     def _toggle_pause(self):
         """Toggle video pause."""
@@ -1438,6 +1898,7 @@ class BosonFocusGUI(QtWidgets.QWidget):
         status = "paused" if self.paused else "running"
         self.status_label.setText(f"Video {status}")
         self.logger.info(f"Video {status}")
+        self._sync_settings_to_worker()
 
     def _on_zoom_mode_changed(self, mode_text):
         """Handle zoom mode change."""
@@ -1450,6 +1911,8 @@ class BosonFocusGUI(QtWidgets.QWidget):
         self.zoom_draw_btn.setEnabled(mode == ZoomMode.MANUAL)
         self.zoom_roi_combo.setEnabled(mode == ZoomMode.AUTO_ROI)
         self.zoom_level_slider.setEnabled(mode == ZoomMode.MANUAL)
+        # Zoom happens in main thread, so no sync necessary?
+        # Actually worker doesn't need zoom info.
 
     def _on_zoom_level_changed(self, value):
         """Handle zoom level slider change."""

@@ -20,8 +20,8 @@ cv2.setLogLevel(0)  # 0 = silent, 1 = fatal, 2 = error, 3 = warning
 warnings.filterwarnings('ignore', category=UserWarning, module='cv2')
 
 from config import (
-    FRAME_WIDTH,
-    FRAME_HEIGHT,
+    DEFAULT_FRAME_WIDTH,
+    DEFAULT_FRAME_HEIGHT,
     CAMERA_RETRY_INTERVAL_MS,
     MAX_CAMERA_RETRY_ATTEMPTS,
     ENABLE_MOCK_CAMERA,
@@ -79,8 +79,8 @@ class CameraManager:
         self.current_device: Optional[CameraDevice] = None
         self.is_connected = False
         self.retry_count = 0
-        self.frame_width = FRAME_WIDTH
-        self.frame_height = FRAME_HEIGHT
+        self.frame_width = DEFAULT_FRAME_WIDTH
+        self.frame_height = DEFAULT_FRAME_HEIGHT
         self._blank_frame = self._create_blank_frame()
         self.camera_type = "opencv"  # "opencv" or "spinnaker"
 
@@ -313,6 +313,10 @@ class CameraManager:
                 # Get actual frame dimensions
                 actual_width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
                 actual_height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+                
+                # Update instance variables to match actual content
+                self.frame_width = actual_width
+                self.frame_height = actual_height
 
                 logger.info(
                     f"Successfully connected to camera {device} "
@@ -506,7 +510,7 @@ class MockCamera:
     Generates synthetic thermal-like imagery.
     """
 
-    def __init__(self, width: int = FRAME_WIDTH, height: int = FRAME_HEIGHT):
+    def __init__(self, width: int = DEFAULT_FRAME_WIDTH, height: int = DEFAULT_FRAME_HEIGHT):
         """
         Initialize mock camera.
 

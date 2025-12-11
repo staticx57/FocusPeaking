@@ -27,9 +27,9 @@ LOG_FILE = "flir_focus.log"
 # - Set to None to auto-detect first available camera
 DEFAULT_CAMERA_DEVICE = None
 
-# Frame dimensions
-FRAME_WIDTH = 640
-FRAME_HEIGHT = 480
+# Frame dimensions (Defaults)
+DEFAULT_FRAME_WIDTH = 640
+DEFAULT_FRAME_HEIGHT = 480
 
 # Video processing
 DEFAULT_FPS = 20  # Target frames per second
