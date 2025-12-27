@@ -13,7 +13,7 @@ from pathlib import Path
 # ============================================================================
 
 APP_NAME = "FLIR Boson Focus Utility"
-APP_VERSION = "3.0.1"
+APP_VERSION = "4.1.0"
 CONFIG_FILE = "focus_config.json"
 LOG_FILE = "flir_focus.log"
 

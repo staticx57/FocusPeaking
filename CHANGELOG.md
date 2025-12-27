@@ -1,5 +1,195 @@
 # FLIR Boson Focus Utility - Detailed Changelog
 
+## v4.1.0 - Enhanced User Experience (December 27, 2025)
+
+This release adds 5 new user experience features focused on hands-free operation, quick capture, and workflow efficiency.
+
+---
+
+### 🔊 Audio Focus Feedback
+
+#### Overview
+Hands-free focusing using audio tones that increase in pitch as focus quality improves.
+
+**Implementation**:
+- `AudioFeedbackManager` class handles tone generation
+- Uses Windows `winsound.Beep()` for cross-thread safe audio
+- Frequency scales from 200Hz (poor) to 1200Hz (excellent)
+- Configurable interval (200ms default) prevents audio spam
+- Toggle in Advanced tab with status indicator
+
+**Configuration** (`config.py`):
+```python
+ENABLE_AUDIO_FEEDBACK = False  # Default off
+AUDIO_MIN_FREQUENCY = 200      # Hz - poor focus
+AUDIO_MAX_FREQUENCY = 1200     # Hz - excellent focus
+AUDIO_FEEDBACK_INTERVAL_MS = 200
+AUDIO_BEEP_DURATION_MS = 50
+```
+
+**Files Modified**:
+- `config.py`: Added audio feedback settings
+- `focus_utility.py`: Added AudioFeedbackManager class and UI controls
+
+---
+
+### 📷 Screenshot Capture
+
+#### Overview
+Instant frame capture with F12 shortcut, supporting both overlay and raw frame modes.
+
+**Features**:
+- `F12`: Capture frame with focus peaking overlay
+- `Shift+F12`: Capture raw frame without overlay
+- Button in action buttons area
+- Automatic timestamped filenames
+- Saves to `screenshots/` folder (auto-created)
+- PNG format by default (JPEG configurable)
+
+**Implementation**:
+- `ScreenshotManager` class handles frame storage and saving
+- Stores both original and overlay frames each update cycle
+- Filename format: `focus_capture_YYYYMMDD_HHMMSS_mmm.png`
+
+**Configuration** (`config.py`):
+```python
+SCREENSHOT_DIRECTORY = None  # None = screenshots/ subfolder
+SCREENSHOT_PREFIX = "focus_capture"
+SCREENSHOT_FORMAT = "png"
+SCREENSHOT_JPEG_QUALITY = 95
+SCREENSHOT_INCLUDE_OVERLAY = True
+```
+
+**Files Modified**:
+- `config.py`: Added screenshot settings and path helper
+- `focus_utility.py`: Added ScreenshotManager class, button, and F12/Shift+F12 shortcuts
+
+---
+
+### 📂 Configuration Profiles
+
+#### Overview
+Named presets for quick switching between different use cases (Lab, Outdoor, Macro, etc.).
+
+**Features**:
+- Profile dropdown selector in right panel
+- "Save As..." button for creating new profiles
+- "Delete" button for removing profiles
+- Default profile auto-created on first run
+- Profiles store all settings including new features
+- JSON format for easy editing
+
+**Implementation**:
+- `ProfileManager` class handles save/load/delete operations
+- Profiles stored in `profiles/` folder
+- `_apply_profile_config()` applies all settings to UI
+- `_get_current_config()` captures current state
+
+**Stored Settings**:
+- Focus color, edge threshold
+- ROI definitions (position, weight)
+- Focus algorithm selection
+- All feature toggles (ensemble, adaptive, audio, histogram, etc.)
+- Graph auto-scaling preference
+
+**Files Modified**:
+- `config.py`: Added profiles settings and path helper
+- `focus_utility.py`: Added ProfileManager class and UI controls
+
+---
+
+### 📊 Live Histogram
+
+#### Overview
+Real-time image histogram display for exposure and contrast analysis.
+
+**Features**:
+- Toggle in Advanced tab
+- Luminance histogram (default) or RGB channels
+- Compact 256x100 pixel display
+- Updates each frame
+- Collapsible container (hidden when disabled)
+
+**Implementation**:
+- `HistogramGenerator` class calculates and renders histogram
+- Uses OpenCV `cv2.calcHist()` for efficient calculation
+- Draws directly to numpy array, converts to QImage
+
+**Configuration** (`config.py`):
+```python
+ENABLE_HISTOGRAM = False  # Default off
+HISTOGRAM_WIDTH = 256
+HISTOGRAM_HEIGHT = 100
+HISTOGRAM_LINE_COLOR = (200, 200, 200)
+HISTOGRAM_SHOW_RGB = False
+```
+
+**Files Modified**:
+- `config.py`: Added histogram settings
+- `focus_utility.py`: Added HistogramGenerator class, display widget, and UI controls
+
+---
+
+### 🎯 Focus Peak Indicator
+
+#### Overview
+Visual confirmation when optimal focus is achieved, with green border flash and status text.
+
+**Features**:
+- Green border (8px) flashes around video when peak focus detected
+- "PEAK FOCUS" text overlay
+- Status label shows "Searching..." → "ACHIEVED!"
+- Automatic detection when focus stabilizes at maximum
+- 95% threshold - triggers when score within 5% of observed max
+- 5-frame stability requirement prevents false positives
+
+**Implementation**:
+- `FocusPeakDetector` class tracks focus history and detects peaks
+- Uses rolling window (30 frames) to track maximum
+- Stability counter ensures focus is stable, not just momentarily high
+- Flash duration configurable (500ms default)
+
+**Configuration** (`config.py`):
+```python
+ENABLE_PEAK_INDICATOR = True
+PEAK_DETECTION_THRESHOLD = 0.95  # 95% of max
+PEAK_DETECTION_WINDOW = 30       # frames
+PEAK_FLASH_DURATION_MS = 500
+PEAK_BORDER_COLOR = (0, 255, 0)  # Green (BGR)
+PEAK_BORDER_WIDTH = 8
+PEAK_STABILITY_FRAMES = 5
+```
+
+**Files Modified**:
+- `config.py`: Added peak indicator settings
+- `focus_utility.py`: Added FocusPeakDetector class, visual overlay, and UI controls
+
+---
+
+### 🐛 Bug Fixes
+
+#### TLinear SDK Method Fix
+**Issue**: TLinear toggle failed with "'pyClient' object has no attribute 'bosonSetTLinearEnableState'"
+
+**Fix**: Changed method call from `bosonSetTLinearEnableState(state)` to `TLinearSetControl(state)` to match actual SDK API.
+
+**File**: `boson_control.py` line 459
+
+---
+
+### 📁 New Files/Directories
+
+- `profiles/` - Configuration profile storage (auto-created)
+- `screenshots/` - Screenshot storage (auto-created)
+
+### Code Statistics
+
+- `config.py`: +95 lines (new settings sections)
+- `focus_utility.py`: +400 lines (5 new classes + UI controls)
+- Total new code: ~500 lines
+
+---
+
 ## v4.0.0 - Camera Calibration & Alignment System (November 18, 2025)
 
 This major release transforms the application into a dual-mode system: the original focus peaking utility PLUS a comprehensive camera calibration and alignment system for multi-camera setups.

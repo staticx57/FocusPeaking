@@ -1,16 +1,82 @@
 # FLIR Boson Focus & Calibration Utility - Enhancement Status
 
-**Last Updated:** November 18, 2025
-**Version:** 4.0.0
-**Status:** ALL PHASES COMPLETE + CALIBRATION SYSTEM ADDED - Production Ready
+**Last Updated:** December 27, 2025
+**Version:** 4.1.0
+**Status:** ALL PHASES COMPLETE + UX ENHANCEMENTS ADDED - Production Ready
 
 ---
 
 ## 🎉 PROJECT COMPLETE
 
-This document archives the enhancement phases for the focus peaking system and documents the new camera calibration system added in v4.0.0.
+This document archives the enhancement phases for the focus peaking system and documents all major feature additions.
 
-### v4.0.0 Major Addition: Camera Calibration System
+---
+
+## v4.1.0 User Experience Enhancements (December 27, 2025)
+
+### ✅ COMPLETE - 5 New Features
+
+| Feature | Status | Description |
+|---------|--------|-------------|
+| 🔊 Audio Focus Feedback | ✅ Complete | Pitch-based tones for hands-free focusing |
+| 📷 Screenshot Capture | ✅ Complete | F12/Shift+F12 instant frame capture |
+| 📂 Configuration Profiles | ✅ Complete | Named presets for quick switching |
+| 📊 Live Histogram | ✅ Complete | Real-time image histogram display |
+| 🎯 Focus Peak Indicator | ✅ Complete | Visual confirmation at optimal focus |
+
+### Implementation Details
+
+#### 🔊 Audio Focus Feedback
+**Status:** ✅ Working
+**Class:** `AudioFeedbackManager`
+
+- Frequency range: 200Hz (poor) → 1200Hz (excellent)
+- Interval: 200ms (configurable)
+- Uses Windows `winsound.Beep()` for reliability
+- Toggle in Advanced tab
+
+#### 📷 Screenshot Capture
+**Status:** ✅ Working
+**Class:** `ScreenshotManager`
+
+- `F12`: Capture with overlay
+- `Shift+F12`: Capture raw frame
+- Saves to `screenshots/` folder
+- Timestamped filenames
+
+#### 📂 Configuration Profiles
+**Status:** ✅ Working
+**Class:** `ProfileManager`
+
+- Profiles stored in `profiles/` folder
+- JSON format
+- Complete settings snapshots
+- Default profile auto-created
+
+#### 📊 Live Histogram
+**Status:** ✅ Working
+**Class:** `HistogramGenerator`
+
+- 256x100 pixel display
+- Luminance or RGB modes
+- Updates each frame
+- Collapsible container
+
+#### 🎯 Focus Peak Indicator
+**Status:** ✅ Working
+**Class:** `FocusPeakDetector`
+
+- Green border flash at peak
+- 95% threshold detection
+- 5-frame stability requirement
+- 500ms flash duration
+
+### Bug Fixes
+- ✅ TLinear SDK method fix (`bosonSetTLinearEnableState` → `TLinearSetControl`)
+
+---
+
+## v4.0.0 Major Addition: Camera Calibration System
 **Status:** ✅ COMPLETE
 **Completion Date:** November 18, 2025
 

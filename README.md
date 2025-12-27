@@ -1,6 +1,6 @@
 # FLIR Boson Focus Peaking & Camera Calibration Utility
 
-**Version 4.0.0** - Professional dual-mode application: Advanced focus peaking for FLIR Boson thermal cameras PLUS comprehensive camera calibration and alignment for multi-camera systems.
+**Version 4.1.0** - Professional dual-mode application: Advanced focus peaking for FLIR Boson thermal cameras PLUS comprehensive camera calibration and alignment for multi-camera systems.
 
 **📋 [View Detailed Changelog](CHANGELOG.md)** - Complete change history with technical details
 
@@ -85,6 +85,42 @@ Enables thermal-to-visible camera fusion, stereo calibration, FOV alignment, and
 - **CSV Export**: Export focus data for analysis
 - **Responsive UI**: Dynamic resizing, modern themes
 - **Keyboard Shortcuts**: Fast workflow
+
+### 🆕 v4.1.0 New Features
+
+#### 🔊 Audio Focus Feedback
+- **Hands-free focusing**: Tones that increase in pitch as focus improves
+- Frequency range: 200Hz (poor focus) to 1200Hz (excellent focus)
+- Configurable interval and duration
+- Toggle on/off in Advanced tab
+
+#### 📷 Screenshot Capture
+- **Instant capture**: Press F12 to save current frame
+- **Raw or overlay**: Shift+F12 saves without focus peaking overlay
+- Automatic timestamped filenames
+- Screenshots saved to `screenshots/` folder
+- PNG format (configurable to JPEG)
+
+#### 📂 Configuration Profiles
+- **Named presets**: Save settings as "Lab", "Outdoor", "Macro", etc.
+- Quick profile switching via dropdown
+- Profiles include all settings (ROIs, algorithms, features)
+- Create, load, and delete profiles easily
+- Stored in `profiles/` folder as JSON
+
+#### 📊 Live Histogram
+- **Real-time image histogram** display
+- Luminance or RGB channel modes
+- Helps assess exposure and contrast
+- Toggle on/off in Advanced tab
+- Compact display below focus graph
+
+#### 🎯 Focus Peak Indicator
+- **Visual confirmation** when optimal focus is achieved
+- Green border flash + "PEAK FOCUS" text
+- Automatic detection when focus stabilizes at maximum
+- Configurable sensitivity (95% threshold default)
+- Status display shows "Searching..." → "ACHIEVED!"
 
 ## 📐 Camera Calibration & Alignment Features
 
@@ -368,6 +404,8 @@ The edge threshold slider controls the sensitivity of focus peaking edge detecti
 - `Ctrl+E`: Export focus data to CSV
 - `Space`: Pause/Resume video
 - `+` / `-`: Increase/decrease edge threshold
+- `F12`: Take screenshot (with overlay)
+- `Shift+F12`: Take screenshot (raw frame, no overlay)
 
 **Zoom/Pan** (when zoomed):
 - `W` `A` `S` `D`: Pan view (up/left/down/right)
@@ -601,6 +639,9 @@ FocusPeaking/
 │   ├── field_calibration.py  # Pattern-free calibration
 │   ├── calibration_package.py # Export formats (YAML, JSON, NPZ, ROS)
 │   └── custom_camera_dialog.py # Camera specification editor
+├── profiles/                 # Configuration profiles (auto-created)
+│   └── Default.json          # Default profile
+├── screenshots/              # Screenshot captures (auto-created)
 ├── requirements.txt          # Python dependencies
 ├── README.md                 # This file
 ├── CHANGELOG.md              # Version history
@@ -621,6 +662,14 @@ Settings saved to `focus_config.json`:
 - Edge threshold and peaking color
 - Zoom settings
 - Boson camera settings (gain, palette, etc.)
+- Audio feedback enabled/disabled
+- Histogram display settings
+- Peak indicator enabled/disabled
+
+**Profiles** stored in `profiles/` folder:
+- Named JSON files (e.g., `Lab.json`, `Outdoor.json`)
+- Complete settings snapshots
+- Quick switching via UI dropdown
 
 ## 🐛 Troubleshooting
 
@@ -693,7 +742,30 @@ Settings saved to `focus_config.json`:
 
 ## 🚦 Version History
 
-### v4.0.0 (Current - November 18, 2025)
+### v4.1.0 (Current - December 27, 2025)
+**New Features: Enhanced User Experience**
+
+**New Features**:
+- 🔊 **Audio Focus Feedback**: Pitch-based audio tones for hands-free focusing
+- 📷 **Screenshot Capture**: F12/Shift+F12 for instant frame capture with/without overlay
+- 📂 **Configuration Profiles**: Save/load named presets (Lab, Outdoor, Macro, etc.)
+- 📊 **Live Histogram**: Real-time image histogram display (luminance or RGB)
+- 🎯 **Focus Peak Indicator**: Visual confirmation when optimal focus is achieved
+
+**Improvements**:
+- Fixed TLinear SDK method call (bosonSetTLinearEnableState → TLinearSetControl)
+- Added screenshots/ and profiles/ directories for organization
+- Enhanced keyboard shortcuts (F12, Shift+F12)
+- Profile settings persist all feature states
+
+**New UI Controls**:
+- Audio Focus Feedback section in Advanced tab
+- Live Histogram section in Advanced tab
+- Focus Peak Indicator section in Advanced tab
+- Profiles panel with Save As/Delete buttons
+- Screenshot button in action buttons area
+
+### v4.0.0 (November 18, 2025)
 **Major Feature Addition: Camera Calibration & Alignment System**
 
 **New Calibration Mode**:
@@ -872,5 +944,5 @@ For issues, feature requests, or questions:
 
 ---
 
-**Version 4.0.0** | **Last Updated**: November 18, 2025 | **Status**: Production Ready ✅
+**Version 4.1.0** | **Last Updated**: December 27, 2025 | **Status**: Production Ready ✅
 **Dual-Mode**: Focus Peaking + Camera Calibration
