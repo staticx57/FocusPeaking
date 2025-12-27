@@ -388,6 +388,99 @@ SHOW_PERFORMANCE_METRICS = False
 ENABLE_MOCK_CAMERA = False
 
 # ============================================================================
+# Audio Focus Feedback Settings
+# ============================================================================
+
+# Enable audio feedback for focus changes
+ENABLE_AUDIO_FEEDBACK = False  # Default off, user enables via UI
+
+# Audio feedback frequency range (Hz)
+AUDIO_MIN_FREQUENCY = 200   # Low pitch for poor focus
+AUDIO_MAX_FREQUENCY = 1200  # High pitch for excellent focus
+
+# Audio feedback interval (ms) - how often to play tone
+AUDIO_FEEDBACK_INTERVAL_MS = 200
+
+# Audio feedback duration (ms) - length of each beep
+AUDIO_BEEP_DURATION_MS = 50
+
+# Audio feedback volume (0.0 - 1.0)
+AUDIO_VOLUME = 0.5
+
+# ============================================================================
+# Screenshot Settings
+# ============================================================================
+
+# Screenshot save directory (None = same as script)
+SCREENSHOT_DIRECTORY = None
+
+# Screenshot filename prefix
+SCREENSHOT_PREFIX = "focus_capture"
+
+# Screenshot format (png, jpg, bmp)
+SCREENSHOT_FORMAT = "png"
+
+# Screenshot quality for JPEG (1-100)
+SCREENSHOT_JPEG_QUALITY = 95
+
+# Include overlay in screenshot by default
+SCREENSHOT_INCLUDE_OVERLAY = True
+
+# ============================================================================
+# Configuration Profiles Settings
+# ============================================================================
+
+# Profiles directory name
+PROFILES_DIRECTORY = "profiles"
+
+# Default profile names
+DEFAULT_PROFILES = ["Default", "Lab", "Outdoor", "Macro", "Low Light"]
+
+# ============================================================================
+# Live Histogram Settings
+# ============================================================================
+
+# Enable live histogram display
+ENABLE_HISTOGRAM = False  # Default off, user enables via UI
+
+# Histogram dimensions
+HISTOGRAM_WIDTH = 256
+HISTOGRAM_HEIGHT = 100
+
+# Histogram colors (BGR)
+HISTOGRAM_LINE_COLOR = (200, 200, 200)  # Gray
+HISTOGRAM_FILL_COLOR = (100, 100, 100)  # Dark gray
+HISTOGRAM_BACKGROUND_COLOR = (30, 30, 30)  # Very dark
+
+# Show RGB channels separately
+HISTOGRAM_SHOW_RGB = False  # Show single luminance histogram by default
+
+# ============================================================================
+# Focus Peak Indicator Settings
+# ============================================================================
+
+# Enable focus peak detection and visual indicator
+ENABLE_PEAK_INDICATOR = True
+
+# Peak detection threshold - focus score must be within this % of max to trigger
+PEAK_DETECTION_THRESHOLD = 0.95  # 95% of maximum observed focus
+
+# Peak detection window - number of frames to analyze
+PEAK_DETECTION_WINDOW = 30
+
+# Peak indicator flash duration (ms)
+PEAK_FLASH_DURATION_MS = 500
+
+# Peak indicator border color (BGR)
+PEAK_BORDER_COLOR = (0, 255, 0)  # Green
+
+# Peak indicator border width
+PEAK_BORDER_WIDTH = 8
+
+# Minimum stability frames - focus must be stable for this many frames
+PEAK_STABILITY_FRAMES = 5
+
+# ============================================================================
 # Path Helpers
 # ============================================================================
 
@@ -399,3 +492,20 @@ def get_config_path() -> Path:
 def get_log_path() -> Path:
     """Get the full path to the log file."""
     return Path(__file__).parent / LOG_FILE
+
+
+def get_screenshots_path() -> Path:
+    """Get the full path to the screenshots directory."""
+    if SCREENSHOT_DIRECTORY:
+        path = Path(SCREENSHOT_DIRECTORY)
+    else:
+        path = Path(__file__).parent / "screenshots"
+    path.mkdir(exist_ok=True)
+    return path
+
+
+def get_profiles_path() -> Path:
+    """Get the full path to the profiles directory."""
+    path = Path(__file__).parent / PROFILES_DIRECTORY
+    path.mkdir(exist_ok=True)
+    return path

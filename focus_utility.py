@@ -11,10 +11,13 @@ import os
 import cv2
 import numpy as np
 import json
+import winsound
 from collections import deque
 from typing import List, Dict, Optional, Tuple
 from PyQt5 import QtWidgets, QtGui, QtCore
+from PyQt5.QtMultimedia import QSoundEffect
 from datetime import datetime
+from pathlib import Path
 
 # Import custom modules
 from config import *
@@ -334,6 +337,331 @@ class VideoLabel(QtWidgets.QLabel):
 
 
 # ============================================================================
+# Audio Focus Feedback
+# ============================================================================
+
+class AudioFeedbackManager:
+    """Manages audio feedback based on focus quality."""
+
+    def __init__(self):
+        self.enabled = False
+        self.last_beep_time = 0
+        self.min_freq = AUDIO_MIN_FREQUENCY
+        self.max_freq = AUDIO_MAX_FREQUENCY
+        self.interval_ms = AUDIO_FEEDBACK_INTERVAL_MS
+        self.duration_ms = AUDIO_BEEP_DURATION_MS
+        self.logger = get_logger(self.__class__.__name__)
+
+    def set_enabled(self, enabled: bool):
+        """Enable or disable audio feedback."""
+        self.enabled = enabled
+        self.logger.info(f"Audio feedback {'enabled' if enabled else 'disabled'}")
+
+    def play_feedback(self, normalized_score: float):
+        """Play audio feedback based on normalized focus score (0.0-1.0)."""
+        if not self.enabled:
+            return
+
+        current_time = QtCore.QDateTime.currentMSecsSinceEpoch()
+
+        # Check if enough time has passed since last beep
+        if current_time - self.last_beep_time < self.interval_ms:
+            return
+
+        self.last_beep_time = current_time
+
+        # Calculate frequency based on score
+        # Higher score = higher pitch
+        freq = int(self.min_freq + (self.max_freq - self.min_freq) * normalized_score)
+        freq = max(self.min_freq, min(self.max_freq, freq))
+
+        try:
+            # Use Windows winsound for simple beep (non-blocking with SND_ASYNC)
+            winsound.Beep(freq, self.duration_ms)
+        except Exception as e:
+            self.logger.debug(f"Audio beep failed: {e}")
+
+
+# ============================================================================
+# Focus Peak Detector
+# ============================================================================
+
+class FocusPeakDetector:
+    """Detects when focus reaches a peak (optimal focus achieved)."""
+
+    def __init__(self):
+        self.history = deque(maxlen=PEAK_DETECTION_WINDOW)
+        self.max_observed = 0.0
+        self.peak_detected = False
+        self.peak_start_time = 0
+        self.stable_count = 0
+        self.logger = get_logger(self.__class__.__name__)
+
+    def update(self, focus_score: float) -> bool:
+        """
+        Update with new focus score and check if peak is detected.
+        Returns True if currently at peak focus.
+        """
+        self.history.append(focus_score)
+
+        # Update maximum observed
+        if focus_score > self.max_observed:
+            self.max_observed = focus_score
+            self.stable_count = 0
+            self.peak_detected = False
+            return False
+
+        # Check if score is near the maximum
+        if self.max_observed > 0:
+            ratio = focus_score / self.max_observed
+
+            if ratio >= PEAK_DETECTION_THRESHOLD:
+                self.stable_count += 1
+
+                if self.stable_count >= PEAK_STABILITY_FRAMES:
+                    if not self.peak_detected:
+                        self.peak_detected = True
+                        self.peak_start_time = QtCore.QDateTime.currentMSecsSinceEpoch()
+                        self.logger.info(f"Focus peak detected! Score: {focus_score:.1f}")
+                    return True
+            else:
+                self.stable_count = 0
+                self.peak_detected = False
+
+        return False
+
+    def is_peak_active(self) -> bool:
+        """Check if peak indicator should still be shown."""
+        if not self.peak_detected:
+            return False
+
+        elapsed = QtCore.QDateTime.currentMSecsSinceEpoch() - self.peak_start_time
+        return elapsed < PEAK_FLASH_DURATION_MS
+
+    def reset(self):
+        """Reset peak detection state."""
+        self.history.clear()
+        self.max_observed = 0.0
+        self.peak_detected = False
+        self.stable_count = 0
+
+
+# ============================================================================
+# Screenshot Manager
+# ============================================================================
+
+class ScreenshotManager:
+    """Manages screenshot capture and saving."""
+
+    def __init__(self):
+        self.last_frame = None
+        self.last_frame_with_overlay = None
+        self.logger = get_logger(self.__class__.__name__)
+
+    def update_frames(self, original: np.ndarray, with_overlay: np.ndarray):
+        """Store the latest frames for screenshot capture."""
+        self.last_frame = original.copy() if original is not None else None
+        self.last_frame_with_overlay = with_overlay.copy() if with_overlay is not None else None
+
+    def capture(self, include_overlay: bool = True) -> Optional[str]:
+        """
+        Capture and save a screenshot.
+        Returns the filename if successful, None otherwise.
+        """
+        frame = self.last_frame_with_overlay if include_overlay else self.last_frame
+
+        if frame is None:
+            self.logger.warning("No frame available for screenshot")
+            return None
+
+        # Generate filename
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")[:-3]
+        filename = f"{SCREENSHOT_PREFIX}_{timestamp}.{SCREENSHOT_FORMAT}"
+        filepath = get_screenshots_path() / filename
+
+        try:
+            # Save based on format
+            if SCREENSHOT_FORMAT.lower() == 'jpg' or SCREENSHOT_FORMAT.lower() == 'jpeg':
+                cv2.imwrite(str(filepath), frame, [cv2.IMWRITE_JPEG_QUALITY, SCREENSHOT_JPEG_QUALITY])
+            else:
+                cv2.imwrite(str(filepath), frame)
+
+            self.logger.info(f"Screenshot saved: {filepath}")
+            return str(filepath)
+
+        except Exception as e:
+            self.logger.error(f"Failed to save screenshot: {e}")
+            return None
+
+
+# ============================================================================
+# Configuration Profile Manager
+# ============================================================================
+
+class ProfileManager:
+    """Manages configuration profiles (save/load named presets)."""
+
+    def __init__(self):
+        self.current_profile = "Default"
+        self.logger = get_logger(self.__class__.__name__)
+        self._ensure_default_profiles()
+
+    def _ensure_default_profiles(self):
+        """Create default profile files if they don't exist."""
+        profiles_path = get_profiles_path()
+        default_profile = profiles_path / "Default.json"
+
+        if not default_profile.exists():
+            # Create a minimal default profile
+            default_config = {
+                "name": "Default",
+                "focus_color": list(DEFAULT_PEAKING_COLOR),
+                "edge_threshold": DEFAULT_EDGE_THRESHOLD,
+                "regions": [],
+                "focus_algorithm": DEFAULT_FOCUS_ALGORITHM,
+                "thermal_preprocessing": False,
+                "ensemble_voting_enabled": False,
+                "adaptive_edge_enabled": False,
+            }
+            try:
+                with open(default_profile, 'w') as f:
+                    json.dump(default_config, f, indent=2)
+                self.logger.info("Created default profile")
+            except Exception as e:
+                self.logger.error(f"Failed to create default profile: {e}")
+
+    def list_profiles(self) -> List[str]:
+        """Get list of available profile names."""
+        profiles_path = get_profiles_path()
+        profiles = []
+
+        try:
+            for f in profiles_path.glob("*.json"):
+                profiles.append(f.stem)
+        except Exception as e:
+            self.logger.error(f"Failed to list profiles: {e}")
+
+        return sorted(profiles) if profiles else ["Default"]
+
+    def save_profile(self, name: str, config: dict) -> bool:
+        """Save configuration to a named profile."""
+        profiles_path = get_profiles_path()
+        filepath = profiles_path / f"{name}.json"
+
+        try:
+            config['name'] = name
+            with open(filepath, 'w') as f:
+                json.dump(config, f, indent=2)
+            self.current_profile = name
+            self.logger.info(f"Profile saved: {name}")
+            return True
+        except Exception as e:
+            self.logger.error(f"Failed to save profile {name}: {e}")
+            return False
+
+    def load_profile(self, name: str) -> Optional[dict]:
+        """Load configuration from a named profile."""
+        profiles_path = get_profiles_path()
+        filepath = profiles_path / f"{name}.json"
+
+        if not filepath.exists():
+            self.logger.warning(f"Profile not found: {name}")
+            return None
+
+        try:
+            with open(filepath) as f:
+                config = json.load(f)
+            self.current_profile = name
+            self.logger.info(f"Profile loaded: {name}")
+            return config
+        except Exception as e:
+            self.logger.error(f"Failed to load profile {name}: {e}")
+            return None
+
+    def delete_profile(self, name: str) -> bool:
+        """Delete a profile by name."""
+        if name == "Default":
+            self.logger.warning("Cannot delete Default profile")
+            return False
+
+        profiles_path = get_profiles_path()
+        filepath = profiles_path / f"{name}.json"
+
+        try:
+            if filepath.exists():
+                filepath.unlink()
+                self.logger.info(f"Profile deleted: {name}")
+                return True
+        except Exception as e:
+            self.logger.error(f"Failed to delete profile {name}: {e}")
+
+        return False
+
+
+# ============================================================================
+# Histogram Generator
+# ============================================================================
+
+class HistogramGenerator:
+    """Generates live histogram from video frames."""
+
+    def __init__(self):
+        self.enabled = ENABLE_HISTOGRAM
+        self.show_rgb = HISTOGRAM_SHOW_RGB
+        self.logger = get_logger(self.__class__.__name__)
+
+    def set_enabled(self, enabled: bool):
+        """Enable or disable histogram generation."""
+        self.enabled = enabled
+
+    def generate(self, frame: np.ndarray) -> Optional[np.ndarray]:
+        """
+        Generate histogram image from frame.
+        Returns BGR image of histogram or None if disabled.
+        """
+        if not self.enabled or frame is None:
+            return None
+
+        # Create histogram canvas
+        hist_img = np.zeros((HISTOGRAM_HEIGHT, HISTOGRAM_WIDTH, 3), dtype=np.uint8)
+        hist_img[:] = HISTOGRAM_BACKGROUND_COLOR
+
+        if self.show_rgb and len(frame.shape) == 3:
+            # Calculate and draw RGB histograms
+            colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255)]  # BGR
+            for i, color in enumerate(colors):
+                hist = cv2.calcHist([frame], [i], None, [256], [0, 256])
+                cv2.normalize(hist, hist, 0, HISTOGRAM_HEIGHT - 5, cv2.NORM_MINMAX)
+
+                for x in range(256):
+                    y = int(hist[x][0])
+                    if y > 0:
+                        cv2.line(hist_img, (x, HISTOGRAM_HEIGHT), (x, HISTOGRAM_HEIGHT - y), color, 1)
+        else:
+            # Calculate luminance histogram
+            if len(frame.shape) == 3:
+                gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            else:
+                gray = frame
+
+            hist = cv2.calcHist([gray], [0], None, [256], [0, 256])
+            cv2.normalize(hist, hist, 0, HISTOGRAM_HEIGHT - 5, cv2.NORM_MINMAX)
+
+            # Draw filled histogram
+            for x in range(256):
+                y = int(hist[x][0])
+                if y > 0:
+                    cv2.line(hist_img, (x, HISTOGRAM_HEIGHT), (x, HISTOGRAM_HEIGHT - y),
+                            HISTOGRAM_LINE_COLOR, 1)
+
+        # Draw border
+        cv2.rectangle(hist_img, (0, 0), (HISTOGRAM_WIDTH - 1, HISTOGRAM_HEIGHT - 1),
+                     (80, 80, 80), 1)
+
+        return hist_img
+
+
+# ============================================================================
 # Background Workers
 # ============================================================================
 
@@ -587,6 +915,25 @@ class BosonFocusGUI(QtWidgets.QWidget):
         self.stripes_enabled = False
         self.stripe_offset = 0  # Animation counter (0-7)
 
+        # New Feature Managers
+        self.audio_feedback = AudioFeedbackManager()
+        self.peak_detector = FocusPeakDetector()
+        self.screenshot_manager = ScreenshotManager()
+        self.profile_manager = ProfileManager()
+        self.histogram_generator = HistogramGenerator()
+
+        # Audio feedback state
+        self.audio_feedback_enabled = ENABLE_AUDIO_FEEDBACK
+
+        # Histogram state
+        self.histogram_enabled = ENABLE_HISTOGRAM
+
+        # Peak indicator state
+        self.peak_indicator_enabled = ENABLE_PEAK_INDICATOR
+
+        # Store last original frame for screenshots
+        self.last_original_frame = None
+
         # Background Worker for Image Processing
         self.focus_worker = FocusWorker(self.camera_manager)
         self.focus_worker.frame_processed.connect(self._on_frame_processed)
@@ -775,6 +1122,9 @@ class BosonFocusGUI(QtWidgets.QWidget):
         advanced_layout.setContentsMargins(5, 5, 5, 5)
         self._create_palette_controls(advanced_layout)
         self._create_zoom_controls(advanced_layout)
+        self._create_audio_feedback_controls(advanced_layout)
+        self._create_histogram_controls(advanced_layout)
+        self._create_peak_indicator_controls(advanced_layout)
         self._create_theme_controls(advanced_layout)
         advanced_layout.addStretch()
 
@@ -790,10 +1140,12 @@ class BosonFocusGUI(QtWidgets.QWidget):
         # Always visible: ROI controls
         self._create_roi_controls(right_layout)
 
-        # Always visible: ROI table, stats, graph, buttons
+        # Always visible: ROI table, stats, graph, histogram, profiles, buttons
         self._create_roi_table(right_layout)
         self._create_statistics_panel(right_layout)
         self._create_graph(right_layout)
+        self._create_histogram_display(right_layout)
+        self._create_profile_controls(right_layout)
         self._create_action_buttons(right_layout)
 
         # Connect signals
@@ -1185,6 +1537,119 @@ class BosonFocusGUI(QtWidgets.QWidget):
 
         layout.addWidget(group)
 
+    def _create_audio_feedback_controls(self, layout):
+        """Create audio feedback controls (Advanced tab)."""
+        group = QtWidgets.QGroupBox("Audio Focus Feedback")
+        group_layout = QtWidgets.QVBoxLayout(group)
+
+        # Enable checkbox
+        self.audio_feedback_checkbox = QtWidgets.QCheckBox("Enable Audio Feedback")
+        self.audio_feedback_checkbox.setChecked(self.audio_feedback_enabled)
+        self.audio_feedback_checkbox.setToolTip(
+            "Play tones that increase in pitch as focus improves\n"
+            "Useful for hands-free focusing"
+        )
+        self.audio_feedback_checkbox.stateChanged.connect(self._toggle_audio_feedback)
+        group_layout.addWidget(self.audio_feedback_checkbox)
+
+        # Status label
+        self.audio_status_label = QtWidgets.QLabel("Audio: Off")
+        self.audio_status_label.setStyleSheet("font-size: 8pt; color: palette(mid);")
+        group_layout.addWidget(self.audio_status_label)
+
+        layout.addWidget(group)
+
+    def _create_histogram_controls(self, layout):
+        """Create histogram display controls (Advanced tab)."""
+        group = QtWidgets.QGroupBox("Live Histogram")
+        group_layout = QtWidgets.QVBoxLayout(group)
+
+        # Enable checkbox
+        self.histogram_checkbox = QtWidgets.QCheckBox("Show Live Histogram")
+        self.histogram_checkbox.setChecked(self.histogram_enabled)
+        self.histogram_checkbox.setToolTip("Display real-time image histogram")
+        self.histogram_checkbox.stateChanged.connect(self._toggle_histogram)
+        group_layout.addWidget(self.histogram_checkbox)
+
+        # RGB mode checkbox
+        self.histogram_rgb_checkbox = QtWidgets.QCheckBox("Show RGB Channels")
+        self.histogram_rgb_checkbox.setChecked(False)
+        self.histogram_rgb_checkbox.setToolTip("Show separate R, G, B histograms")
+        self.histogram_rgb_checkbox.stateChanged.connect(self._toggle_histogram_rgb)
+        group_layout.addWidget(self.histogram_rgb_checkbox)
+
+        layout.addWidget(group)
+
+    def _create_peak_indicator_controls(self, layout):
+        """Create peak focus indicator controls (Advanced tab)."""
+        group = QtWidgets.QGroupBox("Focus Peak Indicator")
+        group_layout = QtWidgets.QVBoxLayout(group)
+
+        # Enable checkbox
+        self.peak_indicator_checkbox = QtWidgets.QCheckBox("Enable Peak Detection")
+        self.peak_indicator_checkbox.setChecked(self.peak_indicator_enabled)
+        self.peak_indicator_checkbox.setToolTip(
+            "Flash green border when optimal focus is achieved\n"
+            "Automatically detects when focus stabilizes at maximum"
+        )
+        self.peak_indicator_checkbox.stateChanged.connect(self._toggle_peak_indicator)
+        group_layout.addWidget(self.peak_indicator_checkbox)
+
+        # Peak status label
+        self.peak_status_label = QtWidgets.QLabel("Peak: Searching...")
+        self.peak_status_label.setStyleSheet("font-size: 8pt; color: palette(mid);")
+        group_layout.addWidget(self.peak_status_label)
+
+        layout.addWidget(group)
+
+    def _create_histogram_display(self, layout):
+        """Create histogram display widget."""
+        # Histogram container (hidden by default)
+        self.histogram_container = QtWidgets.QWidget()
+        histogram_layout = QtWidgets.QVBoxLayout(self.histogram_container)
+        histogram_layout.setContentsMargins(0, 0, 0, 0)
+
+        histogram_layout.addWidget(QtWidgets.QLabel("<b>Histogram</b>"))
+
+        self.histogram_label = QtWidgets.QLabel()
+        self.histogram_label.setFixedHeight(HISTOGRAM_HEIGHT)
+        self.histogram_label.setStyleSheet(f"background:#{HISTOGRAM_BACKGROUND_COLOR[0]:02x}{HISTOGRAM_BACKGROUND_COLOR[1]:02x}{HISTOGRAM_BACKGROUND_COLOR[2]:02x};")
+        histogram_layout.addWidget(self.histogram_label)
+
+        self.histogram_container.setVisible(self.histogram_enabled)
+        layout.addWidget(self.histogram_container)
+
+    def _create_profile_controls(self, layout):
+        """Create configuration profile controls."""
+        group = QtWidgets.QGroupBox("Profiles")
+        group_layout = QtWidgets.QVBoxLayout(group)
+
+        # Profile selector
+        profile_row = QtWidgets.QHBoxLayout()
+        profile_row.addWidget(QtWidgets.QLabel("Profile:"))
+        self.profile_combo = QtWidgets.QComboBox()
+        self._refresh_profiles()
+        self.profile_combo.currentTextChanged.connect(self._on_profile_selected)
+        profile_row.addWidget(self.profile_combo)
+        group_layout.addLayout(profile_row)
+
+        # Buttons row
+        btn_row = QtWidgets.QHBoxLayout()
+
+        self.profile_save_btn = QtWidgets.QPushButton("Save As...")
+        self.profile_save_btn.setToolTip("Save current settings to a new profile")
+        self.profile_save_btn.clicked.connect(self._save_profile_as)
+        btn_row.addWidget(self.profile_save_btn)
+
+        self.profile_delete_btn = QtWidgets.QPushButton("Delete")
+        self.profile_delete_btn.setToolTip("Delete the selected profile")
+        self.profile_delete_btn.clicked.connect(self._delete_profile)
+        btn_row.addWidget(self.profile_delete_btn)
+
+        group_layout.addLayout(btn_row)
+
+        layout.addWidget(group)
+
     def _create_roi_table(self, layout):
         """Create ROI table."""
         layout.addWidget(QtWidgets.QLabel("<b>Regions of Interest</b>"))
@@ -1238,6 +1703,14 @@ class BosonFocusGUI(QtWidgets.QWidget):
         self.del_btn.clicked.connect(self._delete_selected)
         row2.addWidget(self.del_btn)
         layout.addLayout(row2)
+
+        # Row 3: Screenshot
+        row3 = QtWidgets.QHBoxLayout()
+        self.screenshot_btn = QtWidgets.QPushButton("📷 Screenshot (F12)")
+        self.screenshot_btn.setToolTip("Capture current frame (F12)\nHold Shift for raw frame without overlay")
+        self.screenshot_btn.clicked.connect(self._take_screenshot)
+        row3.addWidget(self.screenshot_btn)
+        layout.addLayout(row3)
 
         # Auto-scale graph checkbox
         self.auto_scale_checkbox = QtWidgets.QCheckBox("Auto-scale Graph (Thermal)")
@@ -1333,6 +1806,20 @@ class BosonFocusGUI(QtWidgets.QWidget):
             QtGui.QKeySequence(SHORTCUTS["decrease_threshold"]),
             self,
             lambda: self.th_slider.setValue(self.th_slider.value() - 5)
+        )
+
+        # Screenshot (F12)
+        QtWidgets.QShortcut(
+            QtGui.QKeySequence("F12"),
+            self,
+            self._take_screenshot
+        )
+
+        # Screenshot without overlay (Shift+F12)
+        QtWidgets.QShortcut(
+            QtGui.QKeySequence("Shift+F12"),
+            self,
+            lambda: self._take_screenshot(include_overlay=False)
         )
 
     # ========================================================================
@@ -1672,11 +2159,37 @@ class BosonFocusGUI(QtWidgets.QWidget):
             2,
         )
 
+        # 5a. Peak Detection and Indicator
+        if self.peak_indicator_enabled:
+            peak_detected = self.peak_detector.update(global_score)
+            if self.peak_detector.is_peak_active():
+                # Draw green border to indicate peak focus
+                h, w = final_display.shape[:2]
+                border_width = PEAK_BORDER_WIDTH
+                cv2.rectangle(final_display, (0, 0), (w-1, h-1), PEAK_BORDER_COLOR, border_width)
+                # Add "PEAK FOCUS" text
+                cv2.putText(final_display, "PEAK FOCUS", (10, h - 20),
+                           cv2.FONT_HERSHEY_SIMPLEX, 0.8, PEAK_BORDER_COLOR, 2)
+                self.peak_status_label.setText("Peak: ACHIEVED!")
+                self.peak_status_label.setStyleSheet("font-size: 8pt; color: #51cf66; font-weight: bold;")
+            else:
+                self.peak_status_label.setText("Peak: Searching...")
+                self.peak_status_label.setStyleSheet("font-size: 8pt; color: palette(mid);")
+
+        # 5b. Audio Feedback
+        if self.audio_feedback_enabled:
+            # Get normalized score from focus quality
+            quality_pct = stats.get('quality_pct', 50)
+            normalized = quality_pct / 100.0
+            self.audio_feedback.play_feedback(normalized)
+
+        # 5c. Store frames for screenshots
+        self.screenshot_manager.update_frames(original_frame, final_display)
+
         # 6. Apply Zoom (Main thread operation)
         # ZoomManager applies zoom to the image
         final_display = self.zoom_manager.apply_zoom(final_display, self.regions)
 
-        # 7. Update Video Label
         # 7. Update Video Label
         rgb = cv2.cvtColor(final_display, cv2.COLOR_BGR2RGB)
         h, w, ch = rgb.shape
@@ -1730,10 +2243,27 @@ class BosonFocusGUI(QtWidgets.QWidget):
 
         # 11. Update Graph
         self._update_graph()
-        
-        # 12. Update Smart Palette Switcher
+
+        # 12. Update Histogram
+        if self.histogram_enabled and original_frame is not None:
+            self._update_histogram(original_frame)
+
+        # 13. Update Smart Palette Switcher
         self.palette_switcher.update(self.focus_history)
         self._update_palette_status()
+
+    def _update_histogram(self, frame: np.ndarray):
+        """Update the histogram display."""
+        hist_img = self.histogram_generator.generate(frame)
+        if hist_img is not None:
+            qg = QtGui.QImage(
+                hist_img.data,
+                HISTOGRAM_WIDTH,
+                HISTOGRAM_HEIGHT,
+                HISTOGRAM_WIDTH * 3,
+                QtGui.QImage.Format_BGR888,
+            )
+            self.histogram_label.setPixmap(QtGui.QPixmap.fromImage(qg))
 
     def _update_table_scores(self):
         """Helper to update scores in the table."""
@@ -1981,6 +2511,235 @@ class BosonFocusGUI(QtWidgets.QWidget):
             # Reset to default when disabled
             self.graph_max = DEFAULT_GRAPH_MAX_FOCUS
             self.graph_min = 0
+
+    # ========================================================================
+    # New Feature Handlers
+    # ========================================================================
+
+    def _toggle_audio_feedback(self, state):
+        """Toggle audio focus feedback."""
+        self.audio_feedback_enabled = (state == QtCore.Qt.Checked)
+        self.audio_feedback.set_enabled(self.audio_feedback_enabled)
+
+        if self.audio_feedback_enabled:
+            self.audio_status_label.setText("Audio: Active")
+            self.audio_status_label.setStyleSheet("font-size: 8pt; color: #51cf66;")
+        else:
+            self.audio_status_label.setText("Audio: Off")
+            self.audio_status_label.setStyleSheet("font-size: 8pt; color: palette(mid);")
+
+        self.logger.info(f"Audio feedback {'enabled' if self.audio_feedback_enabled else 'disabled'}")
+
+    def _toggle_histogram(self, state):
+        """Toggle live histogram display."""
+        self.histogram_enabled = (state == QtCore.Qt.Checked)
+        self.histogram_generator.set_enabled(self.histogram_enabled)
+        self.histogram_container.setVisible(self.histogram_enabled)
+        self.logger.info(f"Histogram {'enabled' if self.histogram_enabled else 'disabled'}")
+
+    def _toggle_histogram_rgb(self, state):
+        """Toggle RGB histogram mode."""
+        self.histogram_generator.show_rgb = (state == QtCore.Qt.Checked)
+        self.logger.debug(f"Histogram RGB mode: {self.histogram_generator.show_rgb}")
+
+    def _toggle_peak_indicator(self, state):
+        """Toggle focus peak indicator."""
+        self.peak_indicator_enabled = (state == QtCore.Qt.Checked)
+        if not self.peak_indicator_enabled:
+            self.peak_detector.reset()
+            self.peak_status_label.setText("Peak: Disabled")
+            self.peak_status_label.setStyleSheet("font-size: 8pt; color: palette(mid);")
+        else:
+            self.peak_status_label.setText("Peak: Searching...")
+            self.peak_status_label.setStyleSheet("font-size: 8pt; color: palette(mid);")
+        self.logger.info(f"Peak indicator {'enabled' if self.peak_indicator_enabled else 'disabled'}")
+
+    def _take_screenshot(self, include_overlay: bool = True):
+        """Take a screenshot of the current frame."""
+        filepath = self.screenshot_manager.capture(include_overlay=include_overlay)
+
+        if filepath:
+            self.status_label.setText(f"Screenshot saved: {Path(filepath).name}")
+            QtWidgets.QMessageBox.information(
+                self, "Screenshot Saved",
+                f"Screenshot saved to:\n{filepath}"
+            )
+        else:
+            self.status_label.setText("Screenshot failed - no frame available")
+            QtWidgets.QMessageBox.warning(
+                self, "Screenshot Failed",
+                "No frame available to capture"
+            )
+
+    def _refresh_profiles(self):
+        """Refresh the profiles combo box."""
+        current = self.profile_combo.currentText() if hasattr(self, 'profile_combo') else None
+
+        if hasattr(self, 'profile_combo'):
+            self.profile_combo.blockSignals(True)
+            self.profile_combo.clear()
+            profiles = self.profile_manager.list_profiles()
+            self.profile_combo.addItems(profiles)
+
+            # Restore selection
+            if current and current in profiles:
+                self.profile_combo.setCurrentText(current)
+            self.profile_combo.blockSignals(False)
+
+    def _on_profile_selected(self, profile_name):
+        """Handle profile selection from combo box."""
+        if not profile_name:
+            return
+
+        config = self.profile_manager.load_profile(profile_name)
+        if config:
+            self._apply_profile_config(config)
+            self.status_label.setText(f"Profile loaded: {profile_name}")
+
+    def _save_profile_as(self):
+        """Save current settings to a new profile."""
+        name, ok = QtWidgets.QInputDialog.getText(
+            self, "Save Profile",
+            "Enter profile name:",
+            QtWidgets.QLineEdit.Normal,
+            ""
+        )
+
+        if ok and name:
+            # Sanitize name
+            name = name.strip().replace("/", "_").replace("\\", "_")
+
+            config = self._get_current_config()
+            if self.profile_manager.save_profile(name, config):
+                self._refresh_profiles()
+                self.profile_combo.setCurrentText(name)
+                QtWidgets.QMessageBox.information(
+                    self, "Profile Saved",
+                    f"Profile '{name}' saved successfully"
+                )
+            else:
+                QtWidgets.QMessageBox.warning(
+                    self, "Save Failed",
+                    f"Failed to save profile '{name}'"
+                )
+
+    def _delete_profile(self):
+        """Delete the currently selected profile."""
+        profile_name = self.profile_combo.currentText()
+
+        if profile_name == "Default":
+            QtWidgets.QMessageBox.warning(
+                self, "Cannot Delete",
+                "Cannot delete the Default profile"
+            )
+            return
+
+        reply = QtWidgets.QMessageBox.question(
+            self, "Delete Profile",
+            f"Delete profile '{profile_name}'?",
+            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No
+        )
+
+        if reply == QtWidgets.QMessageBox.Yes:
+            if self.profile_manager.delete_profile(profile_name):
+                self._refresh_profiles()
+                self.status_label.setText(f"Profile deleted: {profile_name}")
+            else:
+                QtWidgets.QMessageBox.warning(
+                    self, "Delete Failed",
+                    f"Failed to delete profile '{profile_name}'"
+                )
+
+    def _get_current_config(self) -> dict:
+        """Get current settings as a config dictionary."""
+        return {
+            "focus_color": list(self.focus_color),
+            "edge_threshold": self.edge_threshold,
+            "regions": [
+                {"id": r["id"], "rect": r["rect"], "weight": r["weight"]}
+                for r in self.regions
+            ],
+            "graph_adaptive": self.graph_adaptive,
+            "focus_algorithm": self.current_algorithm,
+            "thermal_preprocessing": self.thermal_preprocessing_enabled,
+            "ensemble_voting_enabled": self.ensemble_voting_enabled,
+            "show_all_algorithms": self.show_all_algorithms,
+            "auto_palette_switch_enabled": self.auto_palette_switch_enabled,
+            "adaptive_edge_enabled": self.adaptive_edge_enabled,
+            "adaptive_scene_type": self.adaptive_scene_type,
+            "adaptive_multi_scale": self.adaptive_multi_scale,
+            "stripes_enabled": self.stripes_enabled,
+            "audio_feedback_enabled": self.audio_feedback_enabled,
+            "histogram_enabled": self.histogram_enabled,
+            "peak_indicator_enabled": self.peak_indicator_enabled,
+        }
+
+    def _apply_profile_config(self, config: dict):
+        """Apply a configuration profile to the UI."""
+        try:
+            # Apply basic settings
+            if "focus_color" in config:
+                self.focus_color = tuple(config["focus_color"])
+            if "edge_threshold" in config:
+                self.edge_threshold = config["edge_threshold"]
+                self.th_slider.setValue(self.edge_threshold)
+            if "graph_adaptive" in config:
+                self.graph_adaptive = config["graph_adaptive"]
+                self.auto_scale_checkbox.setChecked(self.graph_adaptive)
+
+            # Focus algorithm
+            if "focus_algorithm" in config and config["focus_algorithm"] in FOCUS_ALGORITHMS:
+                self.current_algorithm = config["focus_algorithm"]
+                self.algorithm_combo.setCurrentText(self.current_algorithm)
+
+            # Feature toggles
+            if "thermal_preprocessing" in config:
+                self.thermal_preprocessing_enabled = config["thermal_preprocessing"]
+                self.thermal_preprocessing_checkbox.setChecked(self.thermal_preprocessing_enabled)
+            if "ensemble_voting_enabled" in config:
+                self.ensemble_voting_enabled = config["ensemble_voting_enabled"]
+                self.ensemble_voting_checkbox.setChecked(self.ensemble_voting_enabled)
+            if "adaptive_edge_enabled" in config:
+                self.adaptive_edge_enabled = config["adaptive_edge_enabled"]
+                self.adaptive_edge_checkbox.setChecked(self.adaptive_edge_enabled)
+            if "stripes_enabled" in config:
+                self.stripes_enabled = config["stripes_enabled"]
+                self.stripes_checkbox.setChecked(self.stripes_enabled)
+
+            # New features
+            if "audio_feedback_enabled" in config:
+                self.audio_feedback_enabled = config["audio_feedback_enabled"]
+                self.audio_feedback_checkbox.setChecked(self.audio_feedback_enabled)
+                self.audio_feedback.set_enabled(self.audio_feedback_enabled)
+            if "histogram_enabled" in config:
+                self.histogram_enabled = config["histogram_enabled"]
+                self.histogram_checkbox.setChecked(self.histogram_enabled)
+                self.histogram_generator.set_enabled(self.histogram_enabled)
+                self.histogram_container.setVisible(self.histogram_enabled)
+            if "peak_indicator_enabled" in config:
+                self.peak_indicator_enabled = config["peak_indicator_enabled"]
+                self.peak_indicator_checkbox.setChecked(self.peak_indicator_enabled)
+
+            # Load regions
+            if "regions" in config:
+                self.regions = [
+                    {
+                        "id": r["id"],
+                        "rect": r["rect"],
+                        "weight": r.get("weight", 1.0),
+                        "score": 0.0,
+                    }
+                    for r in config["regions"]
+                ]
+                self.next_id = max((r["id"] for r in self.regions), default=0) + 1
+                self._sync_rois_to_label()
+                self._refresh_table()
+
+            self._sync_settings_to_worker()
+            self.logger.info("Profile configuration applied")
+
+        except Exception as e:
+            self.logger.error(f"Failed to apply profile config: {e}")
 
     # ========================================================================
     # Config Management

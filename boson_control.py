@@ -456,7 +456,7 @@ class BosonController:
 
         try:
             state = 1 if enable else 0
-            self.client.bosonSetTLinearEnableState(state)
+            self.client.TLinearSetControl(state)
             logger.info(f"TLinear {'enabled' if enable else 'disabled'}")
             return True
         except Exception as e:

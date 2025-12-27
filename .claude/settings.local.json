@@ -4,7 +4,10 @@
       "WebSearch",
       "Bash(copy:*)",
       "Bash(python:*)",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(wc:*)",
+      "Bash(cat:*)",
+      "Bash(more:*)"
     ],
     "deny": [],
     "ask": []
